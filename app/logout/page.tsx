@@ -1,0 +1,3 @@
+'use client';
+import {useState} from 'react';
+export default function Logout(){const [error,setError]=useState('');return <main className="auth-card"><h1>تسجيل الخروج</h1><button className="primary" onClick={async()=>{try{const r=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'logout'})});if(!r.ok)throw Error();if('caches'in window)await caches.delete('farmakon-downloads-v1');localStorage.removeItem('farmakon-device-user');window.location.assign('/login')}catch{setError('تعذر الخروج. أعد المحاولة.')}}}>تأكيد تسجيل الخروج</button><a className="secondary" href="/">العودة</a><p role="status">{error}</p></main>}

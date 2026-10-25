@@ -1,20 +1,29 @@
 # Farmakon
 
-Arabic pharmacy learning platform. Source imported from the existing private Sites deployment, including exam, subscription and progress fixes.
+Arabic pharmacy learning platform, Next.js 16 on Vercel, with independent Supabase email/password authentication, a private PostgreSQL schema and private Supabase Storage.
 
-## Deployment status
+## Runtime configuration
 
-- GitHub: PhQMR7S/Farmakon, main.
-- Vercel: farmakon, team phqmr7s.
-- The existing private deployment remains the working production application.
-- Vercel builds are intentionally paused with the ignored-build command `exit 0` until the Cloudflare-specific runtime is migrated. Creating the Vercel project alone does not provide independent student authentication.
+Configure these through Vercel environment settings; never commit secrets:
 
-## Required migration work
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+- DATABASE_URL: a restricted farmakon_app connection, preferably the project's verified transaction pooler endpoint for serverless execution.
+- FARMAKON_OWNER_EMAIL: verified owner email; signup never grants ownership.
 
-1. Replace Cloudflare D1 access with a Vercel-compatible persistent database and migrate existing data with verified backup/restore.
-2. Replace the R2 binding with authenticated object-storage access. Preserve course entitlements and file metadata.
-3. Replace trusted ChatGPT identity headers with independent authentication. Disable the first-visitor owner setup and bind administrator ownership explicitly before public release.
-4. Switch build/start scripts from Vinext Workers to a Vercel-compatible runtime; run tests and a production build.
-5. Configure secrets through provider settings, test account recovery, logout and authorization, then remove the ignored-build command and publish a verified deployment.
+The backend role has access only to the farmakon schema. Browser roles have no direct access to platform tables. Storage reads are authorized against course publication and current entitlement.
 
-No credentials, database exports or student data are stored in this repository. No paid plan has been enabled.
+## Auth setup
+
+Configure the production Site URL and exact /auth/callback redirect URL in Supabase Auth. Email confirmation must remain enabled. Password reset uses /auth/callback?next=/reset-password. Configure an SMTP provider before opening unrestricted student registration; the default email sender has provider limitations.
+
+## Verification
+
+npm ci
+npm run typecheck
+npm run build
+node tests/backend-smoke.mjs
+
+GET /api/health checks database connectivity. GET /api/platform without a session must return 401. A clean build does not verify email delivery or end-to-end sign-in.
+
+Existing Sites data has not been imported. Existing Sites remains available during migration. Uploads through Vercel are limited to 4MB pending direct resumable storage upload support; external video links remain supported. No paid service is enabled by this migration.
