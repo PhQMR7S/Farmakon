@@ -1,0 +1,37 @@
+name: Farmakon quality checks
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: farmakon-quality-pr
+  cancel-in-progress: true
+
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout reviewed branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Clean install
+        run: npm ci
+      - name: TypeScript check
+        run: npm run typecheck
+      - name: Backend regression smoke (SQLite test adapter)
+        run: node tests/backend-smoke.mjs
+      - name: PWA regression smoke
+        run: node tests/pwa-smoke.cjs
+      - name: Production compile
+        run: npm run build
