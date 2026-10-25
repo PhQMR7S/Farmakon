@@ -1,0 +1,7 @@
+import { sqliteTable, text, integer, index, uniqueIndex } from 'drizzle-orm/sqlite-core';
+export const records = sqliteTable('records', {id:text('id').primaryKey(), kind:text('kind').notNull(), courseId:text('course_id').notNull().default(''), data:text('data').notNull(), created:integer('created').notNull()},t=>[index('records_kind').on(t.kind),index('records_course').on(t.courseId)]);
+export const settings = sqliteTable('settings',{id:text('id').primaryKey(),data:text('data').notNull()});
+export const members=sqliteTable('members',{id:text('id').primaryKey(),email:text('email').notNull(),name:text('name').notNull(),created:integer('created').notNull()});
+export const enrollments=sqliteTable('enrollments',{id:text('id').primaryKey(),email:text('email').notNull(),courseId:text('course_id').notNull(),expires:integer('expires').notNull(),source:text('source').notNull()},t=>[uniqueIndex('enrollment_email_course').on(t.email,t.courseId)]);
+export const codes=sqliteTable('codes',{id:text('id').primaryKey(),hash:text('hash').notNull().unique(),suffix:text('suffix').notNull(),courseId:text('course_id').notNull(),days:integer('days').notNull(),expires:integer('expires').notNull(),usedBy:text('used_by'),usedAt:integer('used_at')});
+export const activity=sqliteTable('activity',{id:text('id').primaryKey(),userId:text('user_id').notNull(),kind:text('kind').notNull(),target:text('target').notNull(),data:text('data').notNull(),updated:integer('updated').notNull()},t=>[uniqueIndex('activity_user_target').on(t.userId,t.kind,t.target)]);

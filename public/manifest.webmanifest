@@ -1,0 +1,27 @@
+{
+  "id": "/",
+  "name": "Farmakon — كورسات الصيدلة",
+  "short_name": "Farmakon",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f6fc",
+  "theme_color": "#101935",
+  "icons": [
+    {
+      "src": "/icon-192-v3.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512-v3.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "description": "كورسات ومحاضرات ومراجعات الصيدلة في مساحة واحدة"
+}
