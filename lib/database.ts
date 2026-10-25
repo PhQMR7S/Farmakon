@@ -2,7 +2,7 @@ import 'server-only';
 import {Pool,types} from 'pg';
 types.setTypeParser(20,Number);
 let pool:Pool|undefined;
-function connection(){if(!process.env.DATABASE_URL)throw new Error('DATABASE_NOT_CONFIGURED');return pool??=new Pool({connectionString:process.env.DATABASE_URL,max:3,idleTimeoutMillis:10000,connectionTimeoutMillis:10000,ssl:{rejectUnauthorized:true}});}
+function connection(){if(!process.env.DATABASE_URL)throw new Error('DATABASE_NOT_CONFIGURED');return pool??=new Pool({connectionString:process.env.DATABASE_URL,max:3,idleTimeoutMillis:10000,connectionTimeoutMillis:10000,ssl:{rejectUnauthorized:true,ca:process.env.DATABASE_CA_CERT}});}
 export function postgresSQL(sql:string){
  let out=sql.replace(/json_extract\(data,'\$\.status'\)/g,"(data::jsonb->>'status')").replace(/\bMAX\(enrollments\.expires,/g,'GREATEST(enrollments.expires,');
  const ignore=/^INSERT OR IGNORE INTO /i.test(out);out=out.replace(/^INSERT OR IGNORE INTO /i,'INSERT INTO ');if(ignore)out+=' ON CONFLICT DO NOTHING';
