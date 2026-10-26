@@ -44,3 +44,9 @@ next-env.d.ts
 /.codex/
 /outputs/
 /work/
+
+*.tsbuildinfo
+/test-results/
+/playwright-report/
+
+/supabase/.temp/

@@ -27,3 +27,17 @@ node tests/backend-smoke.mjs
 GET /api/health checks database connectivity. GET /api/platform without a session must return 401. A clean build does not verify email delivery or end-to-end sign-in.
 
 Existing Sites data has not been imported. Existing Sites remains available during migration. Uploads through Vercel are limited to 4MB pending direct resumable storage upload support; external video links remain supported. No paid service is enabled by this migration.
+
+## V2 development gates
+
+Start with [WORK-START-HERE.md](WORK-START-HERE.md) and [current Phase 0 report](docs/FARMAKON-V2-P0-REPORT.md). Current runtime status supersedes the archived Sites notes.
+
+- `npm run test:backend` — SQLite route regression suite.
+- `npm run test:auth` — identity/Auth contract with provider transport fixtures.
+- `npm run test:pwa` — manifest and service-worker checks.
+- `npm run test:postgres` — same route suite through the actual PostgreSQL adapter. Requires `FARMAKON_TEST_DATABASE_URL` pointing to an **empty loopback-only** database named `farmakon_v2_test`. Never set production credentials for this test. It creates and removes only its fixture schema; refuses an existing `farmakon` schema. CI provides disposable Postgres 17. Auth and Storage transport remain fixtures.
+- `npm run build` then `npm run test:e2e` — Playwright desktop/mobile Arabic authentication UI checks; install its Chromium with `npx playwright install chromium`. Uses mocked signup responses and no live account writes. Real Supabase lifecycle testing remains a staging gate.
+
+No test requires Vercel/Supabase production secrets. Do not enable a preview against production data for mutation tests. Main merge, production deployment, schema rollout and paid services require explicit approval.
+
+P0 continuation: [hardening and staging report](docs/FARMAKON-V2-P0-HARDENING.md). The additive rate-limit migration is not approved for production; keep its server flag off until schema/secret review and staging verification. Staging bootstrap is only for an empty isolated project. Never run it against production.
