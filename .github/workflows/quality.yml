@@ -66,6 +66,10 @@ jobs:
       - run: npm run test:postgres
         env:
           FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
+      - name: Storage RLS with real PostgreSQL roles
+        run: node tests/storage-policy-smoke.mjs
+        env:
+          FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
       - name: Synthetic PostgreSQL backup/restore drill
         run: bash tests/backup-restore.sh
         env:
