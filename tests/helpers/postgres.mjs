@@ -18,6 +18,7 @@ export async function testDatabase(){
  // Load the actual production adapter; inject only the disposable connection and local TLS setting.
  const source=fs.readFileSync('lib/database.ts','utf8')
   .replace("import 'server-only';",'')
+  .replace("'./farmakon/preview-isolation'",JSON.stringify('data:text/javascript;base64,'+Buffer.from(ts.transpileModule(fs.readFileSync('lib/farmakon/preview-isolation.ts','utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText).toString('base64')))
   .replace("from 'pg'",`from ${JSON.stringify(import.meta.resolve('pg'))}`)
   .replaceAll('process.env.DATABASE_URL','process.env.FARMAKON_TEST_DATABASE_URL')
   .replace('ssl:{rejectUnauthorized:true,ca:process.env.DATABASE_CA_CERT}','ssl:false')
