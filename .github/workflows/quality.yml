@@ -32,7 +32,9 @@ jobs:
       - name: Backend regression smoke (SQLite test adapter)
         run: node tests/backend-smoke.mjs
       - name: Auth contract smoke (no live provider)
-        run: node tests/auth-smoke.mjs
+        run: |
+          node tests/auth-smoke.mjs
+          node tests/callback-smoke.mjs
       - name: Bounded request security checks
         run: node tests/http-smoke.mjs
       - name: Preview isolation fail-closed checks
