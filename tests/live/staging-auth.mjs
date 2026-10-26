@@ -49,7 +49,9 @@ try{
  const oldCookie=a.cookie();assert.equal((await a.client.auth.signOut({scope:'local'})).error,null);
  assert.equal((await call(a,'/api/platform',undefined,oldCookie)).status,401,'Revoked old cookie must fail strict guard');
  assert.equal((await call(aDevice2)).status,200,'Local logout must preserve second device by existing policy');
+ const secondOldCookie=aDevice2.cookie();
  assert.equal((await aDevice2.client.auth.signOut({scope:'global'})).error,null);
+ assert.equal((await call(aDevice2,'/api/platform',undefined,secondOldCookie)).status,401,'Global logout must revoke the remaining second device');
  assert.equal((await call(a,'/api/platform',undefined,oldCookie)).status,401);
  console.log('PASS live: two devices, local/global sign-out and stale-cookie rejection on platform API.');
  console.log('NOT TESTED by this script: signup/email delivery/reset/password-change, populated A/B data, media/entitlement changes, token expiry and all sensitive routes. Complete the separate manual matrix.');
