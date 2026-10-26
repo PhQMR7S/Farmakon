@@ -39,3 +39,5 @@ Start with [WORK-START-HERE.md](WORK-START-HERE.md) and [current Phase 0 report]
 - `npm run build` then `npm run test:e2e` — Playwright desktop/mobile Arabic authentication UI checks; install its Chromium with `npx playwright install chromium`. Uses mocked signup responses and no live account writes. Real Supabase lifecycle testing remains a staging gate.
 
 No test requires Vercel/Supabase production secrets. Do not enable a preview against production data for mutation tests. Main merge, production deployment, schema rollout and paid services require explicit approval.
+
+P0 continuation: [hardening and staging report](docs/FARMAKON-V2-P0-HARDENING.md). The additive rate-limit migration is not approved for production; keep its server flag off until schema/secret review and staging verification. Staging bootstrap is only for an empty isolated project. Never run it against production.

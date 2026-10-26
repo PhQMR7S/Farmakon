@@ -12,7 +12,10 @@ user={id:'fake',email:'student@example.test',email_confirmed_at:null,user_metada
 await assert.rejects(()=>server.identity(),/AUTH/);
 user.email_confirmed_at='2026-01-01';assert.equal(await server.owner(await server.identity()),false);
 user={...user,email:'OWNER@example.test'};assert.equal(await server.owner(await server.identity()),true);
-const route=await import(compile(fs.readFileSync('app/api/auth/route.ts','utf8').replace("'../../../lib/supabase/server'",JSON.stringify(client)).replace("'zod'",JSON.stringify(import.meta.resolve('zod')))));
+const testDB=compile('export const database={};');
+const rate=compile(fs.readFileSync('lib/farmakon/rate-limit.ts','utf8').replace("'../database'",JSON.stringify(testDB)));
+const http=compile(fs.readFileSync('lib/http.ts','utf8'));
+const route=await import(compile(fs.readFileSync('app/api/auth/route.ts','utf8').replace("'../../../lib/supabase/server'",JSON.stringify(client)).replace("'zod'",JSON.stringify(import.meta.resolve('zod'))).replace("'../../../lib/http'",JSON.stringify(http)).replace("'../../../lib/farmakon/rate-limit'",JSON.stringify(rate))));
 async function post(body,origin='https://farm.test'){return route.POST(new Request('https://farm.test/api/auth',{method:'POST',headers:{origin,'Content-Type':'application/json'},body:JSON.stringify(body)}))}
 assert.equal((await post({action:'logout'},'https://evil.test')).status,403);assert.deepEqual(calls,[]);
 assert.equal((await post({action:'signup',email:'bad',password:'short',name:'x'})).status,400);assert.deepEqual(calls,[]);
@@ -20,3 +23,12 @@ user=null;assert.equal((await post({action:'reset',password:'long-test-password'
 assert.equal((await post({action:'forgot',email:'unknown@example.test'})).status,200);assert.deepEqual(calls,['forgot']);
 const result=await post({action:'logout'});assert.equal(result.status,200);assert.match(result.headers.get('cache-control'),/no-store/);
 console.log('PASS: verified email identity, metadata cannot grant owner, CSRF, malformed signup, unauthenticated reset, generic recovery, no-store logout. Auth transport stubbed; live delivery unverified.');
+
+process.env.FARMAKON_RATE_LIMIT_ENABLED='true';delete process.env.FARMAKON_RATE_LIMIT_SECRET;
+const countBefore=calls.length;assert.equal((await post({action:'login',email:'student@example.test',password:'fixture-password'})).status,503);assert.equal(calls.length,countBefore);
+delete process.env.FARMAKON_RATE_LIMIT_ENABLED;
+const {requestSubject}=await import(rate);process.env.VERCEL='1';
+assert.equal(requestSubject(new Request('https://farm.test',{headers:{'x-forwarded-for':'1.2.3.4'}})),'unresolved-client');
+assert.equal(requestSubject(new Request('https://farm.test',{headers:{'x-vercel-forwarded-for':'1.2.3.4'}})),'1.2.3.4');
+delete process.env.VERCEL;
+console.log('PASS: enabled limiter fails closed before provider call; untrusted forwarded header is ignored.');

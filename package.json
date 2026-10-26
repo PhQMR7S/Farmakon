@@ -11,7 +11,8 @@
     "test:postgres": "node tests/postgres-smoke.mjs",
     "test:pwa": "node tests/pwa-smoke.cjs",
     "test:e2e": "playwright test",
-    "test:auth": "node tests/auth-smoke.mjs"
+    "test:auth": "node tests/auth-smoke.mjs",
+    "test:http": "node tests/http-smoke.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",

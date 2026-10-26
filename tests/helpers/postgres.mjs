@@ -13,6 +13,8 @@ export async function testDatabase(){
  const existing=await bootstrap.query("SELECT 1 FROM pg_namespace WHERE nspname='farmakon'");
  assert.equal(existing.rowCount,0,'Refusing to touch an existing farmakon schema');
  await bootstrap.query(fs.readFileSync('tests/fixtures/postgres.sql','utf8'));
+ for(const name of ['anon','authenticated'])await bootstrap.query(`DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='${name}') THEN CREATE ROLE ${name} NOLOGIN;END IF;END $$`);
+ for(const name of fs.readdirSync('supabase/migrations').filter(n=>n.endsWith('.sql')).sort())await bootstrap.query(fs.readFileSync('supabase/migrations/'+name,'utf8'));
  // Load the actual production adapter; inject only the disposable connection and local TLS setting.
  const source=fs.readFileSync('lib/database.ts','utf8')
   .replace("import 'server-only';",'')
