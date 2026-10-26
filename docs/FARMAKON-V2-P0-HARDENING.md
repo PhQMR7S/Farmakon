@@ -66,3 +66,10 @@ The Supabase connector available in this session does not expose Auth configurat
 - Direct media request for synthetic locked asset visibly returned `الاشتراك مطلوب`. This verifies the application entitlement denial before Storage access; successful Storage transfer remains untested.
 - Real UI saved an Arabic lesson note; aggregate database query confirmed persistence. Started one exam, chose B/2, reloaded page, resumed the same attempt and verified B remained selected. Database aggregate confirmed one active attempt and its saved choice.
 - User explicitly designated the owner email. Confirmed it matches the confirmed staging identity, then updated only branch-specific preview `FARMAKON_OWNER_EMAIL`. Production/default preview values remain untouched. A fresh Git-generated preview is required before owner UI verification.
+
+### Owner runtime and quota activation — 2026-10-26
+- Preview `dpl_6412jmE7s6anbDk7M1oP7AoxBbGE` on `067c4c0e3187af63a059acb5be66b0955f1887ce` is READY. A fresh browser page rendered **مالك المنصة**, management navigation and the existing synthetic records under the user-designated owner identity.
+- Owner UI successfully created an explicitly synthetic announcement as **draft**. A database aggregate confirmed one matching draft; no publication or real message delivery occurred.
+- Student exam submission displayed **1/1** and its explanation. Database aggregate confirmed exactly one completed synthetic attempt with score 1.
+- Configured a fresh cryptographic HMAC secret as a sensitive Vercel variable, and enabled `FARMAKON_RATE_LIMIT_ENABLED` for **preview + this branch only**. Migration was already present on staging. A fresh Git preview must verify live mutations and hashed quota rows before this activation is considered runtime-tested. No production limiter/secret/env change.
+- F00 remains OPEN: successful Storage delivery, second real identity isolation, reset/logout/session revocation, account privacy lifecycle, production backup review and real-device/load checks are still required. Owner UI preview mode is not a second student's authorization test.
