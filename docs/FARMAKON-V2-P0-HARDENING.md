@@ -21,6 +21,13 @@
 ## Validation
 Local: TypeScript, production compilation, SQLite/API regression, Auth contract, bounded-request tests and PWA checks passed during this slice. Desktop/mobile Playwright passed 6/6 with fixture Auth transport. Check the PR's exact code commit and CI for PostgreSQL concurrency, quotas and pg_dump restoration; do not infer pass from configured jobs.
 
+
+### Observed CI and protected preview evidence
+- All three GitHub Actions jobs passed on code commit `137531d54fcbcd7f3e4ce860c54ca681e9028745`: [run 40278800880](https://github.com/PhQMR7S/Farmakon/actions/runs/40278800880). PostgreSQL logs explicitly confirmed concurrent start/submit/save, single-use redemption, independent hashed quota keys, reset boundary and pg_dump restoration checksum.
+- Vercel deployment `dpl_4qUMmDMkgsdNAWm8CHpRcWG9GFHN` is READY for that code. Connector HTTP check: `/login` returned 200 with Arabic login content; `/api/health` returned the expected 503 `{database:false}` because branch DATABASE_URL is intentionally blank. Build READY does not mean an operational learning platform.
+- Runtime preview: https://farmakon-1xi095sfr-phqmr7s.vercel.app . Draft PR: https://github.com/PhQMR7S/Farmakon/pull/14 . No authenticated writes, signup email sends, real Storage checks or production mutations were performed on preview.
+- Read-only metadata verification confirmed all six staging overrides target only `preview` + branch `feat/farmakon-v2-p0-hardening`.
+
 ## Remaining before F00 can pass
 1. Obtain the verified staging transaction-pooler host/TLS connection configuration, provision a restricted login credential, and set branch-only DB variables. Do not guess pooler hostnames or turn off certificate verification.
 2. Configure staging Auth callback/redirect allowlist and synthetic test identities, then test real signup/confirm/reset/logout and Storage entitlement/RLS on protected preview. A publishable key alone does not provide admin user management or email delivery access.
