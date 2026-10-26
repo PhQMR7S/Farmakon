@@ -1,89 +1,85 @@
-# Farmakon F00.2 — Staging وAuth والجلسات
+# Farmakon F00.2 — تقرير Staging وAuth والجلسات
 
-التاريخ: 26 تشرين الأول 2026. **الحالة: تنفيذ جزئي آمن؛ الاختبارات الحقيقية محجوبة، F00 غير مكتملة.**
+26 تشرين الأول 2026 — هذا التقرير يحل محل الحالة المحجوبة السابقة بعد متابعة الدخول والاختبارات الحية. **F00 تبقى مفتوحة؛ لا انتقال لمرحلة تعليمية أو دمج أو Production.**
 
-## المرجع والاعتماد
-- استمرار مباشر من `f3485a709f9a2a1dfe4e504c69cb4c64f927b75e` على `audit/f00-regression-2026-10-26`.
-- تحققت من [Run 40333933479](https://github.com/PhQMR7S/Farmakon/actions/runs/40333933479): baseline/postgres/browser ناجحة.
-- [Draft PR #18](https://github.com/PhQMR7S/Farmakon/pull/18) موجود، يستهدف `feat/farmakon-v2-p0-privacy` ويعتمد على #17. لم أغير هدفه أو أدمج أي فرع.
-- إصلاح Offline Expiry واختباراته محفوظة؛ لا إعادة منصة أو حذف حساب أو تنفيذ F01/F11/F12.
+## 1. الفرع والاعتماد
+- الفرع `audit/f00-regression-2026-10-26` و[Draft PR #18](https://github.com/PhQMR7S/Farmakon/pull/18)؛ الهدف ما زال `feat/farmakon-v2-p0-privacy` والاعتماد #17. لم يتغير main أو تُدمج الفروع المتداخلة.
+- نقطة البداية `f3485a7` و[CI 40333933479](https://github.com/PhQMR7S/Farmakon/actions/runs/40333933479) راجعتها فعلياً.
+- كود التطبيق المختبر حياً: `9ae7d7a1190271be93f66c1cdeb5b52eac89ab6e`، متضمناً حاجز العزل من `963794b`. [CI 40337481797](https://github.com/PhQMR7S/Farmakon/actions/runs/40337481797) ناجح للـbaseline/postgres/browser (24 اختباراً).
+- تحديث هذه المتابعة يضيف الاختبارات الحية والأدلة والتقرير، ويحافظ على إصلاح Offline Expiry. أحدث SHA وCI موثقان في وصف PR أيضاً.
 
-## المنجز فعلياً
-1. فحص branch-specific Vercel variables وStaging helpers/ACL دون طباعة قيم سرية.
-2. إنشاء **ثمانية overrides للفرع الحالي، preview فقط**: DATABASE_URL، DATABASE_CA_CERT، NEXT_PUBLIC_SUPABASE_URL، NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY، FARMAKON_OWNER_EMAIL، FARMAKON_RATE_LIMIT_ENABLED، FARMAKON_RATE_LIMIT_SECRET، FARMAKON_STRICT_SESSIONS_ENABLED.
-3. URL ومفتاح Auth/Storage يخصان مشروع Staging الحالي حصراً. شهادة CA من إعداد Staging السابق. سر quota جديد خاص بهذا الفرع، محفوظ sensitive. إعداد strict وquota=true في الفرع، **ليس تفعيل runtime مثبتاً**.
-4. DATABASE_URL override **فارغ عمداً**: اتصال Staging السابق من نوع sensitive ولا يعيد الموصل قيمته؛ يمنع ذلك وراثة اتصال Preview الافتراضي المشترك مع Production. لم أبدل الاتصال الإنتاجي ولم أنشئ credential جديداً قبل توفر معلومات الاتصال الموثقة.
-5. أبقيت automatic deployment معطلاً. فحص deployments أعاد صفر عمليات نشر للفرع. لا Preview جديدة ولا ادعاء نجاح التطبيق على DB غير متصلة.
-6. إضافة حاجز fail-closed قبل إنشاء Pool أو Auth client، وفي proxy قبل أي استدعاء Auth: Preview تقبل فقط هوية Staging المثبتة في الكود، مع تطابق HTTPS Auth وDB host أو pooler tenant suffix؛ ترفض endpoints الإنتاج أو النقص أو تعطيل strict/quota أو خيارات URL التي قد تخفض TLS. خطأ ثابت دون قيم اتصال. لا يغير الحاجز سلوك Production أو الاختبارات المحلية.
-7. إضافة اختبار اختياري **حقيقي عبر Supabase SDK وHTTP** في tests/live/staging-auth.mjs. ليس Mock، لكنه **لم ينفذ بهويات حقيقية**. يحتاج ثلاثة حسابات disposable موسومة من admin وPreview موثقة في staging-target.json؛ القائمة مغلقة حتى يتوفر deployment موثق. يرفض المشاريع/الحسابات/الأهداف غير المسموحة ويمنع طباعة تفاصيل الأخطاء السرية.
+## 2. ما نُفذ فعلياً في البيئة
+- تأكد نجاح دخول لوحة **Farmakon-Staging** بعد إكمال المالك للخطوة التفاعلية؛ لم أقرأ بيانات تسجيل دخوله.
+- ثمانية overrides للفرع وحده في Vercel target=preview؛ Auth/Storage يشيران إلى مشروع `qfzharpouemueipsrduv` فقط. لا تعديل للـdefault أو Production.
+- أُنشئ دور PostgreSQL مؤقت `farmakon_f002_preview` في Staging، بوراثة صلاحيات `farmakon_app` الحالية فقط: لا superuser أو إنشاء أدوار/قواعد أو replication أو bypass RLS؛ سقف 3 اتصالات، انتهاء صلاحية الدخول **2 نوفمبر 2026، 23:59 UTC**.
+- الدور لا يقرأ `auth.sessions` مباشرة، ويمكنه تنفيذ helper الجلسة الضيق. migration المسجلة `20261026141923_f002_isolated_preview_role`، ونسخة غير سرية تحت `scripts/staging/` خارج migrations الإنتاج التلقائية. كلمة المرور ليست ضمن الملفات أو migration.
+- طُبق DATABASE_URL كسرّ sensitive للفرع مع host/tenant رسميين مقروءين من لوحة Staging وTLS validation دون تعطيل. تعذّر اختبار pooler من shell بسبب DNS، ثم أثبت التطبيق اتصاله عبر health=200 وdatabase:true من Vercel.
+- `FARMAKON_STRICT_SESSIONS_ENABLED=true` وquota مفعّلان في هذه النسخة فقط؛ نجاح اختبارات replay الحية يثبت التنفيذ، وليس مجرد وجود env.
+- النشر اليدوي التجريبي READY؛ النشر التلقائي للفرع يبقى معطلاً. Deployment Protection/SSO بقيت مفعلة.
 
-## المشكلة المؤكدة والإصلاح
-**High / خطر خلط البيئات:** إعدادات Preview الافتراضية تسمح بوراثة DB الإنتاج، بينما override السابق خاص بفرع #14 فقط. قبل هذه الجولة كان النشر معطلاً، لذلك لا أدعي وقوع تسريب أو اتصال إنتاج تجريبي. لكن رفع التعطيل دون ضبط كل override كان سيعرّض الاختبارات للبيانات الحقيقية.
+## 3. Preview وإثبات العزل
+- [Preview المحمية الثابتة](https://farmakon-git-audit-f00-regression-2026-10-26-phqmr7s.vercel.app).
+- نشر الاختبارات `dpl_63pzGmyBMgPa8KJXxjMQZRqjcwpA`، عنوانه `farmakon-iqgt9tpgd-phqmr7s.vercel.app`، target غير إنتاجي، على `9ae7d7a`.
+- نشر الاتصال الأول `dpl_FwsSZQtHUqUgeu3k3muSaXDa9tWm` أثبت health؛ قائمة alias النهائية اقتصرت على فرع التجربة. روابط الإنتاج فُحصت منفصلة وبقيت على `dpl_BNWbrbCXEvRK9BxEqJd4Tkmorctg` / `7258c50`.
+- حاجز العزل يرفض قبل إنشاء Pool/Auth client أو عمل proxy أي URL إنتاج/نقص/خلط/خيارات اتصال تخفض TLS، ويتطلب strict/quota. لا يغير سلوك Production أو CI المحلية.
+- لا dump أو restore أو test على قاعدة الإنتاج، ولا مفاتيح service-role في المتصفح أو التقرير.
 
-طريقة التحقق: قراءة scopes/branches لأسماء envs، ثم تجربة إعدادات مختلطة/ناقصة في الاختبار. الحماية الجديدة ترفض قبل الاتصال بالشبكة. اختبارات constructor traps على المصادر الفعلية أثبتت أن Auth client وDB adapter وproxy لا تصل إلى provider/cookies/SQL عند وجود إعداد Preview غير صالح. اختبار الرفض كُتب أولاً ثم الحاجز؛ لا يُعد ذلك إثبات استغلال لحساب مستخدم.
+## 4. هويات الاختبار وحدود تأكيد البريد
+- ثلاث هويات Auth اصطناعية مستقلة: owner وA وB، لها ثلاثة UUID مختلفة ووسم provider-admin `farmakon_test_fixture=true`؛ ليست تبديل بيانات محلياً أو Mock.
+- أُنشئت إدارياً بعناوين `example.test`، وأُكدت **إدارياً**. هذا لا يثبت التسجيل الذاتي أو وصول البريد.
+- التجهيز المؤقت كان محصوراً في ثلاثة عناوين/معرفات ثابتة، برمز عشوائي مؤقت وبوابة JWT وتاريخ انتهاء، ولا يسمح بتعديل المستخدمين العاديين. بعد التجهيز استُبدل الكود برد 410 دون صلاحية عملية تجهيز؛ تحققت من النسخة المنشورة المغلقة. لا سر service-role أُخرج من runtime.
+- بعد انقطاع جلسة التنفيذ أُعيدت تهيئة كلمات مرور **هذه الحسابات الثلاث فقط** مع إعادة التحقق من UUID والعنوان ووسم admin؛ لم تتغير كلمات مرور الحسابين الأصليين.
+- تغير ربط مالك **Staging/الفرع** مؤقتاً إلى المالك الاصطناعي لاختبار الصلاحيات وStorage. استُعيد إعداد مالك المشروع الأصلي بعد الاختبارات في متغير الفرع وStorage؛ لا تغيير لحساب Auth حقيقي أو Production.
+- الاختبار الحي يستخدم SDK وHTTP فعليين إلى Auth وPreview، مع cookies حقيقية. وصول Vercel تم برابط مشاركة محدود للـalias بمدة 30 دقيقة؛ لا تعطيل للحماية، ولا رابط سري في التقرير. تُلغى صلاحية المشاركة المؤقتة عند التسليم.
 
-الملفات: lib/farmakon/preview-isolation.ts، lib/database.ts، lib/supabase/server.ts، proxy.ts، tests/preview-isolation-smoke.mjs، tests/helpers/postgres.mjs، tests/live/staging-auth.mjs، tests/live/staging-target.json، .github/workflows/quality.yml وهذا التقرير. لا migration أو تعديل بيانات طلاب أو أسعار أو سياسة اشتراك.
-
-## إثبات العزل وحدوده
-| العنصر | ما تحقق |
+## 5. النتائج الحية
+| الاختبار | النتيجة المثبتة |
 |---|---|
-| مشروع الاختبار | Farmakon-Staging، المرجع غير السري qfzharpouemueipsrduv |
-| Auth وStorage | URL staging مطابق، bucket farmakon خاص؛ لا تغيير ACL |
-| PostgreSQL | helper الجلسات موجود؛ لا اتصال تطبيق جديد مثبت لأن DATABASE_URL فارغ |
-| الوصول إلى auth.sessions | farmakon_app لا يملك SELECT؛ يملك execute للـboolean helper فقط |
-| دور المتصفح | authenticated لا يستطيع execute للـbackend helper |
-| Storage session guard | سياسة RESTRICTIVE موجودة في Staging |
-| Vercel | overrides للفرع فقط وهدف preview؛ لا default/production env edits |
-| Deployment Protection | SSO enabled، prod deployment URLs/all previews؛ لم تُضعف |
-| Production | لم يُنشر أو يُعدل أو يُستخدم للاختبار |
+| دخول owner/A/B ومعرفات مختلفة | Passed؛ Auth حقيقي + استجابة التطبيق لكل هوية |
+| المالك admin والطالبان ليسا admin | Passed؛ لا members/codes/audit للطالب |
+| تصعيد الصلاحية عبر user_metadata | Passed؛ تغيير role/admin لم يمنح صلاحية مالك، ثم استعادة metadata |
+| إنشاء كورس ومحتوى اختباري عبر المالك | Passed؛ رفض محاولة نشر الطالب بـ403 |
+| رفع ملف اصطناعي إلى Storage وقراءته | Passed حياً عبر المالك ثم الطالب المشترك |
+| طالب غير مشترك/ملف وامتحان محميان | Passed؛ 403 قبل منحه الاشتراك |
+| بيانات مأهولة للطالبين | Passed؛ ملاحظات A/B وتصدير كل منهما لا يتضمن بيانات الآخر |
+| قراءة/تسليم محاولة الطالب الآخر | Passed؛ رفض cross-user attempt، وإخفاء مفاتيح الإجابات قبل التسليم |
+| سحب اشتراك A أثناء جلسة فعالة | Passed؛ الملف/التقدم/السؤال/بدء وحفظ وتسليم الامتحان مرفوضة، والـGET يخفي المحاولة ورابط المحتوى؛ B يبقى مستقلاً |
+| الخروج المحلي من جهازين | Passed؛ جلسة A الأولى ملغاة والثانية باقية وفق سياسة local الحالية |
+| الخروج العام وإعادة استخدام cookies القديمة | Passed؛ الجهاز الثاني والـreplay مرفوضان بـ401 |
+| API حساسة بجلسة ملغاة | Passed؛ GET/POST للمنصة وmedia وexport ترفض؛ طلب تغيير كلمة المرور بجلسة ملغاة لم ينجح |
+| تغيير كلمة مرور fixture وتأثيره على الجهاز الآخر | Passed حياً؛ الجلسة الحالية باقية والثانية أُبطلت، ثم استعادة كلمة مرور fixture |
+| انقضاء auth.sessions.not_after للـfixture | Passed حياً؛ قصرت صلاحية صف جلسة B الاصطناعية فقط، فرفضتها المنصة/media/export بـ401. ليس انتهاء JWT الطبيعي |
+| signup/بريد تأكيد مستلم/recovery link كامل | Blocked؛ لا صندوق بريد تجريبي قابل للاستقبال ضمن هذه الهويات |
+| انتهاء JWT الطبيعي بالوقت | غير مختبر؛ لا تعطيل للتحقق من التوقيع أو تغيير الساعة |
 
-هذا إثبات **منع اتصال غير معزول وإعداد نطاقات التجربة**، وليس إثبات أن Preview جديدة تعمل؛ لا نشر قبل توفير اتصال staging والتحقق منه. Preview الحالية القديمة تخص #14 ولا تحتوي تعديلات هذه الجولة.
+الاختبارات الحية هنا عبر SDK وHTTP مع Auth/Storage/DB حقيقية؛ اختبارات المتصفح الـ24 في CI تستخدم transport fixtures ولا تُعرض على أنها تسجيل دخول حقيقي من المتصفح.
 
-### اتصال provider دون حساب
-طلب HTTPS مباشر إلى إعدادات Auth في Staging بالمفتاح publishable أعاد 200: البريد مفعّل، تأكيد البريد مطلوب، anonymous sign-in معطل. هذا يثبت وصول endpoint وإعداداته فقط، ولا يثبت وصول رسالة أو نجاح هوية أو اتصال Preview بقاعدة البيانات.
+نجاح administrative confirmation أو `getUser` أو رد forgot العام ليس إثباتاً لوصول بريد أو نجاح recovery. يوجد اختبار فعلي لمسار كلمة المرور الحالي/المبطل، لكنه لا يثبت رابط الاستعادة بالبريد.
 
-## الهويات والبريد والجلسات الحقيقية
-فحص aggregate لـStaging أظهر **مستخدمين اثنين مؤكدين**. لا ثلاث هويات تحت تحكم الاختبار، ولا بيانات دخول متاحة للموصل. لم أقرأ كلمات مرور أو tokens، ولم أستخدم حساب إنتاج أو أعدل هويات Staging الموجودة.
+## 6. الاختبارات الآلية والأدلة
+- `npm ci`، typecheck، backend/auth/http/pwa/isolation smoke، build: Passed محلياً في هذه المتابعة. لا تغيير package-lock/dependencies.
+- PostgreSQL/RLS/concurrency/synthetic restore والـ24 Browser E2E: Passed في CI للـcommit الأساسي، وتُعاد على تحديث الاختبارات قبل التسليم.
+- `tests/live/staging-auth.mjs` و`entitlements.mjs`: اختبارات provider حقيقية اختيارية؛ لا تعمل تلقائياً في CI ولا تحتاج بيانات إنتاج. لا يُنسب نجاح fixture CI إليها.
+- `tests/live/staging-target.json` يقيد origin المثبتة؛ `README.md` يشرح الأسرار الآمنة والتشغيل وexpiry coordinator. الإخفاقات تعرض مرحلة ثابتة وحالة HTTP فقط، لا بيانات اعتماد.
+- [ملف الأدلة النصي الآمن](evidence/F00.2-LIVE-RESULTS.txt) يوثق النتائج الفعلية دون عناوين المستخدمين أو UUID أو tokens أو cookies.
 
-| الفحص | النتيجة في هذه الجولة |
-|---|---|
-| مالك تجريبي + A + B بمعرفات Auth مختلفة | Blocked؛ لا ثلاث هويات جاهزة |
-| signup وتأكيد البريد ووصول الرسالة فعلياً | Blocked؛ لم تُرسل رسائل تجريبية |
-| login/logout/recovery كاملة | Blocked للمستخدمين؛ لا ادعاء نجاح محاكاة كبديل |
-| local logout من جهازين / global logout / replay | Blocked حياً؛ موجود في suite اختيارية جزئياً |
-| انقضاء token وتغيير كلمة المرور وتأثيرها | Blocked حياً؛ يجب قياس سياسة Auth الفعلية |
-| سحب الاشتراك والصلاحيات أثناء جلسة | Blocked حياً؛ الفحوص المعزولة السابقة ليست دليلاً حياً |
-| strict session guard | منطق #17 مراجع وhelpers صالحة ACL؛ env=true على الفرع غير المنشور؛ لا runtime activation ناجحة ادعيتها |
-| تصعيد الصلاحية من user_metadata | اختبار fixture ناجح سابقاً؛ الاختبار الحقيقي معدّ ولم ينفذ |
-| ملفات/كورسات وعزل بيانات A/B | Blocked حياً؛ يلزم fixtures مأهولة لا مجموعات فارغة |
+## 7. الثغرات والإصلاحات
+- خطر وراثة Preview لاتصال الإنتاج عولج بحاجز العزل وoverrides؛ لم يقع اختبار على الإنتاج.
+- لم أعد تنفيذ Offline Expiry أو إصلاحات #13/#14/#17 الناجحة. لم يثبت في الاختبارات الحية المكتملة خلل Critical/High جديد يقتضي تغيير runtime التطبيق.
+- إخفاقات تجهيز الاختبار الأولى كانت حاجز Vercel: share token يحتاج مسار `_vercel_share` الرسمي وcookie، وليس header مخصصاً للأتمتة. أُصلح harness بالتحقق من same-origin وعدم اتباع إعادة توجيه خارج Preview، دون تخفيض الحماية.
+- تحذير leaked-password protection ما زال يتطلب قراراً منفصلاً؛ لم تُفعّل ترقية مدفوعة.
 
-لوحة Supabase وصلت إلى صفحة sign-in في هذا المتصفح. استُخدم browserAuth الآمن، وأعاد submitted فقط؛ بعدها عرض الموقع **hCaptcha**. لم أعتبر submitted نجاح دخول، ولم أحل CAPTCHA أو أتجاوزها. يلزم تدخل المالك في المتصفح نفسه. لا تعطيل لتأكيد البريد أو الحماية لتجاوز هذا العائق.
+## 8. أثر Staging والتراجع
+- الأثر: دور اتصال مؤقت، ثلاث هويات اصطناعية، بيانات اختبار موسومة، ملفات PDF اصطناعية صغيرة، وكورسات الاختبار تُؤرشف بعد نجاح الاختبار. لا حذف أو تعديل بيانات مستخدمين حقيقيين ولا Google Drive.
+- أداة التجهيز مغلقة 410 وJWT مطلوب. روابط مشاركة الاختبار مؤقتة وتُلغى. لا credentials في git أو أدلة النتائج.
+- التراجع: أبق النشر التلقائي معطلاً، أوقف الدور المؤقت بـNOLOGIN ثم اسحب عضويته بعد إيقاف Preview؛ لا تعِد وراثة DB الإنتاج بحذف overrides. لا schema rollback لجداول الطلاب أو تعديل اشتراكاتهم. لا إزالة لـstrict guard لتجاوز فشل.
+- لا تغيير أسعار/سياسات اشتراك أو تشغيل خدمات مدفوعة أو نشر Production أو دمج main.
 
-## الاختبارات المنفذة فعلياً
-| الاختبار | النتيجة |
-|---|---|
-| npm run typecheck | Passed محلياً |
-| backend-smoke / auth-smoke / http-smoke / pwa-smoke | Passed محلياً؛ نقل Auth/Storage fixtures |
-| npm run build | Passed محلياً |
-| preview-isolation-smoke | Passed؛ حالات production/mixed/missing/disabled guards وentry-point traps |
-| Playwright desktop + Android RTL | Passed محلياً **24/24**، منها Offline Expiry |
-| syntax لاختبار Auth الحقيقي | Passed؛ لا يثبت دورة Auth حقيقية |
-| تشغيل live suite دون الأسرار والهدف المسجل | Blocked متعمد قبل أي محاولة مستخدم؛ لا يُعد Passed |
-| PostgreSQL وRLS والجلسات | فحص ACL حي read-only؛ اختبارات CI الجديدة تُراجع منفصلة قبل نسب النجاح إلى هذا الكود |
+## 9. ما بقي وقرارات المالك
+1. صندوق بريد تجريبي قابل للاستقبال لاختبار signup/confirmation/recovery/callback فعلياً، دون إرسال أسرار في المحادثة. يلزم تدقيق redirect allowlist للـPreview قبل اختبار البريد.
+2. إعداد اتصال Staging المؤقت ينتهي 2 نوفمبر؛ يلزم تمديد/تدوير معتمد إذا استمر الاختبار بعد ذلك، دون المساس بالإنتاج.
+3. مراجعة التقرير و#18. لا يُفهم من نجاح الفحوص إذن دمج أو نشر.
+4. خارج F00.2: حذف الحساب وفق سياسة احتفاظ معتمدة، backup/restore كامل، اختبارات إغلاق الامتحان والوصولية والأداء الأوسع. لم أنفذها أو أنتقل إلى F01/F11/F12.
 
-الالتزام التنفيذي `963794bd49177f58166d0d5e2e830d0564f56eb1` اجتاز [CI الجديد 40337163256](https://github.com/PhQMR7S/Farmakon/actions/runs/40337163256): baseline وpostgres وbrowser كلها success، بعد مراجعة السجلات. شمل PostgreSQL وRLS والجلسات والاستعادة الاصطناعية و24 اختبار متصفح. التحديث اللاحق لهذا التقرير والاختبار الاختياري يُراجع في أحدث CI المشار إليه بوصف PR؛ الاختبار الحي يظل Blocked.
-
-## التراجع والأمور المؤجلة
-- لا DDL/DML بهذه الجولة، فلا schema rollback. التراجع عن الحاجز يكون على الفرع فقط؛ لا تنشر فرعاً تزيل حمايته قبل إثبات العزل.
-- عند التراجع عن envs أبق DATABASE_URL فارغاً والنشر معطلاً؛ حذف override الفارغ قد يعيد وراثة الإنتاج. لا تحذف الإنتاج/المستخدمين/Storage.
-- لا تنفيذ لحذف الحساب. السياسة المقترحة للمراجعة لاحقاً: إعادة تحقق حديثة، منع حذف المالك الوحيد، إبطال الجلسات أولاً، عقد احتفاظ واضح للمدفوعات/الدعم، إزالة البيانات المملوكة تدريجياً مع قابلية إعادة المحاولة، وفحص Cache/Storage واستعادة معزولة. هذه متطلبات فقط.
-- تحذير Supabase الوحيد المقروء ما زال leaked-password protection disabled؛ لا ترقية مدفوعة.
-- بوابات F00 السابقة الباقية: حذف الحساب لاحقاً، backup/restore كامل، سلوك الامتحان عند إغلاق المتصفح، وصولية وأداء أوسع. لم أبدأها في F00.2.
-
-## المطلوب من المالك والخطوة التالية داخل F00.2
-1. إكمال hCaptcha وتسجيل الدخول إلى Supabase في المتصفح المعروض؛ لا ترسل كلمة مرور أو OTP في المحادثة.
-2. توفير اتصال **Staging فقط** من اللوحة إلى override الفرع بطريقة آمنة؛ نتحقق من host/tenant/TLS قبل أي نشر.
-3. تجهيز مالك اختباري وطالبين disposable مستقلين مع بريد اختباري يمكن استقباله، مع الحفاظ على تأكيد البريد. تغيير كلمة المرور/إنشاء credentials في واجهة المتصفح يتم بيد المالك.
-4. بعد ذلك فقط: نشر Preview محمية معزولة، تحديث allowlist الاختبار بالعنوان الموثق، وتنفيذ matrix الحقيقية. لا موافقة دمج أو Production مطلوبة أو مُستنتجة من هذه الخطوات.
-
-**الحكم: F00.2 محجوبة في الجزء الحي وليست مكتملة. Issue #1 تبقى مفتوحة.**
+## 10. الحكم
+تقدمت بوابة Auth والجلسات من fixtures فقط إلى اختبارات حية لهويات مستقلة وStorage وعزل بيانات وإبطال جلسات. **F00 غير مكتملة** بسبب البريد والاستعادة وبوابات الجولة السابقة. لا أصف الأمور غير المختبرة بأنها Passed.

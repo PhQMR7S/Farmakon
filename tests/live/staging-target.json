@@ -1,6 +1,6 @@
 {
   "projectRef": "qfzharpouemueipsrduv",
   "branch": "audit/f00-regression-2026-10-26",
-  "previewOrigin": null,
-  "note": "Keep null until a protected, isolated deployment has been verified. Never add Production."
+  "previewOrigin": "https://farmakon-git-audit-f00-regression-2026-10-26-phqmr7s.vercel.app",
+  "note": "Verified protected isolated Staging branch alias. Never add Production."
 }
