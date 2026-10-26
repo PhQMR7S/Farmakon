@@ -1,7 +1,7 @@
 name: Farmakon quality checks
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feat/farmakon-v2-p0-privacy]
   workflow_dispatch:
 
 permissions:
