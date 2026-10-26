@@ -11,7 +11,7 @@ Dependency order: #1 → #2/#3 → #4 → #5/#6 → #7 → #8 → #9 → #10 →
 - Production Vercel `farmakon`: READY at main `7258c50`, deployment `dpl_BNWbrbCXEvRK9BxEqJd4Tkmorctg`; latest planning preview separately READY. Vercel project uses Node 24; preview deployment URLs have SSO protection.
 - Supabase `Farmakon`, project `zviqtacbsprewyxrmpbb`: ACTIVE_HEALTHY, Postgres 17. Six private tables have RLS; backend role gets CRUD policies, browser roles no direct grants. No table triggers observed. Inspected column/index/grant/policy definitions, not student rows.
 - Storage bucket private, allowed PDF/MP4/WebM/MP3/PNG/JPEG, provider object cap 50 MiB. API cap remains 4 MiB. SELECT checks entitlement/publication; INSERT owner-only. Private-schema SECURITY DEFINER helper has empty search_path, auth.uid() guard and restricted execute ACL.
-- Security advisor: leaked-password protection disabled. Official docs say Pro+; left unresolved without enabling paid services. Performance advisor: unused records_course index; retained because removing it without representative load evidence is unwarranted.
+- Security advisor: leaked-password protection disabled. Organization inspection confirmed the Free plan and no existing development branches. [Official password-security docs](https://supabase.com/docs/guides/auth/password-security) say Pro+; left unresolved without enabling paid services. Performance advisor: unused records_course index; retained because removing it without representative load evidence is unwarranted.
 - Vercel env **names only**: DATABASE_URL, DATABASE_CA_CERT, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, FARMAKON_OWNER_EMAIL. All are configured for both preview and production; **isolation not established**. Values were not decrypted; encrypted metadata does not prove endpoints are the same or different. Vercel flags DATABASE_URL as readable-secret; review its sensitive-variable configuration without exposing or rotating credentials in this PR.
 
 ## Implemented fixes and test infrastructure
@@ -32,7 +32,10 @@ Dependency order: #1 → #2/#3 → #4 → #5/#6 → #7 → #8 → #9 → #10 →
 - npm run test:pwa: PASS.
 - npm run build: PASS (production compilation only, no deployment).
 - Playwright: PASS, 6/6 tests on desktop and Pixel 7 emulation (RTL), local production build at http://127.0.0.1:3100. Browser plugin unavailable; Playwright used. Bundled browser CDN failed, so a scratch-only Chromium 143 binary from @sparticuz/chromium was used with system fonts. Initial environment font setup and an exact-label test selector were corrected before the passing run; no runtime UI change was needed. No page exceptions; no horizontal overflow in the tested flow.
-- PostgreSQL: pending GitHub Actions execution. Local environment cannot switch to a non-root user required by Postgres; no production database was substituted. Do not treat configured CI jobs as passed until observed.
+- PostgreSQL: **PASS in GitHub Actions**, disposable Postgres 17 using the production SQL adapter and the route regression suite. Local non-root Postgres was unavailable; CI supplied the isolated service.
+- **All three CI jobs passed** (baseline, postgres, browser) on code commit `7ff6c6bb6272e4ac8af087250968bb0692bc93a2`: [verified run](https://github.com/PhQMR7S/Farmakon/actions/runs/40276867834). Browser CI used its standard Playwright Chromium and passed independently of the local alternative.
+- Vercel automatically created a **READY preview**, not production, for that same commit: https://farmakon-k3yv0b3wb-phqmr7s.vercel.app . No authenticated mutation tests were run there because data isolation is unverified.
+- Draft implementation PR: https://github.com/PhQMR7S/Farmakon/pull/13 . Main and planning PR #12 remain unmerged.
 
 ## Remaining mandatory gate work
 1. Establish isolated Supabase Auth/Storage/database and branch-specific preview variables; use two synthetic students and a test owner. Never run destructive fixtures against shared production config.
