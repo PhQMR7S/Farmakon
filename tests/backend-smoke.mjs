@@ -24,6 +24,8 @@ const routeSource=fs.readFileSync('app/api/platform/route.ts','utf8').replace("'
 const mod=await import('data:text/javascript;base64,'+Buffer.from(compile(routeSource)).toString('base64'));
 const mediaSource=fs.readFileSync('app/api/media/route.ts','utf8').replace("'../../lib/server'",JSON.stringify(serverURL)).replace("'../../../lib/http'",JSON.stringify(httpURL)).replace("'../../../lib/farmakon/rate-limit'",JSON.stringify(rateURL));
 const media=await import('data:text/javascript;base64,'+Buffer.from(compile(mediaSource)).toString('base64'));
+const exportSource=fs.readFileSync('app/api/account/export/route.ts','utf8').replace("'../../../lib/server'",JSON.stringify(serverURL)).replace("'../../../../lib/http'",JSON.stringify(httpURL)).replace("'../../../../lib/farmakon/rate-limit'",JSON.stringify(rateURL));
+const studyExport=await import('data:text/javascript;base64,'+Buffer.from(compile(exportSource)).toString('base64'));
 const owner={userId:'owner',email:'owner@example.test',displayName:'Owner'};const student={userId:'student',email:'student@example.test',displayName:'Student'};
 async function post(b,status=200){const r=await mod.POST(new Request('https://farm.test/api/platform',{method:'POST',headers:{origin:'https://farm.test','Content-Type':'application/json'},body:JSON.stringify(b)}));assert.equal(r.status,status,JSON.stringify(await r.clone().json()));return r.json()}
 const originalError=console.error;console.error=()=>{};assert.equal((await mod.GET()).status,401);assert.equal((await media.GET(new Request('https://farm.test/api/media?id=missing'))).status,401);console.error=originalError;user=owner;await post({action:'setup'},403);user={userId:'first-get',email:'first-get@example.test',displayName:'First visit'};assert.equal((await mod.GET()).status,200);assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM members WHERE id=?').bind('first-get').first()).n,1);user=owner;
@@ -89,6 +91,32 @@ const badUpload=await media.POST(new Request('https://farm.test/api/media?course
 console.log('PASS: API rejects chunked/underdeclared overflow, malformed JSON and mismatched upload length.');
 const csrf=await mod.POST(new Request('https://farm.test/api/platform',{method:'POST',headers:{origin:'https://evil.test'},body:'{}'}));assert.equal(csrf.status,403);
 console.log('PASS: auth, owner setup, CRUD, upload/read, course gating, answer secrecy, one-time codes, persistent progress, exam resume/grading, payment review, course unpublish, CSRF. Isolated fixture database; no production data.');
+
+// Personal study export must not become an alternative course-content or admin API.
+const exportRequest=(body='{}',origin='https://farm.test')=>studyExport.POST(new Request('https://farm.test/api/account/export',{method:'POST',headers:{origin,'content-type':'application/json'},body}));
+user=null;assert.equal((await exportRequest()).status,401);user=student;
+assert.equal((await exportRequest('{}','https://evil.test')).status,403);
+assert.equal((await exportRequest(JSON.stringify({userId:other.userId}))).status,400);
+assert.equal((await exportRequest('x'.repeat(1025))).status,413);
+await db.prepare('INSERT INTO records(id,kind,course_id,data,created) VALUES(?,?,?,?,?)').bind('export-attempt','attempt',c.id,JSON.stringify({userId:student.userId,examId:ex.id,courseId:c.id,status:'done',answers:{valid:2,invalid:'PROTECTED_ANSWER',outOfRange:55},questions:[{correct:1,title:'PROTECTED_QUESTION'}],result:{score:1,total:1,late:false,questions:[{explanation:'PROTECTED_EXPLANATION'}]},internal:'PRIVATE_ADMIN'}),1).run();
+await db.prepare('INSERT INTO records(id,kind,course_id,data,created) VALUES(?,?,?,?,?)').bind('export-other','ticket','',JSON.stringify({userId:other.userId,title:'OTHER_STUDENT_PRIVATE',description:'OTHER_STUDENT_PRIVATE'}),1).run();
+await db.prepare('INSERT INTO records(id,kind,course_id,data,created) VALUES(?,?,?,?,?)').bind('export-ticket','ticket','',JSON.stringify({userId:student.userId,title:'My ticket',description:'My description',reply:'Reply for me',status:'closed',reviewedBy:'PRIVATE_ADMIN',internal:'PRIVATE_ADMIN'}),1).run();
+const exported=await exportRequest();assert.equal(exported.status,200);assert.equal(exported.headers.get('cache-control'),'private, no-store');assert.equal(exported.headers.get('content-disposition'),'attachment; filename="farmakon-study-data.json"');
+const exportText=await exported.text(),myData=JSON.parse(exportText);assert.equal(myData.profile.email,student.email);
+assert.ok(myData.activity.some(a=>a.data.note==='My note'));assert.ok(myData.tickets.some(t=>t.title==='My ticket'&&t.reply==='Reply for me'));
+assert.deepEqual(myData.attempts.find(a=>a.id==='export-attempt').answers,{valid:2});
+for(const forbidden of ['OTHER_STUDENT_PRIVATE','PROTECTED_QUESTION','PROTECTED_ANSWER','PROTECTED_EXPLANATION','PRIVATE_ADMIN','"correct"','"questions"','"codes"','"audit"'])assert.ok(!exportText.includes(forbidden),forbidden);
+user=other;const otherData=await(await exportRequest()).json();assert.equal(otherData.activity.length,0);assert.equal(otherData.attempts.length,0);assert.equal(otherData.tickets[0].title,'OTHER_STUDENT_PRIVATE');assert.ok(!JSON.stringify(otherData).includes('My note'));
+user=student;
+if(process.env.FARMAKON_TEST_DATABASE_URL){
+ process.env.FARMAKON_RATE_LIMIT_ENABLED='true';
+ for(let i=0;i<5;i++)assert.equal((await exportRequest()).status,200);
+ const throttled=await exportRequest();assert.equal(throttled.status,429);assert.ok(Number(throttled.headers.get('retry-after'))>0);
+ delete process.env.FARMAKON_RATE_LIMIT_ENABLED;
+}
+await db.prepare('INSERT INTO activity(id,user_id,kind,target,data,updated) VALUES(?,?,?,?,?,?)').bind('export-too-large',student.userId,'progress','large-fixture',JSON.stringify({note:'x'.repeat(1400000)}),0).run();
+const tooLarge=await exportRequest();assert.equal(tooLarge.status,413);assert.equal((await tooLarge.json()).profile,undefined,'Never silently export a partial dataset');
+console.log('PASS: scoped study export, cross-user/admin/content secrecy, bounded output, CSRF/auth, attachment headers and PostgreSQL quota.');
 
 const driveSource=compile(fs.readFileSync('app/lib/drive.ts','utf8'));const {drivePreview}=await import('data:text/javascript;base64,'+Buffer.from(driveSource).toString('base64'));assert.equal(drivePreview('https://drive.google.com/file/d/abc_123/view?resourcekey=key'),'https://drive.google.com/file/d/abc_123/preview?resourcekey=key');assert.equal(drivePreview('https://drive.google.com.evil.test/file/d/abc/view'),null);assert.equal(drivePreview('javascript:alert(1)'),null);console.log('PASS: Drive URL allowlist and payment approval issues a code without enrollment.');
 
