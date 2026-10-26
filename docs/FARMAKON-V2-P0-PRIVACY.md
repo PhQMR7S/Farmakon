@@ -1,6 +1,6 @@
 # F00 personal study-data export — 2026-10-26
 
-Separate draft continuation of PR #14 / issue #1. No main merge, production release, paid service, database schema change or account deletion is part of this slice.
+Separate draft continuation of PR #14 / issue #1. No main merge, production release, paid service, production schema change or account deletion is part of this slice. Additive session helpers were applied only on isolated staging.
 
 ## Behavior
 - Account page downloads an authenticated user's study-data JSON through a same-origin POST. The endpoint accepts an empty object, not a user ID/email selector. Authentication comes from the existing verified server identity.
@@ -18,3 +18,16 @@ Separate draft continuation of PR #14 / issue #1. No main merge, production rele
 - Desktop/Android RTL browser tests exercise actual JSON download and visible throttling errors with a transport fixture. This does not prove live provider Auth or a real-user export download.
 - Check the exact PR commit/CI result before claiming these new tests pass. No account export with real personal data has been downloaded or shared by the agent.
 - Full account deletion, retention/consent policy and strict session invalidation remain unfinished. A deletion-request ticket would not count as deleting an Auth account. Real second-user staging isolation is still blocked: latest aggregate inspection found one confirmed owner and zero confirmed non-owner users; the browser still showed owner navigation after the user's handoff.
+
+## Observed export validation
+- Code commit `4e4da67c6a17a258d55debe357f6009811983ab6`: all three CI jobs passed [run 40319320342](https://github.com/PhQMR7S/Farmakon/actions/runs/40319320342). PostgreSQL logs explicitly confirmed export scoping, protected/admin content exclusion, bounds and quotas. Browser CI was initially slow installing Chromium, then completed successfully.
+- Local Chromium 143.0.4 from a scratch-only `@sparticuz/chromium` package passed **10/10** desktop and Android RTL tests, including real attachment download and a visible quota error. No runtime package was added to the repository. TypeScript, build, SQLite backend/export, Auth, HTTP and PWA checks passed locally.
+
+## Session presence guard
+- Based on [Supabase session guidance](https://supabase.com/docs/guides/auth/sessions): logout removes affected `auth.sessions` rows, while an issued access token can outlive logout. Do not treat decoded JWT claims or `getSession().user` as verified identity.
+- New server flag `FARMAKON_STRICT_SESSIONS_ENABLED=true` gets a session token, verifies that **exact token** with `getUser(token)`, checks its subject against the verified user, validates the session UUID, then checks the private backend-only `session_is_active` boolean lookup. Missing/revoked/mismatched sessions deny access; lookup outages fail closed. Flag remains off in existing previews/production until activation and integration review.
+- Staging SQL has a pinned empty search_path and revokes PUBLIC/anon/authenticated access to the arbitrary-session lookup. Only `farmakon_app` may execute it, without direct SELECT on Auth tables. A separate self-only wrapper uses Storage's provider-verified JWT; a restrictive RLS policy adds an active-session requirement for the Farmakon bucket without granting any new object operation.
+- Applied the backend lookup and Storage guard as two additive staging migrations. Read-only aggregate checks confirmed existing sessions match, a missing session is denied, browser roles cannot call the backend lookup, and the backend cannot directly SELECT Auth sessions. Security advisor still reports only disabled leaked-password protection. Existing authenticated owner media read still rendered the synthetic 16×16 PNG after the Storage policy change.
+- PostgreSQL fixture coverage includes user binding, explicit `not_after` expiry, removed-session rejection, browser/helper/table privilege denial, and revoked owner Storage read/upload denial. Auth transport tests verify the exact token is checked before session data, deny missing/malformed/foreign claims, and fail closed on lookup failure. Check CI on the new session code before claiming those new SQL tests pass.
+- This verifies presence and explicit provider `not_after`, not a paid idle-timeout/single-session feature. It does not cancel in-flight requests or invalidate previously issued media signed URLs before their short TTL. Global logout controls, full deletion and a complete retention/consent policy remain open.
+- Automatic review rejected the CLI continuation because of attempted telemetry to PostHog. The CLI-created empty filename already existed; it was retained and filled locally without rerunning the CLI, and DDL was applied through the linked Supabase connector. No bypass of the blocked telemetry action was attempted.
