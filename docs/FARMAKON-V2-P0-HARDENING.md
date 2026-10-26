@@ -14,9 +14,9 @@
 ## Isolated Supabase preparation
 - Quoted project cost was **$0/month** in the existing Farmakon Free organization. Created `Farmakon-Staging`, ref `qfzharpouemueipsrduv`, eu-central-1, ACTIVE_HEALTHY. No paid upgrade or add-on. This is the creation quote, not a guarantee of unlimited hosting.
 - Applied an empty six-table legacy schema with private grants/RLS, plus the additive rate-limit migration **only to this staging project**. Bootstrap script is staging-only, not a production migration and must never run on a populated project.
-- `farmakon_app` is deliberately NOLOGIN, without superuser/role creation/DB creation/RLS bypass. Browser roles have no table access. All seven tables have RLS, and backend CRUD grants are present. Staging security advisor returned no lints on inspection.
+- `farmakon_app` was initially NOLOGIN and now has an expiring staging-only login as documented below, without superuser/role creation/DB creation/RLS bypass. Browser roles have no table access. All seven tables have RLS, and backend CRUD grants are present. Staging security advisor returned no lints on inspection.
 - No production records, users or media copied. A connector attempt to SET ROLE farmakon_app was denied; no grants were expanded to bypass it, and verification found zero retained probe rows. ACL inspection is not a substitute for an actual authenticated runtime test.
-- Vercel overrides are restricted to preview branch `feat/farmakon-v2-p0-hardening`: Supabase URL/key point to staging, owner email is an invalid synthetic domain, DATABASE_URL/CA are deliberately blank, and limiter remains off. This prevents the branch inheriting production DB access. It intentionally cannot load platform data until a verified staging connection is configured. No production/default preview values were edited.
+- Vercel overrides are restricted to preview branch `feat/farmakon-v2-p0-hardening`: Supabase URL/key point to staging, owner email is an invalid synthetic domain, DATABASE_URL/CA were initially blank and are now set to the verified staging-only connection described below; limiter remains off. This prevents the branch inheriting production DB access. No production/default preview values were edited.
 
 ## Validation
 Local: TypeScript, production compilation, SQLite/API regression, Auth contract, bounded-request tests and PWA checks passed during this slice. Desktop/mobile Playwright passed 6/6 with fixture Auth transport. Check the PR's exact code commit and CI for PostgreSQL concurrency, quotas and pg_dump restoration; do not infer pass from configured jobs.
@@ -29,13 +29,13 @@ Local: TypeScript, production compilation, SQLite/API regression, Auth contract,
 - Read-only metadata verification confirmed all six staging overrides target only `preview` + branch `feat/farmakon-v2-p0-hardening`.
 
 ## Remaining before F00 can pass
-1. Obtain the verified staging transaction-pooler host/TLS connection configuration, provision a restricted login credential, and set branch-only DB variables. Do not guess pooler hostnames or turn off certificate verification.
+1. Staging connection/TLS gate completed below. Keep the restricted credential expiry in the operational checklist; do not turn off certificate verification.
 2. Configure staging Auth callback/redirect allowlist and synthetic test identities, then test real signup/confirm/reset/logout and Storage entitlement/RLS on protected preview. A publishable key alone does not provide admin user management or email delivery access.
 3. Account export/deletion/retention and session invalidation workflow remain unfinished. Do not claim a deletion request deletes an Auth account.
 4. Review production backup availability and actual restore runbook separately from the synthetic CI drill.
 5. Tune rate limits, test abuse/load/real-device offline behavior, resolve or accept production advisories, and review migrations/rollout. Production remains on its original main commit.
 
-The Supabase connector available in this session does not expose Auth configuration, the verified pooler connection panel or admin-user lifecycle operations. Dashboard configuration is needed before the real staging gates can be completed. No browser fallback or credential retrieval was attempted in this slice.
+The Supabase connector available in this session does not expose Auth configuration, the verified pooler connection panel or admin-user lifecycle operations. Dashboard configuration is needed before the real staging gates can be completed. The later authorized dashboard continuation is documented below; no existing database credential was retrieved.
 
 ## Staging dashboard and TLS configuration — 2026-10-26
 - Signed into the Supabase dashboard after user-completed CAPTCHA. Verified project `Farmakon-Staging` (`qfzharpouemueipsrduv`) before editing.
@@ -52,3 +52,9 @@ The Supabase connector available in this session does not expose Auth configurat
 - Dashboard inspection confirmed email provider enabled, Confirm email enabled, anonymous sign-ins disabled and manual linking disabled. These protections were not weakened.
 - Final alias audit: `farmakon.vercel.app`, `farmakon-phqmr7s.vercel.app`, and `farmakon-git-main-phqmr7s.vercel.app` all map to original production deployment `dpl_BNWbrbCXEvRK9BxEqJd4Tkmorctg`.
 - The live `/api/platform` connector read could not distinguish the app's 401 from deployment authentication and returned `deployment_authentication_required`; no live unauthenticated-API pass is claimed from that response. Opening the branch login in the cloud browser reached Vercel's sign-in wall. Browser-based student lifecycle testing requires authorized Vercel sign-in and a user-created test account. Never disable deployment protection or email confirmation merely to pass that test.
+
+### Protected browser and Auth gate — 2026-10-26
+- After user-completed Vercel authentication, the stable branch `/login` page visibly rendered Farmakon; deployment protection remains enabled.
+- A user-attempted application login showed the generic failure response. Read-only Auth log aggregation confirmed one `invalid_credentials` / 400 event. No credentials or user identifiers were inspected. Read-only staging `auth.users` aggregation returned **0 users, 0 confirmed users**; no production identities were copied. An empty isolated environment needs a new test identity before successful sign-in can be verified.
+- Latest checked documentation head `b58b54c57ea17076a6b997e96a18c5fce50ee87a` passed GitHub Actions [run 40281441993](https://github.com/PhQMR7S/Farmakon/actions/runs/40281441993).
+- Successful signup/confirmation, session/logout/recovery, two-user isolation and Storage access remain unverified on real Auth. User must complete test-account creation and new-password entry directly in the browser; do not collect secrets in chat or bypass email confirmation. F00 remains open; no dependent feature is marked complete.
