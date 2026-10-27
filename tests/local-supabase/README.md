@@ -66,3 +66,15 @@ Reproduce by the opt-in workflow on a fresh authorized runner. Local scripts
 refuse a non-Actions/non-repository context to avoid accidentally targeting
 the user's workstation. No database dumps, snapshots, keys or mail bodies are
 saved to git/Drive/Actions artifacts.
+
+## F00.10.1 outcome
+
+Metadata run 40555923254 verified the six official GHCR amd64 manifests.
+images.lock.json pins those digests. prefetch.mjs performs bounded sequential
+pulls with one download and one attempt, restores the previous daemon config,
+and uses only the ephemeral local layer cache. Corrected run 40556678468 still
+failed on the first PostgreSQL image with a request limit; no service tests ran.
+Do not repeat pulls without a new approved technical access path. The stale-head
+assertion rejects an outdated PR event before downloading. Both opt-in labels
+were removed. See docs/FARMAKON-F00-LOCAL-SUPABASE-UNBLOCK-REPORT.md for evidence,
+cleanup, the unproved second cycle, and the open PostgreSQL 40001 reliability risk.

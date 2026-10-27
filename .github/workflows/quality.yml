@@ -29,7 +29,7 @@ jobs:
           python3 - <<'PY'
           import os, subprocess
           paths=subprocess.check_output(['git','diff','--name-only','0bc525e268a1fc330d531ccbfefc8c28decd5749','HEAD'],text=True).splitlines()
-          allowed=lambda p: p.startswith('tests/local-supabase/') or p in ('.github/workflows/local-supabase.yml','.github/workflows/quality.yml','.github/workflows/local-registry-diagnostic.yml','docs/FARMAKON-F00-LOCAL-SUPABASE-VALIDATION-REPORT.md','docs/FARMAKON-F00-LOCAL-SUPABASE-UNBLOCK-REPORT.md','docs/evidence/F00.10.1-RELIABILITY.json')
+          allowed=lambda p: p.startswith('tests/local-supabase/') or p in ('.github/workflows/local-supabase.yml','.github/workflows/quality.yml','.github/workflows/local-registry-diagnostic.yml','docs/FARMAKON-F00-LOCAL-SUPABASE-VALIDATION-REPORT.md','docs/FARMAKON-F00-LOCAL-SUPABASE-UNBLOCK-REPORT.md','docs/evidence/F00.10.1-RELIABILITY.json','docs/evidence/F00.10.1-REGISTRY.json')
           isolated=os.environ.get('LOCAL_MODE')=='true' and bool(paths) and all(allowed(p) for p in paths)
           with open(os.environ['GITHUB_OUTPUT'],'a') as f: f.write('local_only='+str(isolated).lower()+'\n')
           print('Regression checkpoint: only isolated audit tooling changes may skip unchanged regression.')
