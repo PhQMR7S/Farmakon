@@ -86,8 +86,6 @@ jobs:
     timeout-minutes: 15
     services:
       postgres:
-    needs: scope
-    if: needs.scope.outputs.local_only != 'true'
         image: postgres:17
         env:
           POSTGRES_DB: farmakon_v2_test
