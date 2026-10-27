@@ -73,6 +73,15 @@
 
 قراءة Vercel الحالية أثبتت `ssoProtection.enabled=true` لكل Previews. رابط الفرع ما زال READY على `dpl_DPr2sND99XFrS8n7t4Kz818TrVc3` / `8658f1c`، وProduction على `dpl_BNWbrbCXEvRK9BxEqJd4Tkmorctg` / `7258c50`. لا نشر Preview جديدة؛ النشر التلقائي للفرع ما زال مغلقاً. لم أخفض Deployment Protection أو أغير Vercel/Supabase environments. لا claim بأن F00.4 منشورة. فحص information_schema في Staging أثبت حقول Auth المطلوبة ووجود Storage `owner_id text` و`owner uuid` معاً؛ helper يغطي القديم والجديد ويرفض تضارب ملكية asset/object.
 
+## الملفات والإصلاح الإضافي
+
+- `app/api/account/delete/route.ts` و`app/account/delete/{page,delete-form}.tsx`: قبول الحذف الاصطناعي وتأكيده ومسح الكاش.
+- `lib/farmakon/privacy/{gate,deletion,store,provider,reauth}.ts`: حصر البيئة والهوية، orchestration وlease، حذف بيانات الاختبار ومزود العامل وإعادة التحقق.
+- `app/lib/server.ts`: حجب tombstone؛ `scripts/staging/f004-synthetic-deletion.sql`: جدول RLS وhelpers وحواجز الكتابة. خارج migrations الإنتاج، وغير مطبق على Supabase.
+- `app/platform.tsx`: عند رفض جلسة بـ401 كانت الصفحة تعيد توجيه المستخدم وتترك التنزيلات المحلية؛ أصبحت تمسح التنزيلات ووسم المستخدم وتخفي بيانات الشاشة قبل العودة للدخول. لا تغير Offline TTL ولا حذفاً لملفات مستخدم سليم.
+- `tests/privacy-{smoke,postgres,browser}.mjs` و`tests/recovery-dr.mjs`، وتحديث auth/E2E وCI. لا dependencies أو lockfile متغيرة.
+- الاختبارات الجديدة في CI تشمل 401/cache وملكية Storage القديمة/المتضاربة. إعداد fixture أُصلح ليتم قبل قبول الحذف؛ تجهيزها بعده رفضه الحاجز كما ينبغي.
+
 ## التراجع والمخاطر وبوابات F00
 
 - flag يبقى معطلاً؛ revert لكود F00.4 لا يغيّر بيانات لأن SQL غير مطبق. بعد تطبيقه مستقبلاً: لا تعطل tombstone/session barriers أثناء وجود طلب حذف؛ أوقف القبول والعامل وأبقِ الحجب حتى المراجعة. حذف Auth/Objects نهائي لا يعكسه revert للكود. لا تعد الحساب من نسخة قديمة تلقائياً.

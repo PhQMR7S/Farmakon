@@ -32,3 +32,13 @@ test('a valid unexpired cached file still opens',async({page})=>{
  await expect.poll(()=>page.evaluate(()=>(window as any).__openedOffline)).toMatch(/^blob:/);
  expect(await page.evaluate(async()=>!!await(await caches.open('farmakon-downloads-v1')).match('/api/media?id=expiry-fixture'))).toBe(true);
 });
+
+
+test('server-denied session clears local downloads before returning to login',async({page})=>{
+ await page.goto('/login');await seed(page,String(Date.now()+600000));
+ await page.evaluate(()=>localStorage.setItem('farmakon-device-user','deleted-fixture'));
+ await page.route('**/api/platform',route=>route.fulfill({status:401,json:{error:'سجّل الدخول'}}));
+ await page.goto('/');await expect(page).toHaveURL(/\/login$/);
+ await expect.poll(()=>page.evaluate(async()=>!!await(await caches.open('farmakon-downloads-v1')).match('/api/media?id=expiry-fixture'))).toBe(false);
+ expect(await page.evaluate(()=>localStorage.getItem('farmakon-device-user'))).toBe(null);
+});
