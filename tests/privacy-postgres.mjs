@@ -25,6 +25,8 @@ try{
   for(const kind of ['attempt','order','ticket'])await db.prepare('INSERT INTO records VALUES(?,?,?,?,?)').bind(uid+kind,kind,'course',JSON.stringify({userId:uid,email:mail}),0).run();
  }
  await db.prepare('INSERT INTO codes VALUES(?,?,?,?,?,?,?,?)').bind('used','hash','xxxx','course',365,Date.now()+60000,email,0).run();
+ await pool.query("INSERT INTO storage.objects(name,bucket_id,owner_id) VALUES('mismatch','farmakon',$1)",[b]);
+ await db.prepare('INSERT INTO records VALUES(?,?,?,?,?)').bind('mismatch','asset','',JSON.stringify({owner:a}),0).run();
  const accept=()=>db.transaction(async()=>db.prepare("INSERT INTO farmakon.deletion_jobs(user_id,email,policy,created,updated) VALUES(?,?,'synthetic-v1',0,0) ON CONFLICT DO NOTHING").bind(a,email).run());
  const late=await pool.connect();
  await late.query('BEGIN ISOLATION LEVEL SERIALIZABLE');
@@ -44,6 +46,9 @@ try{
  await assert.rejects(()=>db.prepare('INSERT INTO enrollments VALUES(?,?,?,?,?)').bind('late',email,'another',999,'fixture').run(),e=>e.code==='42501');
  await pool.query('SELECT farmakon.revoke_synthetic_sessions($1)',[a]);assert.equal((await pool.query('SELECT * FROM auth.sessions WHERE user_id=$1',[a])).rowCount,0);
  await assert.rejects(()=>pool.query('SELECT farmakon.revoke_synthetic_sessions($1)',[b]),/DELETION_SCOPE/);
+ await assert.rejects(()=>pool.query('SELECT * FROM farmakon.synthetic_owned_files($1)',[a]),/SHARED_OR_UNKNOWN/);
+ await db.prepare('DELETE FROM records WHERE id=?').bind('mismatch').run();
+ await pool.query("DELETE FROM storage.objects WHERE name='mismatch'");
  // Orphaned object is discovered. Course/shared reference blocks removal.
  await pool.query("INSERT INTO storage.objects(name,bucket_id,owner_id) VALUES('orphan','farmakon',$1)",[a]);
  assert.deepEqual((await pool.query('SELECT * FROM farmakon.synthetic_owned_files($1)',[a])).rows,[{name:'orphan'}]);
@@ -52,11 +57,6 @@ try{
  await db.prepare('INSERT INTO records VALUES(?,?,?,?,?)').bind('shared','file','course','{"assetId":"orphan"}',0).run();
  await assert.rejects(()=>pool.query('SELECT * FROM farmakon.synthetic_owned_files($1)',[a]),/SHARED/);
  await db.prepare('DELETE FROM records WHERE id=?').bind('shared').run();
- await pool.query("INSERT INTO storage.objects(name,bucket_id,owner_id) VALUES('mismatch','farmakon',$1)",[b]);
- await db.prepare('INSERT INTO records VALUES(?,?,?,?,?)').bind('mismatch','asset','',JSON.stringify({owner:a}),0).run();
- await assert.rejects(()=>pool.query('SELECT * FROM farmakon.synthetic_owned_files($1)',[a]),/SHARED_OR_UNKNOWN/);
- await db.prepare('DELETE FROM records WHERE id=?').bind('mismatch').run();
- await pool.query("DELETE FROM storage.objects WHERE name='mismatch'");
  globalThis.__privacyDB=db; // default parameter resolves the injected adapter below
  // Reload after injection (module captures database during evaluation).
  const {deletionStore}=await import(compile(fs.readFileSync('lib/farmakon/privacy/store.ts','utf8').replace("import {database} from '../../database';",'const database=globalThis.__privacyDB;')+'\n// injected'));
