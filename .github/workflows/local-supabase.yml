@@ -8,7 +8,7 @@ permissions:
   contents: read
 concurrency:
   group: farmakon-f0010-local
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   local:
     if: >-
@@ -29,6 +29,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+      - name: Reject stale PR event before downloads
+        run: |
+          current=$(git ls-remote https://github.com/PhQMR7S/Farmakon.git refs/heads/audit/f00-regression-2026-10-26 | cut -f1)
+          test "$(git rev-parse HEAD)" = "$current"
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '24'
