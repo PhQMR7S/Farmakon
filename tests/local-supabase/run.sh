@@ -36,6 +36,7 @@ sed -i "s/project_id = \"f0010-ci\"/project_id = \"$project\"/" "$state/work/sup
 docker network create -o com.docker.network.bridge.host_binding_ipv4=127.0.0.1 "$project-net" >/dev/null
 "${cli[@]}" --version
 "${cli[@]}" start --help >"$state/start-help.txt" 2>&1
+node tests/local-supabase/prefetch.mjs
 timeout 480s "${cli[@]}" --workdir "$state/work" --network-id "$project-net" start -x realtime,imgproxy,studio,postgres-meta,edge-runtime,logflare,vector,supavisor >"$state/start.log" 2>&1 || { node tests/local-supabase/diagnose.mjs "$state/start.log" "$project"; exit 1; }
 "${cli[@]}" --workdir "$state/work" status -o json >"$state/status.json" 2>"$state/status.log"
 node tests/local-supabase/verify.mjs "$state/status.json" "$project"

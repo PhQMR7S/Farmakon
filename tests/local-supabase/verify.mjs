@@ -142,6 +142,7 @@ try{
  assert.notEqual((await auth('user',undefined,original.access_token,publicKey,'GET')).status,200);
  assert.notEqual((await fetchLocal(signedUrl,{headers:{'Cache-Control':'no-store'}})).status,200);
  const refreshed=await auth('token?grant_type=refresh_token',{refresh_token:original.refresh_token});assert.equal(refreshed.status,200);assert.ok(claims(refreshed.data).exp>c.exp);
+ assert.notEqual(refreshed.data.refresh_token,original.refresh_token);assert.equal(claims(refreshed.data).session_id,c.session_id);
  assert.equal((await auth('user',undefined,refreshed.data.access_token,publicKey,'GET')).status,200);
  assert.equal((await storage('object/authenticated/farmakon/'+files[1].name,original.access_token)).status===200,false);
  passed('natural-local-jwt-expiry-refresh-and-signed-url-expiry');

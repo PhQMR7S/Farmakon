@@ -1,0 +1,51 @@
+{
+  "source": "https://github.com/supabase/cli/blob/v2.81.3/pkg/config/templates/Dockerfile",
+  "verificationRun": 40555923254,
+  "platform": "linux/amd64",
+  "uniqueCompressedLayerBytes": 665299138,
+  "images": [
+    {
+      "repository": "ghcr.io/supabase/postgres",
+      "tag": "17.6.1.095",
+      "tagDigest": "sha256:965e2dfb5a23a0d6541b6106541e777b303656ebabd4e878746b189d550c0a66",
+      "digest": "sha256:4c087262afbfbb47da86e2863a52d7e424eb21ab589f732d77eeaab51be8e521",
+      "compressedBytes": 362097222
+    },
+    {
+      "repository": "ghcr.io/supabase/gotrue",
+      "tag": "v2.187.0",
+      "tagDigest": "sha256:8b0b3f68d9a8667e183b481ff74f5d72eedc1e8b70f6bde2aab1e5d79d16df62",
+      "digest": "sha256:6ff0cda74c95330a3a7836d6b1f67b1c27de9fa9044e738bd170765c205eed5a",
+      "compressedBytes": 25293757
+    },
+    {
+      "repository": "ghcr.io/supabase/storage-api",
+      "tag": "v1.41.8",
+      "tagDigest": "sha256:e43d86f81570b58e2a5d048d32694635f467cfd34348ede6fd7ceeb89825d842",
+      "digest": "sha256:60593d7bb7c37adfef80077db6b079330495dfd83cc4be4c7b3d87b455c392d6",
+      "compressedBytes": 213882819
+    },
+    {
+      "repository": "ghcr.io/supabase/kong",
+      "tag": "2.8.1",
+      "tagDigest": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d",
+      "digest": "sha256:e21b0b793879ab96720ed4188f9441260273f4bf775bcbff8d435e019ffb759a",
+      "compressedBytes": 49335657
+    },
+    {
+      "repository": "ghcr.io/supabase/postgrest",
+      "tag": "v14.5",
+      "tagDigest": "sha256:b574528fe109c8343c1247155734d03df8c34b462f342dca0ccc20244fc36ef9",
+      "digest": "sha256:bb289d00570b569525e1e22fb77c49cd17c17ca3f41da9ee2b4351a35027551b",
+      "compressedBytes": 6287369
+    },
+    {
+      "repository": "ghcr.io/supabase/mailpit",
+      "tag": "v1.22.3",
+      "tagDigest": "sha256:f7f7c31de4de59540ad6515a0ca057a77525bca2069b6e747d873ca66c10fe08",
+      "digest": "sha256:168f762c218e167ba88ae7e48194126eb5ba5e99ef652063e3f14f9c4f0ee70f",
+      "compressedBytes": 12264135
+    }
+  ]
+}
+
