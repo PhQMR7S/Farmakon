@@ -37,3 +37,26 @@ export async function hash(s:string){const b=await crypto.subtle.digest('SHA-256
 
 // Attempt snapshots contain protected course content; recheck live authorization on every use.
 export async function canReadAttempt(at:any,email:string,admin:boolean){const ex=await record(at.examId);return !!ex&&ex.kind==='exam'&&ex.courseId===at.courseId&&await canRead(ex,email,admin);}
+
+// v2 freezes answer input at deadline. The historical 15s transport grace is
+// retained for legacy attempts only; never reinterpret already awarded results.
+export const examGraceMs=15000;
+export function examAnswers(at:any,input:Record<string,number>){
+ const keys=new Set(at.questions.map((q:any)=>q.id));
+ if(Object.keys(input).some(k=>!keys.has(k)))throw Error('EXAM_ANSWERS');
+ return {...(at.answers||{}),...input};
+}
+export function examDue(at:any,now:number){return now>=at.deadline+(at.timingVersion===2?0:examGraceMs);}
+export function publicAttempt(at:any,now=Date.now()){
+ const {questions,result,...safe}=at;
+ return {...safe,serverNow:now,questions:questions.map(({correct,explanation,...q}:any)=>q),...(at.status==='done'?{result}:{} )};
+}
+// Must run within the existing SERIALIZABLE transaction. Concurrent save/submit
+// or lazy settlement conflicts are rolled back and retried by the DB adapter.
+export async function finishExam(at:any,now:number,answers=at.answers||{}){
+ if(at.status==='done')return at.result;
+ const result={score:at.questions.filter((q:any)=>answers[q.id]===q.correct).length,total:at.questions.length,late:now>at.deadline+examGraceMs,expired:now>=at.deadline,questions:at.questions.map((q:any)=>({...q,selected:answers[q.id]??null}))};
+ await write('attempt',{...at,answers,status:'done',settledAt:now,result},at.id);
+ await db().prepare('INSERT INTO activity(id,user_id,kind,target,data,updated) VALUES(?,?,?,?,?,?) ON CONFLICT(user_id,kind,target) DO NOTHING').bind(uuid(),at.userId,'exam',at.id,JSON.stringify({score:result.score,total:result.total,title:at.title||(await record(at.examId))?.title}),now).run();
+ return result;
+}

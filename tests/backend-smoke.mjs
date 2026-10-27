@@ -120,4 +120,47 @@ console.log('PASS: scoped study export, cross-user/admin/content secrecy, bounde
 
 const driveSource=compile(fs.readFileSync('app/lib/drive.ts','utf8'));const {drivePreview}=await import('data:text/javascript;base64,'+Buffer.from(driveSource).toString('base64'));assert.equal(drivePreview('https://drive.google.com/file/d/abc_123/view?resourcekey=key'),'https://drive.google.com/file/d/abc_123/preview?resourcekey=key');assert.equal(drivePreview('https://drive.google.com.evil.test/file/d/abc/view'),null);assert.equal(drivePreview('javascript:alert(1)'),null);console.log('PASS: Drive URL allowlist and payment approval issues a code without enrollment.');
 
+// F00.6: controllable server clock exists only inside this test process.
+const realNow=Date.now;let clock=realNow();Date.now=()=>clock;
+try{
+ user=owner;await post({action:'save',kind:'course',id:c.id,data:{title:'Test course',description:'',stage:'3',category:'Pharmacy',price:50000,days:180,status:'published',color:'teal'}});await post({action:'enroll',email:student.email,courseId:c.id,days:1});
+ const q2=await post({action:'save',kind:'question',data:{title:'Second snapshot question',courseId:c.id,topic:'test',options:['one','two','three','four'],correct:2,explanation:'Original key explanation',source:'Fixture',status:'published',free:false}});
+ const timed=await post({action:'save',kind:'exam',data:{title:'Clock fixture',courseId:c.id,minutes:1,questionIds:[q.id,q2.id],free:false,status:'published'}});
+ user=student;const first=await post({action:'startExam',id:timed.id});assert.equal(first.startedAt,clock);assert.equal(first.deadline,clock+60000);assert.equal(first.serverNow,clock);assert.equal(first.timingVersion,2);assert.ok(!JSON.stringify(first).includes('"correct"'));
+ clock+=10000;assert.equal((await post({action:'startExam',id:timed.id})).deadline,first.deadline);
+ await post({action:'saveExam',id:first.id,answers:{[q.id]:1}});await post({action:'saveExam',id:first.id,answers:{notInSnapshot:0}},400);
+ // Administration edits must not change the held snapshot or scoring key.
+ user=owner;await post({action:'save',kind:'question',id:q2.id,data:{title:'Edited after start',courseId:c.id,topic:'test',options:['new one','new two','new three','new four'],correct:0,explanation:'Changed',source:'Fixture',status:'draft',free:false}});
+ user=student;clock=first.deadline-1;await post({action:'saveExam',id:first.id,answers:{[q2.id]:2}});
+ clock=first.deadline;await post({action:'saveExam',id:first.id,answers:{[q.id]:0}},409);
+ // A request processed at deadline cannot inject new answers through submit's grace.
+ const expired=await post({action:'submitExam',id:first.id,answers:{[q.id]:0,[q2.id]:0}});assert.equal(expired.score,2);assert.equal(expired.expired,true);assert.equal(expired.late,false);assert.equal(expired.questions[1].title,'Second snapshot question');
+ assert.deepEqual(await post({action:'submitExam',id:first.id,answers:{}}),expired);
+ assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM activity WHERE target=? AND kind=?').bind(first.id,'exam').first()).n,1);
+ // Close all pages: no client event, then lazy settlement on actual GET.
+ const absent=await post({action:'startExam',id:ex.id});await post({action:'saveExam',id:absent.id,answers:{[q.id]:1}});clock=absent.deadline+20000;
+ state=await(await mod.GET()).json();assert.ok(state.completedAttempts.some(a=>a.id===absent.id&&a.result.score===1&&a.result.late));assert.ok(!state.attempts.some(a=>a.id===absent.id));
+ await mod.GET();assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM activity WHERE target=? AND kind=?').bind(absent.id,'exam').first()).n,1);
+ // Old active rows retain the historical grace; awarded old rows never regrade.
+ const legacy={userId:student.userId,examId:ex.id,courseId:c.id,questions:[{id:q.id,options:['a','b','c','d'],correct:1}],answers:{},deadline:clock-10000,status:'active'};
+ await db.prepare('INSERT INTO records(id,kind,course_id,data,created) VALUES(?,?,?,?,?)').bind('legacy-grace','attempt',c.id,JSON.stringify(legacy),clock).run();
+ state=await(await mod.GET()).json();assert.ok(state.attempts.some(a=>a.id==='legacy-grace'));
+ assert.equal((await post({action:'submitExam',id:'legacy-grace',answers:{[q.id]:1}})).score,1);
+ await db.prepare('INSERT INTO records(id,kind,course_id,data,created) VALUES(?,?,?,?,?)').bind('legacy-late','attempt',c.id,JSON.stringify({...legacy,deadline:clock-15001,answers:{[q.id]:1}}),clock).run();
+ assert.equal((await post({action:'submitExam',id:'legacy-late',answers:{[q.id]:0}})).score,1);
+ if(process.env.FARMAKON_TEST_DATABASE_URL){
+  const pair=await Promise.all([post({action:'startExam',id:ex.id}),post({action:'startExam',id:ex.id})]);assert.equal(pair[0].id,pair[1].id);
+  const cid=pair[0].id;
+  // Two patches of different snapshot questions merge without clearing saved keys.
+  user=owner;await post({action:'save',kind:'question',id:q2.id,data:{title:'Second question',courseId:c.id,topic:'test',options:['one','two','three','four'],correct:2,explanation:'Explanation',source:'Fixture',status:'published',free:false}});
+  user=student;const multi=await post({action:'startExam',id:timed.id});
+  await Promise.all([post({action:'saveExam',id:multi.id,answers:{[q.id]:1}}),post({action:'saveExam',id:multi.id,answers:{[q2.id]:2}})]);
+  const persisted=JSON.parse((await db.prepare('SELECT data FROM records WHERE id=?').bind(multi.id).first()).data);assert.deepEqual(persisted.answers,{[q.id]:1,[q2.id]:2});
+  clock=pair[0].deadline+20000;await Promise.all([mod.GET(),mod.GET(),post({action:'submitExam',id:cid,answers:{[q.id]:1}})]);
+  assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM activity WHERE target=? AND kind=?').bind(cid,'exam').first()).n,1);
+  console.log('PASS: PostgreSQL concurrent patch merge, two-device starts and GET/submit expiry settlement exactly once.');
+ }
+ console.log('PASS F00.6: fixed server deadline, exact boundary, grace injection denied for v2, immutable keys, preserved acknowledged answers, lazy settlement, legacy grace and stable results.');
+}finally{Date.now=realNow;}
+
 } finally { await closeDatabase(); }
