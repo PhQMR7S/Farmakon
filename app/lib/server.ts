@@ -28,6 +28,25 @@ export async function identity(){
 export async function owner(u:{userId:string,email?:string}){return !!process.env.FARMAKON_OWNER_EMAIL&&u.email===process.env.FARMAKON_OWNER_EMAIL.toLowerCase();}
 export async function record(id:string){const r=await db().prepare('SELECT * FROM records WHERE id=?').bind(id).first<any>();return r?{...JSON.parse(r.data),id:r.id,kind:r.kind,courseId:r.course_id,created:r.created}:null;}
 export async function rows(kind:string){const {results}=await db().prepare('SELECT * FROM records WHERE kind=? ORDER BY created DESC').bind(kind).all<any>();return results.map(r=>({...JSON.parse(r.data),id:r.id,kind:r.kind,courseId:r.course_id,created:r.created}));}
+// Request-scoped database filtering; never a cross-user/shared cache.
+export async function userRows(kind:string,userId:string,status?:string,limit?:number){
+ const clause=status?" AND json_extract(data,'$.status')=?":'';
+ const cap=limit?' LIMIT ?':'';
+ const args:unknown[]=[kind,userId];if(status)args.push(status);if(limit)args.push(limit);
+ const {results}=await db().prepare("SELECT * FROM records WHERE kind=? AND json_extract(data,'$.userId')=?"+clause+' ORDER BY created DESC,id DESC'+cap).bind(...args).all<any>();
+ return results.map(r=>({...JSON.parse(r.data),id:r.id,kind:r.kind,courseId:r.course_id,created:r.created}));
+}
+export async function assetReferences(assetId:string){
+ const {results}=await db().prepare("SELECT * FROM records WHERE kind IN ('lesson','file') AND json_extract(data,'$.assetId')=?").bind(assetId).all<any>();
+ return results.map(r=>({...JSON.parse(r.data),id:r.id,kind:r.kind,courseId:r.course_id,created:r.created}));
+}
+export async function publishedRows(kind:string){
+ const {results}=await db().prepare("SELECT * FROM records WHERE kind=? AND json_extract(data,'$.status')='published' ORDER BY created DESC,id DESC").bind(kind).all<any>();
+ return results.map(r=>({...JSON.parse(r.data),id:r.id,kind:r.kind,courseId:r.course_id,created:r.created}));
+}
+// Only fixed operation names enter technical logs; never serialize provider/SQL
+// exceptions, which can embed account values, cookies or signed URLs.
+export function reportFailure(operation:string){console.error(JSON.stringify({event:'farmakon_api_failure',operation}));}
 export async function write(kind:string,data:any,id=uuid()){await db().prepare('INSERT INTO records(id,kind,course_id,data,created) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data,course_id=excluded.course_id').bind(id,kind,data.courseId||'',JSON.stringify(data),Date.now()).run();return id;}
 export async function access(email:string,courseId:string,isAdmin:boolean){if(isAdmin)return true;if(!courseId)return false;return !!await db().prepare('SELECT id FROM enrollments WHERE email=? AND course_id=? AND expires>?').bind(email,courseId,Date.now()).first();}
 export async function canRead(r:any,email:string,admin:boolean){if(admin)return true;if(!r||r.status!=='published')return false;const c=r.kind==='course'?r:await record(r.courseId);if(!c||c.kind!=='course'||c.status!=='published')return false;return !!r.free||await access(email,c.id,false);}

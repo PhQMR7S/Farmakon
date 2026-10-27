@@ -185,4 +185,14 @@ try{
  console.log('PASS F00.6: fixed server deadline, exact boundary, grace injection denied for v2, immutable keys, preserved acknowledged answers, lazy settlement, legacy grace and stable results.');
 }finally{Date.now=realNow;}
 
+// F00.7 failure evidence: exceptions may contain private data; logs must not.
+const privateMarker='SYNTHETIC_PASSWORD_TOKEN_COOKIE_EMAIL_NEVER_LOG';const dbBeforeFault=globalThis.__farmTest.env.DB;const bucketBeforeFault=globalThis.__farmTest.env.BUCKET;const logBeforeFault=console.error;const captured=[];
+try{
+ console.error=(...args)=>captured.push(args.join(' '));user=student;
+ globalThis.__farmTest.env.DB={transaction:async()=>{throw Error(privateMarker)},prepare(){throw Error(privateMarker)}};
+ for(const response of [await mod.GET(),await mod.POST(new Request('https://farm.test/api/platform',{method:'POST',headers:{origin:'https://farm.test'},body:JSON.stringify({action:'saveExam',id:'synthetic',answers:{}})}))]){assert.ok([500,503].includes(response.status));assert.ok(!(await response.text()).includes(privateMarker));}
+ globalThis.__farmTest.env.DB=dbBeforeFault;user=owner;globalThis.__farmTest.env.BUCKET={async get(){throw Error(privateMarker)}};
+ const unavailableMedia=await media.GET(new Request('https://farm.test/api/media?id='+asset.id));assert.equal(unavailableMedia.status,503);assert.ok(!(await unavailableMedia.text()).includes(privateMarker));assert.ok(!captured.join(' ').includes(privateMarker));assert.ok(captured.some(v=>v.includes('farmakon_api_failure')));
+ console.log('PASS F00.7: DB/Storage outages return generic failures; raw exceptions, private values and tokens cannot enter technical logs.');
+}finally{globalThis.__farmTest.env.DB=dbBeforeFault;globalThis.__farmTest.env.BUCKET=bucketBeforeFault;console.error=logBeforeFault;}
 } finally { await closeDatabase(); }

@@ -22,9 +22,9 @@ export async function testDatabase(){
   .replace("from 'pg'",`from ${JSON.stringify(import.meta.resolve('pg'))}`)
   .replaceAll('process.env.DATABASE_URL','process.env.FARMAKON_TEST_DATABASE_URL')
   .replace('ssl:{rejectUnauthorized:true,ca:process.env.DATABASE_CA_CERT}','ssl:false')
-  +'\nexport async function closeTestPool(){await pool?.end();}';
+  +'\nexport async function closeTestPool(){await pool?.end();}export function testPoolStats(){return {total:pool?.totalCount||0,idle:pool?.idleCount||0,waiting:pool?.waitingCount||0};}';
  const code=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText;
  const mod=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
  console.log('PostgreSQL integration: real production SQL adapter + route handlers; stubbed Auth/Storage transport.');
- return {db:mod.database,async close(){await mod.closeTestPool();await bootstrap.query('DROP SCHEMA farmakon CASCADE');await bootstrap.end();}};
+ return {db:mod.database,stats:mod.testPoolStats,async close(){await mod.closeTestPool();await bootstrap.query('DROP SCHEMA farmakon CASCADE');await bootstrap.end();}};
 }
