@@ -21,9 +21,9 @@ fail='';await Promise.all(Array.from({length:8},()=>resumeDeletion(store,provide
 assert.equal(await resumeDeletion(store,provider,fixture.id),'busy-or-complete');
 console.log('PASS: production disabled, pinned Staging gate, provider-admin fixture scope, resumable Storage/Auth failures, concurrent worker exclusion; provider transport fixtures.');
 // Actual request handler, with provider/session and DB transport fixtures.
-let enabled=true,isOwner=false,user=fixture,accepted=0;
+let enabled=true,isOwner=false,user=fixture,accepted=0,authorized=true;
 globalThis.__privacyReauth=async(id,email,password)=>{if(password!=='fixture-password')throw Error('AUTH')};
-globalThis.__privacy={async identity(){return {userId:fixture.id,email:fixture.email}},async owner(){return isOwner},db(){return {async transaction(fn){return fn()},prepare(){return {bind(){return this},async run(){accepted++;return {meta:{changes:1}}}}}}}};
+globalThis.__privacy={async identity(){if(!authorized)throw Error('AUTH');return {userId:fixture.id,email:fixture.email}},async owner(){return isOwner},db(){return {async transaction(fn){return fn()},prepare(){return {bind(){return this},async run(){accepted++;return {meta:{changes:1}}}}}}}};
 globalThis.__privacyClient={auth:{async getUser(){return {data:{user},error:null}}}};
 globalThis.__privacyEnabled=()=>enabled;
 const server=compile('export const {identity,owner,db}=globalThis.__privacy;');
@@ -36,11 +36,12 @@ const route=await import(compile(fs.readFileSync('app/api/account/delete/route.t
 process.env.FARMAKON_OWNER_EMAIL='owner@example.test';
 const post=(b,origin='https://fixture.test')=>route.POST(new Request('https://fixture.test/api/account/delete',{method:'POST',headers:{origin},body:JSON.stringify(b)}));
 const body={confirmation:'DELETE SYNTHETIC ACCOUNT',password:'fixture-password'};
-enabled=false;assert.equal((await post(body)).status,404);enabled=true;
+enabled=false;assert.equal((await post(body)).status,404);assert.equal((await route.GET()).status,404);enabled=true;
+authorized=false;assert.equal((await route.GET()).status,401);assert.equal((await post(body)).status,401);authorized=true;
 assert.equal((await post(body,'https://evil.test')).status,403);
 assert.equal((await post({...body,userId:'another'})).status,400);
 assert.equal((await post({})).status,400);
-isOwner=true;assert.equal((await post(body)).status,403);isOwner=false;
+isOwner=true;assert.equal((await route.GET()).status,403);assert.equal((await post(body)).status,403);isOwner=false;
 assert.equal((await post({...body,password:'wrong'})).status,401);
 user={...fixture,id:'another'};assert.equal((await post(body)).status,401);
 user={...fixture,app_metadata:{}};assert.equal((await post(body)).status,403);assert.equal((await route.GET()).status,403);
@@ -78,5 +79,7 @@ try{
  const entry=fs.readFileSync(join(dir,'index.ts'),'utf8');assert.ok(entry.includes("NONCE='__DEPLOYMENT_NONCE__',EXPIRES=0"));
  assert.ok(fs.readFileSync(join(dir,'provider.ts'),'utf8').includes('harnessEnv'));
  assert.ok(fs.readFileSync(join(dir,'sql.ts'),'utf8').includes('export function postgresSQL'));
+ const previewDir=join(bundleParent,'preview-bundle');execFileSync(process.execPath,['tests/live/build-preview-deletion-edge.mjs',previewDir]);
+ const previewEntry=fs.readFileSync(join(previewDir,'index.ts'),'utf8');assert.ok(previewEntry.includes("EXPIRES=0,RUN='__RUN__'"));assert.ok(fs.readFileSync(join(previewDir,'provider.ts'),'utf8').includes('F005_FAULT'));
 }finally{fs.rmSync(bundleParent,{recursive:true,force:true});}
 console.log('PASS: live harness packages disabled-by-default sentinels and production deletion modules without reading credentials.');

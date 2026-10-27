@@ -1,0 +1,105 @@
+{
+  "commit": "dca1525015d4697612017f34b1233985e658a90f",
+  "deploymentId": "dpl_DAsiFvNDwavZ9yWvEam8fzDWwxqW",
+  "browser": "143.0.7499.0",
+  "transport": "real Auth + protected Next Preview + Storage + PostgreSQL; worker boundary failures injected",
+  "results": [
+    {
+      "name": "protected health and anonymous UI/API denial",
+      "result": "Passed",
+      "status": 401
+    },
+    {
+      "name": "synthetic owner UI/API protected",
+      "result": "Passed",
+      "status": 403
+    },
+    {
+      "name": "unmarked student UI/API and target-user injection rejected",
+      "result": "Passed",
+      "status": 403
+    },
+    {
+      "name": "two real A sessions, populated independent B, media/exam/export before deletion",
+      "result": "Passed"
+    },
+    {
+      "name": "CSRF and incorrect password rejected; form remains usable",
+      "result": "Passed",
+      "status": 401
+    },
+    {
+      "name": "browser accepted=202; concurrent duplicate safe; pending wording and cache-failure instructions",
+      "result": "Passed",
+      "status": 202
+    },
+    {
+      "name": "accepted primary device Next platform/media/export/exam/reset/stale-cookie matrix",
+      "result": "Passed",
+      "status": 401
+    },
+    {
+      "name": "accepted second device Next platform/media/export/exam/reset/stale-cookie matrix",
+      "result": "Passed",
+      "status": 401
+    },
+    {
+      "name": "Supabase Storage direct fresh JWT request denied separately",
+      "result": "Passed",
+      "status": 400
+    },
+    {
+      "name": "Android second device redirects to login and clears local downloads",
+      "result": "Passed"
+    },
+    {
+      "name": "real worker stops safely at shared reference after session revocation",
+      "result": "Passed"
+    },
+    {
+      "name": "worker storage injected boundary failure remains resumable at sessions_revoked",
+      "result": "Passed"
+    },
+    {
+      "name": "worker db injected boundary failure remains resumable at files_removed",
+      "result": "Passed"
+    },
+    {
+      "name": "worker auth injected boundary failure remains resumable at data_removed",
+      "result": "Passed"
+    },
+    {
+      "name": "real worker completes Auth/Storage/data deletion; repeat does not rerun destruction",
+      "result": "Passed"
+    },
+    {
+      "name": "deleted primary device Next platform/media/export/exam/reset/stale-cookie matrix",
+      "result": "Passed",
+      "status": 401
+    },
+    {
+      "name": "deleted second device Next platform/media/export/exam/reset/stale-cookie matrix",
+      "result": "Passed",
+      "status": 401
+    },
+    {
+      "name": "real Next login rejects deleted Auth identity",
+      "result": "Passed",
+      "status": 400
+    },
+    {
+      "name": "Supabase Auth old-token update rejected separately",
+      "result": "Passed",
+      "status": 403
+    },
+    {
+      "name": "short preexisting signed URL unusable after expiry/deletion; downloaded bytes are outside revocation",
+      "result": "Passed",
+      "status": 400
+    },
+    {
+      "name": "control B data checksum, protected media, notes and export unchanged",
+      "result": "Passed"
+    }
+  ]
+}

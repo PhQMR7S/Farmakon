@@ -12,7 +12,7 @@ try{
  browser=await chromium.launch({headless:true});
  for(const device of [devices['Desktop Chrome'],devices['Pixel 7']]){
   const context=await browser.newContext({...device,baseURL:origin});const page=await context.newPage();let requests=0;
-  await context.route('**/api/account/delete',async route=>{if(route.request().method()==='GET'){await route.fulfill({json:{eligible:true}});return}requests++;const b=route.request().postDataJSON();assert.deepEqual(Object.keys(b).sort(),['confirmation','password']);assert.equal(b.confirmation,'DELETE SYNTHETIC ACCOUNT');await route.fulfill({status:requests===1?503:202,json:requests===1?{error:'تعذر قبول الطلب'}:{accepted:true,message:'تم قبول طلب الاختبار'}})});
+  await context.route('**/api/account/delete',async route=>{if(route.request().method()==='GET'){await route.fulfill({json:{eligible:true}});return}requests++;const b=route.request().postDataJSON();assert.deepEqual(Object.keys(b).sort(),['confirmation','password']);assert.equal(b.confirmation,'DELETE SYNTHETIC ACCOUNT');await route.fulfill({status:requests===1?503:requests===2?200:202,json:requests===1?{error:'تعذر قبول الطلب'}:requests===2?{message:'Not an acceptance'}:{accepted:true,message:'تم قبول طلب الاختبار'}})});
   await page.goto('/account/delete');
   await page.evaluate(async()=>{await caches.open('farmakon-downloads-v1');await caches.open('unrelated-cache')});
   await page.getByRole('button',{name:'تأكيد حذف حساب الاختبار'}).click();assert.equal(requests,0);
@@ -22,6 +22,9 @@ try{
   await page.getByLabel('للتأكيد اكتب DELETE SYNTHETIC ACCOUNT').fill('DELETE SYNTHETIC ACCOUNT');
   await page.getByRole('button',{name:'تأكيد حذف حساب الاختبار'}).click();
   await page.getByRole('status').filter({hasText:'تعذر قبول الطلب'}).waitFor();
+  await page.getByRole('button',{name:'تأكيد حذف حساب الاختبار'}).click();
+  await page.getByRole('status').filter({hasText:'تعذر قبول الطلب'}).waitFor();
+  assert.equal(await page.getByRole('button',{name:'تأكيد حذف حساب الاختبار'}).isDisabled(),false);
   await page.getByRole('button',{name:'تأكيد حذف حساب الاختبار'}).click();
   await page.getByRole('status').filter({hasText:'تم قبول طلب الاختبار'}).waitFor();
   for(let i=0;i<20;i++){if(!(await page.evaluate(()=>caches.keys())).includes('farmakon-downloads-v1'))break;await page.waitForTimeout(50)}

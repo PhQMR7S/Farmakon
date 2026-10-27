@@ -43,6 +43,8 @@ jobs:
           node tests/preview-isolation-smoke.mjs
           node --check tests/live/staging-auth.mjs
           node --check tests/live/entitlements.mjs
+          node --check tests/live/preview-security.mjs
+          node --check tests/live/preview-signed-url.mjs
       - name: PWA regression smoke
         run: node tests/pwa-smoke.cjs
       - name: Production compile
