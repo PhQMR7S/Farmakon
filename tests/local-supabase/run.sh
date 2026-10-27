@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+test "${GITHUB_ACTIONS:-}" = true
+test "${GITHUB_REPOSITORY:-}" = PhQMR7S/Farmakon
+project="f0010-${GITHUB_RUN_ID}-${F0010_ROUND:-cleanup}"
+state="$RUNNER_TEMP/f0010-state"
+cli=(npx --yes supabase@2.81.3)
+cleanup() {
+  if test -f "$state/project"; then
+    project=$(cat "$state/project")
+    [[ "$project" =~ ^f0010-[0-9]+-[12]$ ]]
+    "${cli[@]}" stop --project-id "$project" --no-backup >"$state/stop.log" 2>&1 || return 1
+    test -z "$(docker ps -aq --filter "label=com.supabase.cli.project=$project")"
+    test -z "$(docker volume ls -q --filter "label=com.supabase.cli.project=$project")"
+    docker network rm "$project-net" >/dev/null 2>&1 || true
+    rm -rf "$state"
+    echo '{"phase":"cleanup","containers":0,"volumes":0,"privateFilesRemoved":true}'
+  fi
+}
+if test "${1:-}" = cleanup; then cleanup; exit; fi
+[[ "$project" =~ ^f0010-[0-9]+-[12]$ ]]
+test ! -e "$state"
+mkdir -m 700 "$state" "$state/work" "$state/work/supabase"
+printf '%s' "$project" >"$state/project"
+trap cleanup EXIT
+cp tests/local-supabase/config.toml "$state/work/supabase/config.toml"
+sed -i "s/project_id = \"f0010-ci\"/project_id = \"$project\"/" "$state/work/supabase/config.toml"
+# Separate loopback-bound network: no publicly published dev ports.
+docker network create -o com.docker.network.bridge.host_binding_ipv4=127.0.0.1 "$project-net" >/dev/null
+"${cli[@]}" --version
+"${cli[@]}" start --help >"$state/start-help.txt" 2>&1
+"${cli[@]}" --workdir "$state/work" --network-id "$project-net" start -x realtime,imgproxy,studio,postgres-meta,edge-runtime,logflare,vector,supavisor >"$state/start.log" 2>&1 || { echo 'F0010_START_FAILED (private log withheld)'; exit 1; }
+"${cli[@]}" --workdir "$state/work" status -o json >"$state/status.json" 2>"$state/status.log"
+node tests/local-supabase/verify.mjs "$state/status.json" "$project"
