@@ -1,0 +1,391 @@
+{
+  "measuredCommit": "3ab2a6de1d6dbab1992a377c82923155a4279a31",
+  "actionsRun": 40497115039,
+  "scope": "isolated loopback PostgreSQL; real production SQL adapter and route handlers; Auth/Storage/quota transport fixtures; NOT Vercel/Supabase capacity",
+  "environment": {
+    "node": "v24.22.1",
+    "postgres": "17.11 (Debian 17.11-1.pgdg13+2)",
+    "platform": "linux",
+    "architecture": "x64",
+    "cpuCount": 4,
+    "memoryLimitStopMiB": 768
+  },
+  "fixture": {
+    "registeredStudents": 750,
+    "courses": 4,
+    "lessons": 48,
+    "files": 48,
+    "questions": 80,
+    "exams": 4,
+    "oldAttempts": 1500
+  },
+  "comparison": {
+    "before": {
+      "requests": 20,
+      "p50Ms": 95.39,
+      "p95Ms": 112.34,
+      "errorRate": 0,
+      "queriesP50": 380,
+      "queryRoundTripP95Ms": 104.47,
+      "responseBytesP50": 53294
+    },
+    "after": {
+      "requests": 20,
+      "p50Ms": 23.27,
+      "p95Ms": 24.76,
+      "errorRate": 0,
+      "queriesP50": 13,
+      "queryRoundTripP95Ms": 29.49,
+      "responseBytesP50": 53294
+    }
+  },
+  "loads": [
+    {
+      "virtualUsers": 1,
+      "rounds": 2,
+      "requests": 12,
+      "p50Ms": 7.21,
+      "p95Ms": 27.94,
+      "errorRate": 0,
+      "queriesP50": 13,
+      "queryRoundTripP95Ms": 27.94,
+      "responseBytesP50": 1178,
+      "elapsedMs": 169.83,
+      "requestsPerSecond": 70.66,
+      "nodeCpuMs": 35.353,
+      "operations": {
+        "dashboard/catalogue/library/questions/resume": {
+          "requests": 2,
+          "p50Ms": 23.07,
+          "p95Ms": 23.17,
+          "errorRate": 0,
+          "queriesP50": 13,
+          "queryRoundTripP95Ms": 27.6,
+          "responseBytesP50": 53294
+        },
+        "startExam": {
+          "requests": 2,
+          "p50Ms": 23.69,
+          "p95Ms": 27.94,
+          "errorRate": 0,
+          "queriesP50": 18,
+          "queryRoundTripP95Ms": 22.36,
+          "responseBytesP50": 1178
+        },
+        "saveExam": {
+          "requests": 2,
+          "p50Ms": 2.27,
+          "p95Ms": 3.07,
+          "errorRate": 0,
+          "queriesP50": 6,
+          "queryRoundTripP95Ms": 1.38,
+          "responseBytesP50": 95
+        },
+        "submitExam": {
+          "requests": 2,
+          "p50Ms": 2.94,
+          "p95Ms": 2.95,
+          "errorRate": 0,
+          "queriesP50": 7,
+          "queryRoundTripP95Ms": 1.88,
+          "responseBytesP50": 1213
+        },
+        "results/reload": {
+          "requests": 2,
+          "p50Ms": 23.3,
+          "p95Ms": 23.33,
+          "errorRate": 0,
+          "queriesP50": 13,
+          "queryRoundTripP95Ms": 27.94,
+          "responseBytesP50": 54828
+        },
+        "protected-media-Storage-fixture": {
+          "requests": 2,
+          "p50Ms": 6.23,
+          "p95Ms": 7.21,
+          "errorRate": 0,
+          "queriesP50": 26,
+          "queryRoundTripP95Ms": 6.08,
+          "responseBytesP50": 12
+        }
+      }
+    },
+    {
+      "virtualUsers": 5,
+      "rounds": 2,
+      "requests": 60,
+      "p50Ms": 33,
+      "p95Ms": 110.02,
+      "errorRate": 0,
+      "queriesP50": 13,
+      "queryRoundTripP95Ms": 109.33,
+      "responseBytesP50": 1178,
+      "elapsedMs": 572.05,
+      "requestsPerSecond": 104.89,
+      "nodeCpuMs": 207.027,
+      "operations": {
+        "dashboard/catalogue/library/questions/resume": {
+          "requests": 10,
+          "p50Ms": 41.11,
+          "p95Ms": 99.65,
+          "errorRate": 0,
+          "queriesP50": 13,
+          "queryRoundTripP95Ms": 61.23,
+          "responseBytesP50": 54828
+        },
+        "startExam": {
+          "requests": 10,
+          "p50Ms": 41.05,
+          "p95Ms": 252.82,
+          "errorRate": 0,
+          "queriesP50": 18,
+          "queryRoundTripP95Ms": 182.02,
+          "responseBytesP50": 1178
+        },
+        "saveExam": {
+          "requests": 10,
+          "p50Ms": 3.93,
+          "p95Ms": 22.23,
+          "errorRate": 0,
+          "queriesP50": 6,
+          "queryRoundTripP95Ms": 7.31,
+          "responseBytesP50": 95
+        },
+        "submitExam": {
+          "requests": 10,
+          "p50Ms": 3.52,
+          "p95Ms": 35.55,
+          "errorRate": 0,
+          "queriesP50": 7,
+          "queryRoundTripP95Ms": 2.89,
+          "responseBytesP50": 1213
+        },
+        "results/reload": {
+          "requests": 10,
+          "p50Ms": 41.29,
+          "p95Ms": 47,
+          "errorRate": 0,
+          "queriesP50": 13,
+          "queryRoundTripP95Ms": 64.44,
+          "responseBytesP50": 56362
+        },
+        "protected-media-Storage-fixture": {
+          "requests": 10,
+          "p50Ms": 77.69,
+          "p95Ms": 123.74,
+          "errorRate": 0,
+          "queriesP50": 26,
+          "queryRoundTripP95Ms": 122.95,
+          "responseBytesP50": 12
+        }
+      }
+    },
+    {
+      "virtualUsers": 10,
+      "rounds": 2,
+      "requests": 86,
+      "p50Ms": 61.64,
+      "p95Ms": 350.96,
+      "errorRate": 0.046511627906976744,
+      "queriesP50": 13,
+      "queryRoundTripP95Ms": 185.67,
+      "responseBytesP50": 1178,
+      "elapsedMs": 1040.52,
+      "requestsPerSecond": 82.65,
+      "nodeCpuMs": 364.884,
+      "operations": {
+        "dashboard/catalogue/library/questions/resume": {
+          "requests": 17,
+          "p50Ms": 61.64,
+          "p95Ms": 138.23,
+          "errorRate": 0,
+          "queriesP50": 13,
+          "queryRoundTripP95Ms": 61.79,
+          "responseBytesP50": 54828
+        },
+        "startExam": {
+          "requests": 17,
+          "p50Ms": 171.15,
+          "p95Ms": 491.89,
+          "errorRate": 0.23529411764705882,
+          "queriesP50": 36,
+          "queryRoundTripP95Ms": 193.46,
+          "responseBytesP50": 1178
+        },
+        "saveExam": {
+          "requests": 13,
+          "p50Ms": 42.07,
+          "p95Ms": 86.95,
+          "errorRate": 0,
+          "queriesP50": 6,
+          "queryRoundTripP95Ms": 2.67,
+          "responseBytesP50": 95
+        },
+        "submitExam": {
+          "requests": 13,
+          "p50Ms": 10.09,
+          "p95Ms": 88.16,
+          "errorRate": 0,
+          "queriesP50": 7,
+          "queryRoundTripP95Ms": 4.15,
+          "responseBytesP50": 1213
+        },
+        "results/reload": {
+          "requests": 13,
+          "p50Ms": 62.39,
+          "p95Ms": 106.94,
+          "errorRate": 0,
+          "queriesP50": 13,
+          "queryRoundTripP95Ms": 79.39,
+          "responseBytesP50": 56362
+        },
+        "protected-media-Storage-fixture": {
+          "requests": 13,
+          "p50Ms": 137.22,
+          "p95Ms": 350.96,
+          "errorRate": 0,
+          "queriesP50": 26,
+          "queryRoundTripP95Ms": 350.43,
+          "responseBytesP50": 12
+        }
+      }
+    }
+  ],
+  "resource": {
+    "peakNodeRSSMiB": 277.8,
+    "appPoolConnectionsPeak": 3,
+    "appPoolWaitingPeak": 7,
+    "observedTestDatabaseClientConnections": 5
+  },
+  "plans": [
+    {
+      "name": "baseline-attempts",
+      "planningMs": 0.137,
+      "executionMs": 1.428,
+      "plan": {
+        "Node Type": "Sort",
+        "Parallel Aware": false,
+        "Async Capable": false,
+        "Startup Cost": 372.53,
+        "Total Cost": 376.42,
+        "Plan Rows": 1558,
+        "Plan Width": 1122,
+        "Actual Startup Time": 1.279,
+        "Actual Total Time": 1.377,
+        "Actual Rows": 1525,
+        "Actual Loops": 1,
+        "Sort Key": [
+          "created DESC"
+        ],
+        "Sort Method": "quicksort",
+        "Sort Space Used": 1892,
+        "Sort Space Type": "Memory",
+        "Shared Hit Blocks": 268,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "Plans": [
+          {
+            "Node Type": "Seq Scan",
+            "Parent Relationship": "Outer",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Relation Name": "records",
+            "Alias": "records",
+            "Startup Cost": 0,
+            "Total Cost": 289.91,
+            "Plan Rows": 1558,
+            "Plan Width": 1122,
+            "Actual Startup Time": 0.022,
+            "Actual Total Time": 0.331,
+            "Actual Rows": 1525,
+            "Actual Loops": 1,
+            "Filter": "(kind = 'attempt'::text)",
+            "Rows Removed by Filter": 188,
+            "Shared Hit Blocks": 268,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "scoped-attempts",
+      "planningMs": 0.046,
+      "executionMs": 18.276,
+      "plan": {
+        "Node Type": "Sort",
+        "Parallel Aware": false,
+        "Async Capable": false,
+        "Startup Cost": 307.56,
+        "Total Cost": 307.58,
+        "Plan Rows": 8,
+        "Plan Width": 1122,
+        "Actual Startup Time": 18.266,
+        "Actual Total Time": 18.267,
+        "Actual Rows": 6,
+        "Actual Loops": 1,
+        "Sort Key": [
+          "created DESC"
+        ],
+        "Sort Method": "quicksort",
+        "Sort Space Used": 29,
+        "Sort Space Type": "Memory",
+        "Shared Hit Blocks": 268,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "Plans": [
+          {
+            "Node Type": "Seq Scan",
+            "Parent Relationship": "Outer",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Relation Name": "records",
+            "Alias": "records",
+            "Startup Cost": 0,
+            "Total Cost": 307.44,
+            "Plan Rows": 8,
+            "Plan Width": 1122,
+            "Actual Startup Time": 0.05,
+            "Actual Total Time": 18.261,
+            "Actual Rows": 6,
+            "Actual Loops": 1,
+            "Filter": "((kind = 'attempt'::text) AND (((data)::jsonb ->> 'userId'::text) = 'f007-user-0'::text))",
+            "Rows Removed by Filter": 1707,
+            "Shared Hit Blocks": 268,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          }
+        ]
+      }
+    }
+  ],
+  "stopped": true
+}
