@@ -1,0 +1,9 @@
+'use client';
+import {useState} from 'react';
+export default function DeleteForm(){
+ const [busy,setBusy]=useState(false),[message,setMessage]=useState(''),[accepted,setAccepted]=useState(false);
+ return <main className="auth-card" style={{maxWidth:520,margin:'8vh auto'}}><h1>حذف حساب الاختبار</h1><p>هذا المسار للحسابات الاصطناعية فقط. يتوقف الوصول عند قبول الطلب، وقد يبقى التنفيذ معلقاً للمراجعة. سياسة حذف الحسابات الحقيقية لم تُعتمد.</p><p>النسخ التي نزلتها أو حفظتها خارج التطبيق تحتاج حذفاً يدوياً. مسح هذا المتصفح لا يمسح الأجهزة الأخرى.</p><form onSubmit={async e=>{e.preventDefault();setBusy(true);const form=e.currentTarget;const f=new FormData(form);try{const r=await fetch('/api/account/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirmation:f.get('confirmation'),password:f.get('password')})});const d=await r.json();if(!r.ok)throw Error(d.error);setAccepted(true);setMessage(d.message);form.reset();try{if('caches'in window)for(const name of await caches.keys())if(name.startsWith('farmakon-'))await caches.delete(name);}catch{setMessage(d.message+' تعذر مسح بعض الملفات المحلية؛ امسح بيانات الموقع يدوياً.');}}catch(err){setMessage(err instanceof Error?err.message:'تعذر الاتصال')}finally{setBusy(false)}}}>
+ <label>كلمة المرور الحالية<input name="password" type="password" autoComplete="current-password" maxLength={128} required disabled={accepted}/></label>
+ <label>للتأكيد اكتب DELETE SYNTHETIC ACCOUNT<input name="confirmation" dir="ltr" required pattern="DELETE SYNTHETIC ACCOUNT" autoComplete="off" disabled={accepted}/></label>
+ <button className="primary" disabled={busy||accepted}>{busy?'جارٍ التحقق…':'تأكيد حذف حساب الاختبار'}</button></form>{message&&<p role="status">{message}</p>}<a href="/login">العودة للدخول</a></main>;
+}

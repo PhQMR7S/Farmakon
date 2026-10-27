@@ -6,7 +6,8 @@ let user=null,calls=[],sessionToken=null,verifiedToken,providerError=null,sessio
 globalThis.__farmAuth={auth:{async getSession(){return {data:{session:sessionToken?{access_token:sessionToken,user:{id:'untrusted-cookie-user'}}:null},error:null}},async getUser(token){verifiedToken=token;return {data:{user},error:providerError}},async signInWithPassword(){calls.push('login');return {error:null}},async signUp(){calls.push('signup');return {error:null}},async resetPasswordForEmail(){calls.push('forgot');return {error:null}},async updateUser(){calls.push('reset');return {error:null}},async signOut(){calls.push('logout');return {error:null}}}};
 globalThis.__farmSessionDB={prepare(query){assert.equal(query,'SELECT farmakon.session_is_active(?,?) AS active');return {bind(sid,uid){assert.equal(sid,'00000000-0000-4000-8000-000000000001');assert.equal(uid,user.id);return this},async first(){sessionChecks++;if(sessionFailure)throw Error('fixture unavailable');return {active:sessionActive}}}}};
 const client=compile('export async function authClient(){return globalThis.__farmAuth}');
-const serverURL=compile(fs.readFileSync('app/lib/server.ts','utf8').replace(/^import .*;$/gm,'')+`\nconst database=globalThis.__farmSessionDB,storage={};const {authClient}=await import(${JSON.stringify(client)});`);
+const gateURL=compile(fs.readFileSync('lib/farmakon/privacy/gate.ts','utf8').replace("import {assertPreviewIsolation} from '../preview-isolation';","const assertPreviewIsolation=()=>{throw Error('fixture gate requires isolated config')};"));
+const serverURL=compile(fs.readFileSync('app/lib/server.ts','utf8').replace(/^import .*;$/gm,'')+`\nconst {deletionEnabled}=await import(${JSON.stringify(gateURL)});const database=globalThis.__farmSessionDB,storage={};const {authClient}=await import(${JSON.stringify(client)});`);
 const server=await import(serverURL);
 process.env.FARMAKON_OWNER_EMAIL='owner@example.test';
 await assert.rejects(()=>server.identity(),/AUTH/);

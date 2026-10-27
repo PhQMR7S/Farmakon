@@ -35,6 +35,7 @@ jobs:
         run: |
           node tests/auth-smoke.mjs
           node tests/callback-smoke.mjs
+          node tests/privacy-smoke.mjs
       - name: Bounded request security checks
         run: node tests/http-smoke.mjs
       - name: Preview isolation fail-closed checks
@@ -73,12 +74,18 @@ jobs:
       - run: npm run test:postgres
         env:
           FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
+      - name: Synthetic account deletion PostgreSQL lifecycle
+        run: node tests/privacy-postgres.mjs
+        env:
+          FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
       - name: Storage RLS with real PostgreSQL roles
         run: node tests/storage-policy-smoke.mjs
         env:
           FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
       - name: Synthetic PostgreSQL backup/restore drill
-        run: bash tests/backup-restore.sh
+        run: |
+          bash tests/backup-restore.sh
+          node tests/recovery-dr.mjs
         env:
           FARMAKON_TEST_CONTAINER: ${{ job.services.postgres.id }}
 

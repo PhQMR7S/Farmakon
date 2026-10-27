@@ -1,0 +1,63 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import ts from 'typescript';
+const compile=s=>'data:text/javascript;base64,'+Buffer.from(ts.transpileModule(s,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText).toString('base64');
+const isolation=compile(fs.readFileSync('lib/farmakon/preview-isolation.ts','utf8'));
+export const gate=compile(fs.readFileSync('lib/farmakon/privacy/gate.ts','utf8').replace("'../preview-isolation'",JSON.stringify(isolation)));
+const {deletionEnabled,assertDisposable}=await import(gate);
+assert.equal(deletionEnabled({VERCEL_ENV:'production',FARMAKON_SYNTHETIC_DELETION_ENABLED:'true'}),false);
+assert.equal(deletionEnabled({}),false);
+assert.throws(()=>deletionEnabled({VERCEL_ENV:'preview',FARMAKON_SYNTHETIC_DELETION_ENABLED:'true'}),/PREVIEW_ISOLATION/);
+for(const u of [{id:'a',email:'owner@example.test',app_metadata:{farmakon_test_fixture:true}},{id:'a',email:'f004-delete-a@example.test',app_metadata:{}},{id:'a',email:'real@example.com',app_metadata:{farmakon_test_fixture:true}}])assert.throws(()=>assertDisposable(u,'owner@example.test'));
+const fixture={id:'00000000-0000-4000-8000-000000000001',email:'f004-delete-a@example.test',app_metadata:{farmakon_test_fixture:true},last_sign_in_at:new Date().toISOString()};
+assertDisposable(fixture,'owner@example.test');
+const {resumeDeletion}=await import(compile(fs.readFileSync('lib/farmakon/privacy/deletion.ts','utf8')));
+let job={user_id:fixture.id,email:fixture.email,state:'accepted',attempts:0},locked=false,fail='files',calls=[];
+const store={async claim(){if(locked||job.state==='complete')return null;locked=true;job.attempts++;return {...job}},async advance(id,from,to){assert.equal(job.state,from);job.state=to},async release(){locked=false},async purge(){calls.push('data')}};
+const provider={async assertFixture(){calls.push('scope')},async revokeSessions(){calls.push('sessions')},async removePrivateFiles(){calls.push('files');if(fail==='files')throw Error('synthetic storage failure')},async deleteAuth(){calls.push('auth');if(fail==='auth')throw Error('synthetic Auth failure')}};
+await assert.rejects(()=>resumeDeletion(store,provider,fixture.id));assert.equal(job.state,'sessions_revoked');assert.ok(!calls.includes('auth'));
+fail='auth';await assert.rejects(()=>resumeDeletion(store,provider,fixture.id));assert.equal(job.state,'data_removed');
+fail='';await Promise.all(Array.from({length:8},()=>resumeDeletion(store,provider,fixture.id)));assert.equal(job.state,'complete');assert.equal(calls.filter(x=>x==='data').length,1);
+assert.equal(await resumeDeletion(store,provider,fixture.id),'busy-or-complete');
+console.log('PASS: production disabled, pinned Staging gate, provider-admin fixture scope, resumable Storage/Auth failures, concurrent worker exclusion; provider transport fixtures.');
+// Actual request handler, with provider/session and DB transport fixtures.
+let enabled=true,isOwner=false,user=fixture,accepted=0;
+globalThis.__privacyReauth=async(id,email,password)=>{if(password!=='fixture-password')throw Error('AUTH')};
+globalThis.__privacy={async identity(){return {userId:fixture.id,email:fixture.email}},async owner(){return isOwner},db(){return {async transaction(fn){return fn()},prepare(){return {bind(){return this},async run(){accepted++;return {meta:{changes:1}}}}}}}};
+globalThis.__privacyClient={auth:{async getUser(){return {data:{user},error:null}}}};
+globalThis.__privacyEnabled=()=>enabled;
+const server=compile('export const {identity,owner,db}=globalThis.__privacy;');
+const client=compile('export async function authClient(){return globalThis.__privacyClient}');
+const routeGate=compile(`const {assertDisposable}=await import(${JSON.stringify(gate)});export {assertDisposable};export const deletionEnabled=()=>globalThis.__privacyEnabled();`);
+const rate=compile('export async function limitRequest(){return null}');
+const http=compile(fs.readFileSync('lib/http.ts','utf8'));
+const reauth=compile('export const verifyDeletionPassword=globalThis.__privacyReauth;');
+const route=await import(compile(fs.readFileSync('app/api/account/delete/route.ts','utf8').replace("'../../../lib/server'",JSON.stringify(server)).replace("'../../../../lib/supabase/server'",JSON.stringify(client)).replace("'../../../../lib/farmakon/privacy/gate'",JSON.stringify(routeGate)).replace("'../../../../lib/farmakon/rate-limit'",JSON.stringify(rate)).replace("'../../../../lib/http'",JSON.stringify(http)).replace("'../../../../lib/farmakon/privacy/reauth'",JSON.stringify(reauth))));
+process.env.FARMAKON_OWNER_EMAIL='owner@example.test';
+const post=(b,origin='https://fixture.test')=>route.POST(new Request('https://fixture.test/api/account/delete',{method:'POST',headers:{origin},body:JSON.stringify(b)}));
+const body={confirmation:'DELETE SYNTHETIC ACCOUNT',password:'fixture-password'};
+enabled=false;assert.equal((await post(body)).status,404);enabled=true;
+assert.equal((await post(body,'https://evil.test')).status,403);
+assert.equal((await post({...body,userId:'another'})).status,400);
+assert.equal((await post({})).status,400);
+isOwner=true;assert.equal((await post(body)).status,403);isOwner=false;
+assert.equal((await post({...body,password:'wrong'})).status,401);
+user={...fixture,id:'another'};assert.equal((await post(body)).status,401);
+user=fixture;assert.equal((await post(body)).status,202);assert.equal(accepted,1);
+console.log('PASS: deletion route requires self identity, explicit confirmation, password reauthentication, fixture marker; rejects CSRF/IDOR/owner. No live deletion.');
+
+// Exercise the actual identity gate and sensitive route handlers after acceptance.
+let tombstone=true;
+globalThis.__privacyIdentityDB={prepare(sql){assert.equal(sql,'SELECT user_id FROM farmakon.deletion_jobs WHERE user_id=?');return {bind(){return this},async first(){return tombstone?{user_id:fixture.id}:null}}}};
+const identitySource=fs.readFileSync('app/lib/server.ts','utf8').replace(/^import .*;$/gm,'')+`\nconst database=globalThis.__privacyIdentityDB,storage={};const authClient=async()=>({auth:{getUser:async()=>({data:{user:{id:'${fixture.id}',email:'${fixture.email}',email_confirmed_at:'2026-01-01'}},error:null})}});const deletionEnabled=()=>true;`;
+const identityServer=compile(identitySource);const identityModule=await import(identityServer);
+delete process.env.FARMAKON_STRICT_SESSIONS_ENABLED;
+await assert.rejects(()=>identityModule.identity(),/^Error: AUTH$/);
+tombstone=false;assert.equal((await identityModule.identity()).userId,fixture.id);tombstone=true;
+const savedConsoleError=console.error;console.error=()=>{};
+for(const [path,method] of [['app/api/platform/route.ts','GET'],['app/api/platform/route.ts','POST'],['app/api/media/route.ts','GET'],['app/api/account/export/route.ts','POST']]){
+ let src=fs.readFileSync(path,'utf8').replace(/'\.\.\/(?:\.\.\/)?\.\.\/lib\/server'/g,JSON.stringify(identityServer)).replace("'../../lib/server'",JSON.stringify(identityServer)).replace(/'[^']*lib\/http'/g,JSON.stringify(http)).replace(/'[^']*lib\/farmakon\/rate-limit'/g,JSON.stringify(rate)).replace("'zod'",JSON.stringify(import.meta.resolve('zod')));
+ const handler=(await import(compile(src)))[method];const r=await handler(new Request('https://fixture.test/api/fixture',{method,headers:{origin:'https://fixture.test'},...(method==='POST'?{body:'{}'}:{})}));assert.equal(r.status,401,path+method);
+}
+console.error=savedConsoleError;
+console.log('PASS: accepted deletion tombstone blocks actual platform GET/POST, media GET and export POST handlers before data access; verified Auth transport fixture.');

@@ -1,6 +1,7 @@
 import {database} from '../../lib/database';
 import {storage} from '../../lib/storage';
 import {authClient} from '../../lib/supabase/server';
+import {deletionEnabled} from '../../lib/farmakon/privacy/gate';
 export const db=()=>database;
 export const bucket=()=>storage;
 export const uuid=()=>crypto.randomUUID();
@@ -17,6 +18,10 @@ export async function identity(){
   if(claims.sub!==user.id||typeof claims.session_id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(claims.session_id))throw new Error('AUTH');
   let session;try{session=await db().prepare('SELECT farmakon.session_is_active(?,?) AS active').bind(claims.session_id,user.id).first<{active:boolean}>();}catch{throw new Error('SESSION_CHECK_UNAVAILABLE');}
   if(session?.active!==true)throw new Error('AUTH');
+ }
+ if(deletionEnabled()){
+  let deleting;try{deleting=await db().prepare('SELECT user_id FROM farmakon.deletion_jobs WHERE user_id=?').bind(user.id).first();}catch{throw Error('SESSION_CHECK_UNAVAILABLE');}
+  if(deleting)throw Error('AUTH');
  }
  return {userId:user.id,email:user.email.toLowerCase(),displayName:user.user_metadata?.name||user.email};
 }
