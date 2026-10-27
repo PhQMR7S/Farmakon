@@ -23,7 +23,7 @@ class Statement{
 async function transaction<T>(work:()=>Promise<T>):Promise<T>{
  if(transactions.getStore())return work();
  for(let attempt=0;;attempt++){
-  const client=await connection().connect();
+  const client=await connection().connect();let retry=false;
   try{
    await client.query('BEGIN ISOLATION LEVEL SERIALIZABLE');
    const result=await transactions.run(client,work);
@@ -32,9 +32,11 @@ async function transaction<T>(work:()=>Promise<T>):Promise<T>{
    try{await client.query('ROLLBACK');}catch{/* Preserve the original failure. */}
    const code=(error as {code?:string}).code;
    // PostgreSQL guarantees these errors abort the transaction, including at COMMIT.
-   if((code==='40001'||code==='40P01')&&attempt<4)continue;
-   throw error;
+   if((code==='40001'||code==='40P01')&&attempt<4)retry=true;else throw error;
   }finally{client.release();}
+  // Break lockstep retries; release the scarce connection BEFORE backing off.
+  // Same five-attempt budget; never retry an uncertain COMMIT/network error.
+  if(retry)await new Promise(resolve=>setTimeout(resolve,Math.floor(Math.random()*Math.min(160,20*2**attempt))));
  }
 }
 export const database={prepare:(sql:string)=>new Statement(sql),transaction,

@@ -8,7 +8,7 @@ for(const width of [360,390,768,1280])test(`targeted WCAG scans, reflow and keyb
  const audit=async()=>{const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze();expect(result.violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)}))).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);};
  await audit();await page.getByLabel('البريد الإلكتروني').focus();await page.keyboard.press('Tab');await expect(page.getByLabel(/^كلمة المرور/)).toBeFocused();
  await page.goto('/');await expect(page.getByRole('heading',{name:'خطوتك القادمة في الصيدلة',exact:true})).toBeVisible();
- await page.keyboard.press('Tab');await expect(page.getByRole('link',{name:'تخطي إلى المحتوى',exact:true})).toBeFocused();await page.keyboard.press('Enter');await expect(page.locator('#main-content')).toBeFocused();
+ await expect(page.getByText('FARMAKON LEARNING SPACE',{exact:true})).toHaveAttribute('lang','en');await page.keyboard.press('Tab');await expect(page.getByRole('link',{name:'تخطي إلى المحتوى',exact:true})).toBeFocused();await page.keyboard.press('Enter');await expect(page.locator('#main-content')).toBeFocused();
  if(width<=760){
   await expect(page.locator('#primary-navigation')).toHaveAttribute('inert','');
   const menu=page.getByRole('button',{name:'القائمة',exact:true});await menu.focus();await page.keyboard.press('Enter');await expect(menu).toHaveAttribute('aria-expanded','true');
@@ -32,4 +32,13 @@ test('slow API, failed refresh and failed answer save remain recoverable',async(
  await context.setOffline(true);await expect(page.getByText('انقطع الاتصال؛ لن تُحفظ إجابات جديدة حتى عودته. الموعد لا يتغير.',{exact:true})).toBeVisible();await context.setOffline(false);
  await expect(page.getByRole('alert').filter({hasText:'قد تكون المعلومات المعروضة قديمة'})).toBeVisible();
  await expect(page.getByRole('button',{name:'إعادة المحاولة',exact:true})).toBeEnabled();
+});
+
+test('dialog focus returns to its trigger and labelled filters work by keyboard',async({page})=>{
+ await transport(page,{admin:true});await page.goto('/');
+ const trigger=page.getByRole('button',{name:'تثبيت المنصة',exact:true});await trigger.click();const dialog=page.getByRole('dialog');await expect(dialog).toBeVisible();
+ const first=dialog.locator('button:not(:disabled),input,select,textarea,a[href]').first(),last=dialog.locator('button:not(:disabled),input,select,textarea,a[href]').last();await expect(first).toBeFocused();await page.keyboard.press('Shift+Tab');await expect(last).toBeFocused();await page.keyboard.press('Tab');await expect(first).toBeFocused();
+ expect((await new AxeBuilder({page}).include('[role="dialog"]').withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze()).violations).toEqual([]);
+ await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);await expect(trigger).toBeFocused();
+ if((page.viewportSize()?.width||1000)<=760)await page.getByRole('button',{name:'القائمة',exact:true}).click();await page.getByRole('button',{name:'معاينة واجهة الطالب',exact:true}).click();await navigate(page,'بنك الأسئلة');const filter=page.getByRole('combobox',{name:'المرحلة',exact:true});await filter.focus();await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');await expect(filter).toBeFocused();
 });
