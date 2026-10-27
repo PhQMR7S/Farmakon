@@ -28,10 +28,14 @@ try{
  await pool.query("INSERT INTO storage.objects(name,bucket_id,owner_id) VALUES('mismatch','farmakon',$1)",[b]);
  await db.prepare('INSERT INTO records VALUES(?,?,?,?,?)').bind('mismatch','asset','',JSON.stringify({owner:a}),0).run();
  const accept=()=>db.transaction(async()=>db.prepare("INSERT INTO farmakon.deletion_jobs(user_id,email,policy,created,updated) VALUES(?,?,'synthetic-v1',0,0) ON CONFLICT DO NOTHING").bind(a,email).run());
+ const examLate=await pool.connect();await examLate.query('BEGIN ISOLATION LEVEL SERIALIZABLE');await examLate.query('SELECT * FROM farmakon.deletion_jobs WHERE user_id=$1',[a]);await examLate.query('SELECT * FROM farmakon.records WHERE id=$1',[a+'attempt']);
  const late=await pool.connect();
  await late.query('BEGIN ISOLATION LEVEL SERIALIZABLE');
  await late.query('SELECT * FROM farmakon.deletion_jobs WHERE user_id=$1',[a]);
  await Promise.all(Array.from({length:8},accept));
+ try{await assert.rejects(async()=>{await examLate.query("UPDATE farmakon.records SET data=jsonb_set(data::jsonb,'{status}','\"done\"'::jsonb)::text WHERE id=$1",[a+'attempt']);await examLate.query('COMMIT');},e=>['40001','42501'].includes(e.code));}finally{await examLate.query('ROLLBACK');examLate.release();}
+ await assert.rejects(()=>db.prepare('UPDATE records SET data=? WHERE id=?').bind(JSON.stringify({userId:a,status:'done',result:{score:99}}),a+'attempt').run(),e=>e.code==='42501');
+ console.log('PASS F00.6: deletion acceptance blocks in-flight and later exam result writes in PostgreSQL.');
  try{await assert.rejects(async()=>{
   await late.query("INSERT INTO farmakon.activity VALUES('late-inflight',$1,'progress','late','{}',0)",[a]);
   await late.query('COMMIT');

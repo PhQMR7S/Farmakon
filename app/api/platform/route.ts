@@ -39,7 +39,7 @@ if(b.action==='reply'){if(!admin)return json({error:'للمسؤول فقط'},403
 if(b.action==='saveExam'){
  const at=await record(id.parse(b.id));if(!at||at.kind!=='attempt'||at.userId!==u.userId)return json({error:'انتهت المحاولة'},409);
  if(!await canReadAttempt(at,u.email,admin))return json({error:'الاختبار غير متاح'},403);
- const now=Date.now();if(at.status!=='active'||now>=at.deadline){if(at.status==='active'&&examDue(at,now))await finishExam(at,now);return json({error:'انتهى وقت الإجابة؛ افتح النتيجة',expired:true,serverNow:now},409);}
+ const now=Date.now();if(at.status!=='active'||(at.timingVersion===2?now>=at.deadline:now>at.deadline)){if(at.status==='active'&&examDue(at,now))await finishExam(at,now);return json({error:'انتهى وقت الإجابة؛ افتح النتيجة',expired:true,serverNow:now},409);}
  const input=z.record(z.number().int().min(0).max(3)).parse(b.answers);
  const answers=examAnswers(at,input);await write('attempt',{...at,answers},at.id);return json({ok:true,answers,serverNow:now,deadline:at.deadline});
 }
@@ -59,7 +59,7 @@ if(b.action==='submitExam'){
  const input=z.record(z.number().int().min(0).max(3)).parse(b.answers||{}),now=Date.now();
  // After the boundary only server-confirmed answers count. Legacy rows keep
  // their original transport policy until settled, with no retroactive regrade.
- const accept=now<(at.deadline+(at.timingVersion===2?0:15000));
+ const accept=at.timingVersion===2?now<at.deadline:now<=at.deadline+15000;
  const answers=accept?examAnswers(at,input):(at.answers||{});
  return json(await finishExam(at,now,answers));
 }

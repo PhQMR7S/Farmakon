@@ -21,6 +21,13 @@ const httpURL='data:text/javascript;base64,'+Buffer.from(compile(fs.readFileSync
 const databaseURL='data:text/javascript;base64,'+Buffer.from('export const database=globalThis.__farmTest.env.DB;').toString('base64');
 const rateURL='data:text/javascript;base64,'+Buffer.from(compile(fs.readFileSync('lib/farmakon/rate-limit.ts','utf8').replace("'../database'",JSON.stringify(databaseURL)))).toString('base64');
 const routeSource=fs.readFileSync('app/api/platform/route.ts','utf8').replace("'../../lib/server'",JSON.stringify(serverURL)).replace("'zod'",JSON.stringify(zodURL)).replace("'../../../lib/http'",JSON.stringify(httpURL)).replace("'../../../lib/farmakon/rate-limit'",JSON.stringify(rateURL));
+const helpers=await import(serverURL);
+assert.equal(helpers.examDue({deadline:100,timingVersion:2},100),true);
+assert.equal(helpers.examDue({deadline:100},15100),false);
+assert.equal(helpers.examDue({deadline:100},15101),true);
+assert.deepEqual(helpers.examAnswers({questions:[{id:'q'}],answers:{q:1}},{}),{q:1});
+assert.throws(()=>helpers.examAnswers({questions:[],answers:{}},{unknown:1}),/EXAM_ANSWERS/);
+console.log('PASS F00.6 unit: exact new/legacy timing boundaries and answer-patch membership.');
 const mod=await import('data:text/javascript;base64,'+Buffer.from(compile(routeSource)).toString('base64'));
 const mediaSource=fs.readFileSync('app/api/media/route.ts','utf8').replace("'../../lib/server'",JSON.stringify(serverURL)).replace("'../../../lib/http'",JSON.stringify(httpURL)).replace("'../../../lib/farmakon/rate-limit'",JSON.stringify(rateURL));
 const media=await import('data:text/javascript;base64,'+Buffer.from(compile(mediaSource)).toString('base64'));
@@ -137,6 +144,9 @@ try{
  const expired=await post({action:'submitExam',id:first.id,answers:{[q.id]:0,[q2.id]:0}});assert.equal(expired.score,2);assert.equal(expired.expired,true);assert.equal(expired.late,false);assert.equal(expired.questions[1].title,'Second snapshot question');
  assert.deepEqual(await post({action:'submitExam',id:first.id,answers:{}}),expired);
  assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM activity WHERE target=? AND kind=?').bind(first.id,'exam').first()).n,1);
+ // Direct submit while still active in the 15s transport grace cannot inject.
+ const direct=await post({action:'startExam',id:ex.id});await post({action:'saveExam',id:direct.id,answers:{[q.id]:1}});clock=direct.deadline+5000;
+ const graceResult=await post({action:'submitExam',id:direct.id,answers:{[q.id]:0}});assert.equal(graceResult.score,1);assert.equal(graceResult.expired,true);assert.equal(graceResult.late,false);
  // Close all pages: no client event, then lazy settlement on actual GET.
  const absent=await post({action:'startExam',id:ex.id});await post({action:'saveExam',id:absent.id,answers:{[q.id]:1}});clock=absent.deadline+20000;
  state=await(await mod.GET()).json();assert.ok(state.completedAttempts.some(a=>a.id===absent.id&&a.result.score===1&&a.result.late));assert.ok(!state.attempts.some(a=>a.id===absent.id));

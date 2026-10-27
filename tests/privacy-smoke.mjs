@@ -61,6 +61,11 @@ for(const [path,method] of [['app/api/platform/route.ts','GET'],['app/api/platfo
  let src=fs.readFileSync(path,'utf8').replace(/'\.\.\/(?:\.\.\/)?\.\.\/lib\/server'/g,JSON.stringify(identityServer)).replace("'../../lib/server'",JSON.stringify(identityServer)).replace(/'[^']*lib\/http'/g,JSON.stringify(http)).replace(/'[^']*lib\/farmakon\/rate-limit'/g,JSON.stringify(rate)).replace("'zod'",JSON.stringify(import.meta.resolve('zod')));
  const handler=(await import(compile(src)))[method];const r=await handler(new Request('https://fixture.test/api/fixture',{method,headers:{origin:'https://fixture.test'},...(method==='POST'?{body:'{}'}:{})}));assert.equal(r.status,401,path+method);
 }
+const blockedExamSource=fs.readFileSync('app/api/platform/route.ts','utf8').replace("'../../lib/server'",JSON.stringify(identityServer)).replace("'../../../lib/http'",JSON.stringify(http)).replace("'../../../lib/farmakon/rate-limit'",JSON.stringify(rate)).replace("'zod'",JSON.stringify(import.meta.resolve('zod')));
+const blockedExam=await import(compile(blockedExamSource));
+for(const action of ['startExam','saveExam','submitExam']){
+ const response=await blockedExam.POST(new Request('https://fixture.test/api/platform',{method:'POST',headers:{origin:'https://fixture.test','content-type':'application/json'},body:JSON.stringify({action,id:'synthetic-active-attempt',answers:{}})}));assert.equal(response.status,401,action+' after deletion acceptance');
+}
 console.error=savedConsoleError;
 console.log('PASS: accepted deletion tombstone blocks actual platform GET/POST, media GET and export POST handlers before data access; verified Auth transport fixture.');
 

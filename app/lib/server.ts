@@ -46,7 +46,7 @@ export function examAnswers(at:any,input:Record<string,number>){
  if(Object.keys(input).some(k=>!keys.has(k)))throw Error('EXAM_ANSWERS');
  return {...(at.answers||{}),...input};
 }
-export function examDue(at:any,now:number){return now>=at.deadline+(at.timingVersion===2?0:examGraceMs);}
+export function examDue(at:any,now:number){return at.timingVersion===2?now>=at.deadline:now>at.deadline+examGraceMs;}
 export function publicAttempt(at:any,now=Date.now()){
  const {questions,result,...safe}=at;
  return {...safe,serverNow:now,questions:questions.map(({correct,explanation,...q}:any)=>q),...(at.status==='done'?{result}:{} )};
