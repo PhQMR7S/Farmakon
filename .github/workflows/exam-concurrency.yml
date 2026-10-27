@@ -1,0 +1,56 @@
+name: Farmakon bounded exam follow-up
+on:
+  pull_request:
+    types: [labeled]
+    branches: [feat/farmakon-v2-p0-privacy]
+permissions:
+  contents: read
+concurrency:
+  group: farmakon-f00102-followup
+  cancel-in-progress: true
+jobs:
+  postgres-followup:
+    if: github.repository == 'PhQMR7S/Farmakon' && github.event.pull_request.number == 18 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'audit/f00-regression-2026-10-26' && github.event.label.name == 'run-f00102-followup'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: farmakon_v2_test
+          POSTGRES_USER: farmakon_test
+          POSTGRES_PASSWORD: fixture-only-password
+        ports: ['127.0.0.1:5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U farmakon_test -d farmakon_v2_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Reject stale event
+        run: |
+          current=$(git ls-remote https://github.com/PhQMR7S/Farmakon.git refs/heads/audit/f00-regression-2026-10-26 | cut -f1)
+          test "$(git rev-parse HEAD)" = "$current"
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Expanded controlled diagnostic; three rounds, no load
+        run: node tests/exam-concurrency.mjs
+      - name: Privacy and deletion regression skipped after previous safety stop
+        run: node tests/privacy-postgres.mjs
+      - name: RLS with real PostgreSQL roles
+        run: node tests/storage-policy-smoke.mjs
+      - name: Confirm isolated schema cleanup
+        if: always()
+        run: |
+          node --input-type=module - <<'JS'
+          import {Pool} from 'pg';
+          const p=new Pool({connectionString:process.env.FARMAKON_TEST_DATABASE_URL,ssl:false});
+          try {const r=await p.query("SELECT count(*)::int n FROM pg_namespace WHERE nspname='farmakon'");if(r.rows[0].n!==0)throw Error('TEST_SCHEMA_NOT_CLEAN');console.log('PASS isolated schema absent');}finally{await p.end();}
+          JS
