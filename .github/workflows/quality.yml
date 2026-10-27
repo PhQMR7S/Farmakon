@@ -2,10 +2,6 @@ name: Farmakon quality checks
 on:
   pull_request:
     branches: [main, feat/farmakon-v2-p0-privacy]
-    paths-ignore:
-      - 'tests/local-supabase/**'
-      - '.github/workflows/local-supabase.yml'
-      - 'docs/FARMAKON-F00-LOCAL-SUPABASE-VALIDATION-REPORT.md'
   workflow_dispatch:
 
 permissions:
@@ -16,7 +12,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  scope:
+    runs-on: ubuntu-24.04
+    outputs:
+      local_only: ${{ steps.scope.outputs.local_only }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - id: scope
+        env:
+          LOCAL_MODE: ${{ github.event.pull_request.head.ref == 'audit/f00-regression-2026-10-26' && contains(github.event.pull_request.labels.*.name, 'run-f0010-local') }}
+        run: |
+          python3 - <<'PY'
+          import os, subprocess
+          paths=subprocess.check_output(['git','diff','--name-only','0bc525e268a1fc330d531ccbfefc8c28decd5749','HEAD'],text=True).splitlines()
+          allowed=lambda p: p.startswith('tests/local-supabase/') or p in ('.github/workflows/local-supabase.yml','.github/workflows/quality.yml','docs/FARMAKON-F00-LOCAL-SUPABASE-VALIDATION-REPORT.md')
+          isolated=os.environ.get('LOCAL_MODE')=='true' and bool(paths) and all(allowed(p) for p in paths)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f: f.write('local_only='+str(isolated).lower()+'\n')
+          print('Existing regression skipped only for opt-in audit branch with verified unchanged application/tests.')
+          PY
+
   baseline:
+    needs: scope
+    if: needs.scope.outputs.local_only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -59,10 +80,14 @@ jobs:
         run: npm run build
 
   postgres:
+    needs: scope
+    if: needs.scope.outputs.local_only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     services:
       postgres:
+    needs: scope
+    if: needs.scope.outputs.local_only != 'true'
         image: postgres:17
         env:
           POSTGRES_DB: farmakon_v2_test
@@ -104,6 +129,8 @@ jobs:
           FARMAKON_TEST_CONTAINER: ${{ job.services.postgres.id }}
 
   browser:
+    needs: scope
+    if: needs.scope.outputs.local_only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

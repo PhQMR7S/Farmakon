@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 25
     strategy:
       max-parallel: 1
-      fail-fast: false
+      fail-fast: true
       matrix:
         round: [1, 2]
     steps:
