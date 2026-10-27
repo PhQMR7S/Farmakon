@@ -24,12 +24,12 @@ Deno.serve(async req=>{
    const upload=await admin.storage.from('farmakon').upload(ASSET,new TextEncoder().encode('%PDF-1.4 F006 synthetic fixture'),{contentType:'application/pdf',cacheControl:'0'});if(upload.error)throw Error('storage-setup');
    await write(ASSET,'asset',{title:'synthetic.pdf',courseId:C,mime:'application/pdf',size:29,owner:credentials[0].id});
    await write(RUN+'-file','file',{title:'ملف اصطناعي',courseId:C,assetId:ASSET,status:'published',free:false,download:true,url:'/api/media?id='+ASSET});
-   await write(E,'exam',{title:'اختبار F006 اصطناعي',courseId:C,minutes:1,questionIds:[Q,Q2],status:'published',free:false});
+   await write(E,'exam',{title:'اختبار F006 اصطناعي',courseId:C,minutes:2,questionIds:[Q,Q2],status:'published',free:false});
    return Response.json({projectRef:'qfzharpouemueipsrduv',credentials,ids:{course:C,question:Q,question2:Q2,exam:E,asset:ASSET}});
   }
-  if(action==='edit')await sql`UPDATE farmakon.records SET data=(data::jsonb||${JSON.stringify({correct:0,title:'Changed synthetic question'})}::jsonb)::text WHERE id=${Q}`;
+  if(action==='edit')await sql`UPDATE farmakon.records SET data=(data::jsonb||${sql.json({correct:0,title:'Changed synthetic question'})})::text WHERE id=${Q}`;
   else if(action==='revoke'||action==='restore')await sql`UPDATE farmakon.enrollments SET expires=${action==='revoke'?0:Date.now()+86400000} WHERE email=${emails[0]} AND course_id=${C}`;
-  else if(action==='archive'||action==='publish')await sql`UPDATE farmakon.records SET data=jsonb_set(data::jsonb,'{status}',${JSON.stringify(action==='archive'?'draft':'published')}::jsonb)::text WHERE id=${E}`;
+  else if(action==='archive'||action==='publish')await sql`UPDATE farmakon.records SET data=jsonb_set(data::jsonb,'{status}',to_jsonb(${action==='archive'?'draft':'published'}::text))::text WHERE id=${E}`;
   else if(action==='state'){
    const attempts=await sql`SELECT id,data::jsonb->>'status' AS status,data::jsonb->'answers' AS answers,data::jsonb->'result'->>'score' AS score FROM farmakon.records WHERE kind='attempt' AND course_id=${C}`;
    const events=await sql`SELECT target,count(*)::int AS n FROM farmakon.activity WHERE kind='exam' AND target IN (SELECT id FROM farmakon.records WHERE kind='attempt' AND course_id=${C}) GROUP BY target`;

@@ -166,10 +166,22 @@ try{
   user=student;const multi=await post({action:'startExam',id:timed.id});
   await Promise.all([post({action:'saveExam',id:multi.id,answers:{[q.id]:1}}),post({action:'saveExam',id:multi.id,answers:{[q2.id]:2}})]);
   const persisted=JSON.parse((await db.prepare('SELECT data FROM records WHERE id=?').bind(multi.id).first()).data);assert.deepEqual(persisted.answers,{[q.id]:1,[q2.id]:2});
+  await Promise.all([post({action:'saveExam',id:multi.id,answers:{[q.id]:0}}),post({action:'saveExam',id:multi.id,answers:{[q.id]:1}})]);
+  const sameKey=JSON.parse((await db.prepare('SELECT data FROM records WHERE id=?').bind(multi.id).first()).data);assert.ok([0,1].includes(sameKey.answers[q.id]));assert.equal(sameKey.answers[q2.id],2);
   clock=pair[0].deadline+20000;await Promise.all([mod.GET(),mod.GET(),post({action:'submitExam',id:cid,answers:{[q.id]:1}})]);
   assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM activity WHERE target=? AND kind=?').bind(cid,'exam').first()).n,1);
+  const settledMulti=JSON.parse((await db.prepare('SELECT data FROM records WHERE id=?').bind(multi.id).first()).data);assert.equal(settledMulti.result.score,(sameKey.answers[q.id]===1?1:0)+1);
   console.log('PASS: PostgreSQL concurrent patch merge, two-device starts and GET/submit expiry settlement exactly once.');
  }
+ const withdrawn=await post({action:'startExam',id:ex.id});
+ user=owner;await post({action:'archive',id:ex.id});user=student;
+ await post({action:'startExam',id:ex.id},403);await post({action:'saveExam',id:withdrawn.id,answers:{}},403);await post({action:'submitExam',id:withdrawn.id,answers:{}},403);
+ state=await(await mod.GET()).json();assert.ok(!state.attempts.some(a=>a.id===withdrawn.id));
+ user=owner;await post({action:'save',kind:'question',id:q2.id,data:{...await helpers.record(q2.id),status:'published'}});await post({action:'save',kind:'exam',id:ex.id,data:{title:'Edited exam definition',courseId:c.id,minutes:1,questionIds:[q2.id],free:false,status:'published'}});user=student;
+ const unchanged=await post({action:'startExam',id:ex.id});assert.equal(unchanged.id,withdrawn.id);assert.equal(unchanged.deadline,withdrawn.deadline);assert.equal(unchanged.questions[0].id,q.id);
+ await db.prepare('UPDATE enrollments SET expires=? WHERE email=? AND course_id=?').bind(clock+500,student.email,c.id).run();clock+=501;
+ await post({action:'saveExam',id:withdrawn.id,answers:{}},403);await post({action:'submitExam',id:withdrawn.id,answers:{}},403);
+ console.log('PASS F00.6: exam unpublish/republish, changed definition keeps held snapshot/deadline, subscription time expiry denies writes.');
  console.log('PASS F00.6: fixed server deadline, exact boundary, grace injection denied for v2, immutable keys, preserved acknowledged answers, lazy settlement, legacy grace and stable results.');
 }finally{Date.now=realNow;}
 

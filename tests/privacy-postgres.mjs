@@ -22,7 +22,7 @@ try{
   await db.prepare('INSERT INTO members VALUES(?,?,?,?)').bind(uid,mail,'fixture',0).run();
   await db.prepare('INSERT INTO enrollments VALUES(?,?,?,?,?)').bind(uid,mail,'course',Date.now()+60000,'synthetic').run();
   await db.prepare('INSERT INTO activity VALUES(?,?,?,?,?,?)').bind(uid,uid,'progress','lesson','{"note":"private"}',0).run();
-  for(const kind of ['attempt','order','ticket'])await db.prepare('INSERT INTO records VALUES(?,?,?,?,?)').bind(uid+kind,kind,'course',JSON.stringify({userId:uid,email:mail}),0).run();
+  for(const kind of ['attempt','order','ticket'])await db.prepare('INSERT INTO records VALUES(?,?,?,?,?)').bind(uid+kind,kind,'course',JSON.stringify({userId:uid,email:mail,...(kind==='attempt'?{examId:'synthetic-exam',courseId:'course',status:'active',timingVersion:2,deadline:Date.now()+60000,questions:[{id:'synthetic-question',correct:0}],answers:{'synthetic-question':0}}:{})}),0).run();
  }
  await db.prepare('INSERT INTO codes VALUES(?,?,?,?,?,?,?,?)').bind('used','hash','xxxx','course',365,Date.now()+60000,email,0).run();
  await pool.query("INSERT INTO storage.objects(name,bucket_id,owner_id) VALUES('mismatch','farmakon',$1)",[b]);
@@ -73,6 +73,7 @@ try{
  assert.equal((await pool.query('SELECT used_by FROM farmakon.codes')).rows[0].used_by,'deleted:'+a);
  assert.equal((await pool.query('SELECT * FROM auth.users WHERE id=$1',[a])).rowCount,0);
  assert.equal((await pool.query('SELECT * FROM auth.users WHERE id=$1',[b])).rowCount,1);
+ assert.equal(JSON.parse((await db.prepare('SELECT data FROM records WHERE id=?').bind(b+'attempt').first()).data).status,'active','second student active attempt survives deletion');
  // Same-email registration cannot silently regain old grants (policy pending).
  await assert.rejects(()=>db.prepare('INSERT INTO members VALUES(?,?,?,?)').bind('new-id',email,'fixture',0).run(),e=>e.code==='42501');
  console.log('PASS: real PostgreSQL acceptance/worker concurrency, tombstone write barrier, RLS/grants, old-session deny, synthetic purge, consumed-code safety, orphan/shared Storage policy, second student intact. Auth/Storage transport fixtures.');

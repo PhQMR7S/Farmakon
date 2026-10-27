@@ -1,0 +1,40 @@
+{
+  "scope": "real protected Preview / real Supabase Auth and Staging PostgreSQL",
+  "applicationSha": "a02718e8696ffbbcbb35bbb56a378980773afec3",
+  "deploymentId": "dpl_JEiJdRkFBC7cX3piBS6ADWCCDedy",
+  "preview": "https://farmakon-8xxbagwvh-phqmr7s.vercel.app",
+  "results": [
+    {
+      "name": "three independent real Auth sessions, desktop + Android",
+      "status": "Passed"
+    },
+    {
+      "name": "real UI start + concurrent two-device resume: single id/deadline, no answer keys",
+      "status": "Passed"
+    },
+    {
+      "name": "second student IDOR denied",
+      "status": "Passed"
+    },
+    {
+      "name": "keyboard save acknowledged; concurrent patches preserved; live question edit cannot alter snapshot",
+      "status": "Passed"
+    },
+    {
+      "name": "real offline UI and device-clock manipulation preserve server deadline",
+      "status": "Passed"
+    },
+    {
+      "name": "all student devices closed at natural deadline; real GET settles saved snapshot once; Android shows correct expired result",
+      "status": "Passed"
+    },
+    {
+      "name": "live unpublish/revoke deny protected attempts and files; republish keeps deadline; student B unaffected",
+      "status": "Passed"
+    },
+    {
+      "name": "restored authorization does not reset time; acknowledged results remain stable",
+      "status": "Passed"
+    }
+  ]
+}
