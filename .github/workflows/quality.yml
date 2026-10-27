@@ -2,6 +2,10 @@ name: Farmakon quality checks
 on:
   pull_request:
     branches: [main, feat/farmakon-v2-p0-privacy]
+    paths-ignore:
+      - 'tests/local-supabase/**'
+      - '.github/workflows/local-supabase.yml'
+      - 'docs/FARMAKON-F00-LOCAL-SUPABASE-VALIDATION-REPORT.md'
   workflow_dispatch:
 
 permissions:
