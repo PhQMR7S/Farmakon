@@ -43,15 +43,18 @@ CREATE FUNCTION farmakon.synthetic_owned_files(uid uuid) RETURNS TABLE(name text
 LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
 BEGIN
  PERFORM farmakon.require_synthetic_deletion(uid);
- IF EXISTS(SELECT 1 FROM farmakon.records a JOIN farmakon.records r
+ IF EXISTS(SELECT 1 FROM farmakon.records a JOIN storage.objects o ON o.bucket_id='farmakon' AND o.name=a.id
+  WHERE a.kind='asset' AND a.data::jsonb->>'owner'=uid::text
+  AND coalesce(nullif(o.owner_id,''),o.owner::text) IS DISTINCT FROM uid::text)
+ OR EXISTS(SELECT 1 FROM farmakon.records a JOIN farmakon.records r
   ON r.data::jsonb->>'assetId'=a.id
   WHERE a.kind='asset' AND a.data::jsonb->>'owner'=uid::text)
  OR EXISTS(SELECT 1 FROM storage.objects o JOIN farmakon.records r ON r.data::jsonb->>'assetId'=o.name
-  WHERE o.bucket_id='farmakon' AND o.owner_id=uid::text)
- OR EXISTS(SELECT 1 FROM storage.objects WHERE owner_id=uid::text AND bucket_id<>'farmakon') THEN
+  WHERE o.bucket_id='farmakon' AND coalesce(nullif(o.owner_id,''),o.owner::text)=uid::text)
+ OR EXISTS(SELECT 1 FROM storage.objects WHERE coalesce(nullif(owner_id,''),owner::text)=uid::text AND bucket_id<>'farmakon') THEN
   RAISE EXCEPTION 'DELETION_SHARED_OR_UNKNOWN_STORAGE';
  END IF;
- RETURN QUERY SELECT o.name FROM storage.objects o WHERE o.bucket_id='farmakon' AND o.owner_id=uid::text;
+ RETURN QUERY SELECT o.name FROM storage.objects o WHERE o.bucket_id='farmakon' AND coalesce(nullif(o.owner_id,''),o.owner::text)=uid::text;
 END $$;
 REVOKE ALL ON FUNCTION farmakon.require_synthetic_deletion(uuid) FROM PUBLIC,anon,authenticated;
 REVOKE ALL ON FUNCTION farmakon.revoke_synthetic_sessions(uuid) FROM PUBLIC,anon,authenticated;

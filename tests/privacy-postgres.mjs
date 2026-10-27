@@ -11,7 +11,7 @@ try{
  await pool.query(`CREATE SCHEMA auth;CREATE SCHEMA storage;
  CREATE TABLE auth.users(id uuid PRIMARY KEY,email text,raw_app_meta_data jsonb);
  CREATE TABLE auth.sessions(id uuid,user_id uuid,not_after timestamptz);
- CREATE TABLE storage.objects(name text,bucket_id text,owner_id text);
+ CREATE TABLE storage.objects(name text,bucket_id text,owner_id text,owner uuid);
  DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='farmakon_app') THEN CREATE ROLE farmakon_app NOLOGIN;END IF;END $$;
  GRANT USAGE ON SCHEMA farmakon TO farmakon_app;`);
  await pool.query(fs.readFileSync('scripts/staging/f004-synthetic-deletion.sql','utf8'));
@@ -45,16 +45,23 @@ try{
  await pool.query('SELECT farmakon.revoke_synthetic_sessions($1)',[a]);assert.equal((await pool.query('SELECT * FROM auth.sessions WHERE user_id=$1',[a])).rowCount,0);
  await assert.rejects(()=>pool.query('SELECT farmakon.revoke_synthetic_sessions($1)',[b]),/DELETION_SCOPE/);
  // Orphaned object is discovered. Course/shared reference blocks removal.
- await pool.query("INSERT INTO storage.objects VALUES('orphan','farmakon',$1)",[a]);
+ await pool.query("INSERT INTO storage.objects(name,bucket_id,owner_id) VALUES('orphan','farmakon',$1)",[a]);
  assert.deepEqual((await pool.query('SELECT * FROM farmakon.synthetic_owned_files($1)',[a])).rows,[{name:'orphan'}]);
+ await pool.query("INSERT INTO storage.objects(name,bucket_id,owner) VALUES('legacy-orphan','farmakon',$1)",[a]);
+ assert.deepEqual((await pool.query('SELECT * FROM farmakon.synthetic_owned_files($1) ORDER BY name',[a])).rows,[{name:'legacy-orphan'},{name:'orphan'}]);
  await db.prepare('INSERT INTO records VALUES(?,?,?,?,?)').bind('shared','file','course','{"assetId":"orphan"}',0).run();
  await assert.rejects(()=>pool.query('SELECT * FROM farmakon.synthetic_owned_files($1)',[a]),/SHARED/);
  await db.prepare('DELETE FROM records WHERE id=?').bind('shared').run();
+ await pool.query("INSERT INTO storage.objects(name,bucket_id,owner_id) VALUES('mismatch','farmakon',$1)",[b]);
+ await db.prepare('INSERT INTO records VALUES(?,?,?,?,?)').bind('mismatch','asset','',JSON.stringify({owner:a}),0).run();
+ await assert.rejects(()=>pool.query('SELECT * FROM farmakon.synthetic_owned_files($1)',[a]),/SHARED_OR_UNKNOWN/);
+ await db.prepare('DELETE FROM records WHERE id=?').bind('mismatch').run();
+ await pool.query("DELETE FROM storage.objects WHERE name='mismatch'");
  globalThis.__privacyDB=db; // default parameter resolves the injected adapter below
  // Reload after injection (module captures database during evaluation).
  const {deletionStore}=await import(compile(fs.readFileSync('lib/farmakon/privacy/store.ts','utf8').replace("import {database} from '../../database';",'const database=globalThis.__privacyDB;')+'\n// injected'));
  const {resumeDeletion}=await import(compile(fs.readFileSync('lib/farmakon/privacy/deletion.ts','utf8')));
- let fail=true;const provider={async assertFixture(){},async revokeSessions(){},async removePrivateFiles(){if(fail)throw Error('fixture failure');await pool.query('DELETE FROM storage.objects WHERE owner_id=$1',[a])},async deleteAuth(){await pool.query('DELETE FROM auth.users WHERE id=$1',[a])}};
+ let fail=true;const provider={async assertFixture(){},async revokeSessions(){},async removePrivateFiles(){if(fail)throw Error('fixture failure');await pool.query("DELETE FROM storage.objects WHERE coalesce(nullif(owner_id,''),owner::text)=$1",[a])},async deleteAuth(){await pool.query('DELETE FROM auth.users WHERE id=$1',[a])}};
  await assert.rejects(()=>resumeDeletion(deletionStore(db),provider,a));assert.equal((await pool.query('SELECT state FROM farmakon.deletion_jobs')).rows[0].state,'sessions_revoked');
  fail=false;await Promise.all(Array.from({length:8},()=>resumeDeletion(deletionStore(db),provider,a)));
  assert.equal((await pool.query('SELECT state FROM farmakon.deletion_jobs')).rows[0].state,'complete');
