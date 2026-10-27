@@ -1,0 +1,17 @@
+2026-10-27 / Supabase Staging only qfzharpouemueipsrduv
+Migration: 20261027050713_f004_synthetic_deletion_staging_only
+Live harness version 7: HTTP 200, passed=true
+PASS real Auth users/login and Storage read
+PASS accepted tombstone denies existing session helper and uncached direct Storage JWT request
+PASS shared-file interruption at sessions_revoked, login ban, resumable completion
+PASS deleted Auth/object/notes/attempt/session removal; old login/update refused
+PASS second synthetic student and object unaffected before cleanup
+LIMIT previous cached read returned bytes; cacheNonce/no-store and zero-cache new object request denied
+NEW upload policy requests cacheControl=0; no retroactive rewrite of real objects
+BLOCKED live Next deletion UI/API and protected Preview platform/media/export matrix for these new identities
+BLOCKED natural JWT expiry, mailbox signup/recovery, full provider Auth/Storage DR
+Final helper source version 8: unconditional 410, JWT verification still true
+Final HTTP check: 410 closed
+Final aggregate: 0 F004 Auth users, 0 F004 objects, 0 F004 records, 0 leases; 2 synthetic tombstones complete
+One tombstone reflects independently verified manual cleanup of an earlier failed probe, not worker success
+Previous F002 fixtures left intact; no real users touched, no credentials/tokens/UUIDs in this evidence

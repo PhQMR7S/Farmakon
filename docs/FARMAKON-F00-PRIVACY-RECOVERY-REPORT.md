@@ -37,8 +37,8 @@
 - تأكيد عبارة صريحة، same-origin CSRF، حد 3/15 دقيقة لكل مستخدم، body محدود، no-store/no-referrer ورسائل عامة.
 - إدراج idempotent في transaction؛ طلب الحذف المقبول يحجب identity لكل platform/media/export/reset. سكربت قاعدة الاختبار يضيف write barriers حتى لا يعيد طلب سابق إنشاء البيانات الشخصية، ويستبعد tombstone من helper جلسات Storage.
 - عامل `runSyntheticDeletion` مستقل عن واجهات الجمهور، بلا cron أو endpoint إداري جديد. تسلسل دائم: accepted → sessions_revoked → files_removed → data_removed → complete. lease يمنع عاملين؛ الحالات والمحاولات والوقت تكشف التعطل. فشل خطوة لا يعلن الاكتمال؛ إعادة التشغيل تستأنف خطوات idempotent.
-- المزود مبرمج لاستخدام Supabase Admin للحظر ثم إبطال sessions عبر helper ضيق، اكتشاف الملفات اليتيمة من Storage ownership، رفض المشاركة، حذفها عبر API والتحقق، حذف بيانات الاختبار ثم Auth. لا مفاتيح service-role في المتصفح أو المستودع. هذا التكامل **غير مختبر حياً**؛ لا سر عامل متاح في الجلسة ولم أفعل نشره.
-- `scripts/staging/f004-synthetic-deletion.sql` خارج migrations التلقائية؛ لم يُطبق على Supabase. يتطلب مراجعة schema وصلاحيات helpers وStorage owner_id ثم تشغيله في Staging فقط. لا تمديد لصلاحيات الدور الحالي. لا تعديل production أو تغير behavior الافتراضي للحسابات.
+- المزود مبرمج لاستخدام Supabase Admin للحظر ثم إبطال sessions عبر helper ضيق، اكتشاف الملفات اليتيمة من Storage ownership، رفض المشاركة، حذفها عبر API والتحقق، حذف بيانات الاختبار ثم Auth. لا مفاتيح service-role في المتصفح أو المستودع. اختُبر هذا التكامل حياً بعامل Edge مؤقت في Staging يستخدم اعتمادات runtime الداخلية؛ لم تُستخرج مفاتيح service-role إلى shell أو git أو المتصفح. حُقنت البيئة عبر كائن إعدادات بدل process.env للتوافق مع Deno، واستُبدل نقل SQL بـPostgres.js مع بقاء منطق coordinator/store/provider نفسه. لا يعادل ذلك نشر Next API الجديدة.
+- `scripts/staging/f004-synthetic-deletion.sql` خارج migrations التلقائية للإنتاج؛ طُبق على مشروع Staging وحده بالـmigration `20261027050713_f004_synthetic_deletion_staging_only`، بعد فحص schema وصلاحيات helpers وStorage ownership. لم تتغير مدة الدور المؤقت أو صفاته؛ يرث صلاحيات الجدول والدوال الضيقة الجديدة من farmakon_app، وهي لازمة للحجب وإبطال جلسات الهويات الاصطناعية فقط. لا صلاحية جديدة لقراءة Auth مباشرة ولا bypassrls. لا تعديل production أو تغير behavior الافتراضي للحسابات.
 - أمثلة الاستئناف: أوقف أي عامل سابق وتحقق من انتهائه، افحص state/updated/attempts/lease دون عرض البريد، ثم صفّر lease عالقاً للعملية المحددة فقط قبل استئناف العامل؛ لا lease timeout يسرق عملية خارجية ما زالت تعمل. لا تحذف tombstone لاسترجاع الدخول.
 
 ## النسخ والاستعادة
@@ -63,31 +63,56 @@
 
 ## الاختبارات والحالة الحالية
 
-محلياً: typecheck وbuild وbackend/auth/callback/privacy/http/isolation/PWA ناجحة. اختبارات Auth وStorage المحاكية موسومة كذلك. [التزام التنفيذ e01f53c](https://github.com/PhQMR7S/Farmakon/commit/e01f53cdf7de20f714025b9a2cb58ad41091599c) اجتاز [CI 40434077655](https://github.com/PhQMR7S/Farmakon/actions/runs/40434077655): baseline/postgres/browser ناجحة، 28/28 متصفح. راجعت سجلات postgres وbrowser الفعلية، بما فيها التزامن وRLS وحجب الجلسة وحذف البيانات الاصطناعية.
+محلياً: typecheck وbuild وbackend/auth/callback/privacy/http/isolation/PWA ناجحة. اختبارات Auth وStorage المحاكية موسومة كذلك، والنتائج الحية المستقلة أدناه لا تُنسب إلى CI. [التزام التنفيذ e01f53c](https://github.com/PhQMR7S/Farmakon/commit/e01f53cdf7de20f714025b9a2cb58ad41091599c) اجتاز [CI 40434077655](https://github.com/PhQMR7S/Farmakon/actions/runs/40434077655): baseline/postgres/browser ناجحة، 28/28 متصفح. راجعت سجلات postgres وbrowser الفعلية، بما فيها التزامن وRLS وحجب الجلسة وحذف البيانات الاصطناعية.
 
 تجربة DR لهذا التشغيل: RTO مقاس **1629 ms** من بدء فك النسخة حتى إتمام التحقق؛ RPO **0 ms داخل بيانات التجربة الساكنة فقط** (لا كتابات دراسة بعد اللقطة، وإعادة تطبيق سجل حذف أحدث). عمر اللقطة عند التحقق 1894 ms. هذا ليس RPO/RTO لبيئة الإنتاج أو مشروع Supabase كامل. نتيجة الأداة مقصودة `PASS_PARTIAL` لأن Auth/Storage الحقيقيين غير مستعادين.
 
+آخر تشغيل سابق لحزمة التسليم: [b3003a4](https://github.com/PhQMR7S/Farmakon/commit/b3003a4487344bfc9a3ba3cc1a79353132970c0c) اجتاز [40434891078](https://github.com/PhQMR7S/Farmakon/actions/runs/40434891078): **30/30 متصفح**، إضافة نموذج الحذف الفعلي على الكمبيوتر وPixel 7 بنقل محاكى. RTO لهذه الإعادة 1731 ms، RPO=0 للبيانات الاصطناعية الساكنة، عمر snapshot=1954 ms؛ لا نتائج إنتاجية. نُقلت نتائج الحذف الحي اللاحق منفصلة في [الأدلة الآمنة](evidence/F00.4-LIVE-RESULTS.txt). تشغيل رأس التسليم الأحدث بعد حفظ harness وcacheControl موثق في وصف PR، ولا تُنسب نتائج b3003a4 إلى التغييرات اللاحقة.
+
 أُضيف لاحقاً اختبار سباق لطلب دراسة بدأ قبل قبول الحذف، واختبار متصفح مستقل لنموذج الحذف الفعلي على الكمبيوتر وPixel 7 بمزود نقل محاكى. اجتاز [fdb225e](https://github.com/PhQMR7S/Farmakon/commit/fdb225e11e6a48015e71f76eafd4b9dd5354a638) [CI 40434342508](https://github.com/PhQMR7S/Farmakon/actions/runs/40434342508): كل المجموعات ناجحة. أضيفت بعده تغطية owner القديم وتضارب ملكية الملفات؛ تشغيل رأس التسليم وروابطه النهائية موثقة في وصف Draft PR #18، ولا تُنسب إليه نتائج رأس قديم.
 
-الحذف الحي لحساب Supabase اصطناعي وإثبات login failure بعد الحذف، JWT القديم وStorage الحقيقي: **غير منفذ** لغياب اعتماد عامل Staging وسرّه الآمن؛ لا أستبدله بنجاح الـfixtures. لا إنشاء أو حذف حسابات Supabase في هذه الجولة. اختبار نفس البريد محلياً يمنع إحياء الحقوق بواسطة tombstone؛ سياسة إعادة التسجيل الحقيقية معلقة.
+### النتائج الحية الجديدة في Staging
 
-قراءة Vercel الحالية أثبتت `ssoProtection.enabled=true` لكل Previews. رابط الفرع ما زال READY على `dpl_DPr2sND99XFrS8n7t4Kz818TrVc3` / `8658f1c`، وProduction على `dpl_BNWbrbCXEvRK9BxEqJd4Tkmorctg` / `7258c50`. لا نشر Preview جديدة؛ النشر التلقائي للفرع ما زال مغلقاً. لم أخفض Deployment Protection أو أغير Vercel/Supabase environments. لا claim بأن F00.4 منشورة. فحص information_schema في Staging أثبت حقول Auth المطلوبة ووجود Storage `owner_id text` و`owner uuid` معاً؛ helper يغطي القديم والجديد ويرفض تضارب ملكية asset/object.
+| الفحص | النتيجة المثبتة وحدودها |
+| --- | --- |
+| حسابان جديدان مستقلان | Supabase Auth حقيقي، marker إداري وأسماء F00.4 محصورة، كلمات عشوائية داخل runtime؛ تأكيد إداري لا يثبت البريد |
+| دخول ورفع وقراءة ملفين | Passed عبر Auth وStorage الحقيقيين؛ ملفان اصطناعيان فقط، وضُبطت ملكيتهما في metadata لهويتي الاختبار حصراً |
+| قبول الطلب وحجب الجلسة | Passed: helper يعيد false، وطلب Storage جديد بالـJWT القديم مع cacheNonce وno-store مرفوض |
+| الملف المشترك | Passed: العامل حظر الدخول وأبطل sessions ثم توقف عند مرجع المشاركة؛ بقي state=sessions_revoked، ولم يحذف الملف المشترك |
+| الاستئناف | Passed بعد إزالة مرجع **الاختبار** المشترك فقط؛ العامل استأنف إلى complete وحذف Auth والـObject وبيانات الدراسة |
+| بعد الحذف | Passed: دخول بكلمة صحيحة سابقاً مرفوض، وتحديث Auth بالـJWT القديم مرفوض، لا جلسات أو ملاحظات أو محاولات للهوية المحذوفة |
+| استقلال الطالب الثاني | Passed حياً: حسابه وقراءة ملفه بقيا صالحين قبل التنظيف النهائي |
+| إعادة نفس البريد | إعادة التجهيز الإدارية لا تعيد الحقوق؛ حاجز البيانات رفض إدخال profile بعد tombstone بـ42501 ثم نظف التجهيز. سياسة التسجيل العام بنفس البريد ما زالت تحتاج اعتماداً؛ لا منع عالمي مُثبت على Auth نفسه |
+| platform/media/export في Preview بعد الحذف | لم تُشغل حياً بهذه الهويات؛ نسخة Next الجديدة غير منشورة. رفض handlers الفعلية مثبت بالـfixtures، لا أستبدله بالاختبار الحي الجزئي |
+
+فشل فحص القراءة الأول بعد الحجب لأن طلب الملف السابق عاد ناجحاً، بينما helper رفض الجلسة. إعادة الفحص بطلب غير مخزن وملف cacheControl=0 أثبتت رفض الطلب الجديد. **لا يُعد ذلك محواً للبايتات المستلمة أو الكاش السابق.** أُضيف `cacheControl:'0'` لرفعات التطبيق الجديدة؛ لا تعديل لملفات حقيقية قديمة ولا ادعاء إبطال كل كاش سابق أو signed URL.
+
+عامل `farmakon-f004-probe` كان verify_jwt=true مع nonce عشوائي محدود العمر، وحصر مشروع وأسماء ثابتة، دون endpoint SQL عام أو ردود تحتوي أسراراً. أُغلق بالنسخة 8 التي ترد 410 دائماً، وأثبت الطلب HTTP 410 وفحص المصدر عدم بقاء كود تشغيل. فشل الإغلاق الأول بسبب import_map قديم، ثم نجح بإرفاق deno.json مغلق؛ لم أخفض تحقق JWT.
+
+الفحص النهائي: **صفر مستخدمي F00.4، صفر Objects أو records للاختبار، صفر leases، وطلبا حذف اصطناعيان بحالة complete**. طلب المحاولة الأولى فشل قبل اكتمال العامل؛ جرى تنظيفه ثم توثيق إتمام teardown يدوياً بعد فحص مستقل يؤكد غياب Auth/Storage/بياناته، ولا يُنسب إلى نجاح العامل. الهويات الثلاث السابقة لـF00.2 محفوظة، دون جلسات. Tombstones باقية لمنع إعادة الربط؛ لا بيانات اعتماد أو روابط استعادة صالحة أضيفت.
+
+المصدر القابل للمراجعة: `tests/live/deletion-edge.ts` و`edge-db.ts` و`build-deletion-edge.mjs`. بناء الحزمة ينسخ المنطق من ملفات التطبيق ويولّد مترجم SQL منها؛ النسخة المحفوظة تحمل nonce placeholder وexpiry=0 فتظل مغلقة. لا تُشغّلها تلقائياً في CI أو على Production.
+
+قراءة Vercel الحالية أثبتت `ssoProtection.enabled=true` لكل Previews. رابط الفرع ما زال READY على `dpl_DPr2sND99XFrS8n7t4Kz818TrVc3` / `8658f1c`، وProduction على `dpl_BNWbrbCXEvRK9BxEqJd4Tkmorctg` / `7258c50`. لا نشر Preview جديدة؛ النشر التلقائي للفرع ما زال مغلقاً. لم أخفض Deployment Protection أو أغير Vercel/Supabase environments. لا claim بأن واجهة Next لـF00.4 منشورة؛ نُشر عامل الاختبار المؤقت في Staging فقط ثم أُغلق. فحص information_schema في Staging أثبت حقول Auth المطلوبة ووجود Storage `owner_id text` و`owner uuid` معاً؛ helper يغطي القديم والجديد ويرفض تضارب ملكية asset/object.
+
+فحص Security Advisor بعد تطبيق SQL لم يظهر إلا WARN السابق `auth_leaked_password_protection`؛ لا تنبيه جديد من الفحص نفسه، ولا ادعاء تدقيق أمني شامل. لا ترقية مدفوعة. لم أغير owner setting أو أسعاراً أو بيانات حقيقية أو Google Drive.
 
 ## الملفات والإصلاح الإضافي
 
 - `app/api/account/delete/route.ts` و`app/account/delete/{page,delete-form}.tsx`: قبول الحذف الاصطناعي وتأكيده ومسح الكاش.
 - `lib/farmakon/privacy/{gate,deletion,store,provider,reauth}.ts`: حصر البيئة والهوية، orchestration وlease، حذف بيانات الاختبار ومزود العامل وإعادة التحقق.
-- `app/lib/server.ts`: حجب tombstone؛ `scripts/staging/f004-synthetic-deletion.sql`: جدول RLS وhelpers وحواجز الكتابة. خارج migrations الإنتاج، وغير مطبق على Supabase.
+- `app/lib/server.ts`: حجب tombstone؛ `scripts/staging/f004-synthetic-deletion.sql`: جدول RLS وhelpers وحواجز الكتابة. خارج migrations الإنتاج، ومطبق على Staging وحده.
 - `app/platform.tsx`: عند رفض جلسة بـ401 كانت الصفحة تعيد توجيه المستخدم وتترك التنزيلات المحلية؛ أصبحت تمسح التنزيلات ووسم المستخدم وتخفي بيانات الشاشة قبل العودة للدخول. لا تغير Offline TTL ولا حذفاً لملفات مستخدم سليم.
+- `lib/storage.ts`: cacheControl=0 للرفعات الجديدة، دون تعديل Metadata لملفات فعلية سابقة.
 - `tests/privacy-{smoke,postgres,browser}.mjs` و`tests/recovery-dr.mjs`، وتحديث auth/E2E وCI. لا dependencies أو lockfile متغيرة.
 - الاختبارات الجديدة في CI تشمل 401/cache وملكية Storage القديمة/المتضاربة. إعداد fixture أُصلح ليتم قبل قبول الحذف؛ تجهيزها بعده رفضه الحاجز كما ينبغي.
 
 ## التراجع والمخاطر وبوابات F00
 
-- flag يبقى معطلاً؛ revert لكود F00.4 لا يغيّر بيانات لأن SQL غير مطبق. بعد تطبيقه مستقبلاً: لا تعطل tombstone/session barriers أثناء وجود طلب حذف؛ أوقف القبول والعامل وأبقِ الحجب حتى المراجعة. حذف Auth/Objects نهائي لا يعكسه revert للكود. لا تعد الحساب من نسخة قديمة تلقائياً.
+- flag الواجهة يبقى معطلاً؛ SQL مطبق في Staging فقط وtombstones قائمة. revert للكود لا يعيد مستخدماً أو Object محذوفاً. لا تعطل tombstone/session barriers أثناء وجود طلب حذف؛ أوقف القبول والعامل وأبقِ الحجب حتى المراجعة. حذف Auth/Objects نهائي لا يعكسه revert للكود. لا تعد الحساب من نسخة قديمة تلقائياً.
 - signed Storage URLs السابقة قد تبقى حتى TTL (60 ثانية في الخادم)، والملفات المحلية المستقلة لا تسترجع. منع الوصول عبر التطبيق لا يعد DRM أو محواً عن بعد.
-- المفاتيح الخدمية لـSupabase واسعة الصلاحيات بطبيعتها؛ لم تُنشأ أو تُمنح للتطبيق هنا. يلزم عامل معزول وأسرار قصيرة العمر وحصر نطاقه وقرارات retention قبل تجربة حية؛ helpers SQL لا تمنح قراءة مباشرة لـAuth.
+- المفاتيح الخدمية لـSupabase واسعة الصلاحيات بطبيعتها؛ لم تُنشأ أو تُمنح لتطبيق Next هنا. العامل المؤقت استعمل اعتمادات Edge الداخلية ضمن كود محصور ثم أُغلق؛ يلزم عامل تشغيل دائم معزول ومراجعة retention قبل الإتاحة العامة؛ helpers SQL لا تمنح قراءة مباشرة لـAuth.
 - يدعم المسار البيانات الحالية المعروفة؛ أي نوع ملكية جديد أو ملفات مشتركة يوقف التنفيذ للمراجعة. لا توجد ميزة Flashcards جديدة هنا.
-- بوابات مفتوحة: بريد F00.3 والتأكيد والاستعادة ورفض الروابط المستهلكة/المنتهية؛ JWT الطبيعي وتجديده؛ إعدادات Auth المباشرة؛ حذف حي مع Storage/Auth؛ سياسة احتفاظ قانونية/مالية معتمدة؛ Auth/Storage DR كامل؛ backup destination/key custody/retention/RPO/RTO معتمدة؛ اختبارات الأداء والوصولية وتوقيت الامتحان الباقية في F00.
+- بوابات مفتوحة: بريد F00.3 والتأكيد والاستعادة ورفض الروابط المستهلكة/المنتهية؛ JWT الطبيعي وتجديده؛ إعدادات Auth المباشرة؛ نشر واختبار Next deletion API/UI حياً والتصدير/الوسائط في Preview؛ سياسة احتفاظ قانونية/مالية معتمدة؛ Auth/Storage DR كامل؛ backup destination/key custody/retention/RPO/RTO معتمدة؛ اختبارات الأداء والوصولية وتوقيت الامتحان الباقية في F00.
 
-**الحكم: تنفيذ اختباري ومراجعة سياسة، وليس جاهزية حذف أو DR إنتاجية. Issue #1 تبقى مفتوحة. لا دمج ولا Production ولا F01/F11/F12؛ توقف بعد تسليم F00.4 للمراجعة.**
+**الحكم: تنفيذ اختباري وحذف حي جزئي مُثبت ومراجعة سياسة، وليس جاهزية حذف أو DR إنتاجية. Issue #1 تبقى مفتوحة. لا دمج ولا Production ولا F01/F11/F12؛ توقف بعد تسليم F00.4 للمراجعة.**

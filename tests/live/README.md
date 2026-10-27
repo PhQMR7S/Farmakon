@@ -17,3 +17,32 @@ The suite creates explicitly synthetic course/lesson/question/exam/Storage fixtu
 For a provider-session-expiry probe, create a private `/tmp/farmakon-expiry-*` directory and set `FARMAKON_LIVE_EXPIRY_DIR`. The suite emits `ready.json` containing only the synthetic B user ID and waits up to 120 seconds. An authorized Staging-only coordinator must first verify the provider-admin marker and exact synthetic email, then set **only that fixture's** `auth.sessions.not_after` into the past and write `expired` into the directory. The suite verifies live 401 responses. This is not a forged JWT or a test of natural JWT expiration.
 
 Signup, actual mailbox delivery, recovery links/callbacks and natural JWT expiration are separate gates. Do not infer them from admin-created fixtures, mock CI or a generic forgot-password response. Inspect the final Arabic report for actual results and limitations.
+
+## F00.4 synthetic deletion
+
+`deletion-edge.ts` is a closed-by-default, Staging-only integration harness, not a
+public account-deletion endpoint. `node tests/live/build-deletion-edge.mjs
+/absolute/new/temporary/directory` packages copies of the actual coordinator,
+store, provider and gate with a Deno SQL adapter. The generated `sql.ts` is taken
+from `lib/database.ts`; environment access is injected as a plain object because
+Edge runtime process environment mutation is unsupported. Pinned SDK imports are
+included in `deno.json`. No credentials are read by the builder.
+
+Deployment requires explicit authorized tooling to substitute an unpredictable
+nonce and near-term expiry in memory, the reviewed Staging-only SQL script, the
+existing Storage owner setting, native Edge runtime credentials, JWT verification
+kept enabled, and exact synthetic names reviewed for each run. Never reuse names
+with deletion tombstones or make this an unattended CI task. It uses real
+admin-confirmed test users (not mailbox verification), real Storage and the real
+private database. It verifies session denial, shared-file interruption, resumable
+worker completion, deleted-user login/update refusal and second-user independence.
+The script creates no paid resources and accepts no arbitrary SQL, user ID or
+project URL from a request. Do not log response bodies from provider errors.
+
+After running, replace the deployed function with an unconditional HTTP 410 handler
+**and include a closed deno.json explicitly** so an old import_map path is not
+inherited. Verify the HTTP response and the source. Independently count remaining
+synthetic users/sessions/objects/records/leases; keep tombstones and record any
+manual fixture teardown separately from successful worker execution. See the
+F00.4 report for results, missing live Next API coverage, cache limitations and the
+still-partial Auth/Storage disaster recovery gate.

@@ -61,3 +61,21 @@ for(const [path,method] of [['app/api/platform/route.ts','GET'],['app/api/platfo
 }
 console.error=savedConsoleError;
 console.log('PASS: accepted deletion tombstone blocks actual platform GET/POST, media GET and export POST handlers before data access; verified Auth transport fixture.');
+
+let uploadOptions;
+globalThis.__privacyClient={storage:{from(bucket){assert.equal(bucket,'farmakon');return {async upload(id,bytes,options){uploadOptions=options;return {error:null}}}}}};
+const storageSource=fs.readFileSync('lib/storage.ts','utf8').replace("import 'server-only';",'').replace("'./supabase/server'",JSON.stringify(client));
+const {storage:privateStorage}=await import(compile(storageSource));
+await privateStorage.put('synthetic.pdf',new Response('synthetic PDF').body,{httpMetadata:{contentType:'application/pdf'}});
+assert.equal(uploadOptions.cacheControl,'0');assert.equal(uploadOptions.upsert,false);
+console.log('PASS: private Storage upload requests zero object cache lifetime; pre-existing object cache and signed URLs retain separate limitations.');
+
+const {tmpdir}=await import('node:os'),{join}=await import('node:path'),{execFileSync}=await import('node:child_process');
+const bundleParent=fs.mkdtempSync(join(tmpdir(),'f004-bundle-'));
+try{
+ const dir=join(bundleParent,'bundle');execFileSync(process.execPath,['tests/live/build-deletion-edge.mjs',dir]);
+ const entry=fs.readFileSync(join(dir,'index.ts'),'utf8');assert.ok(entry.includes("NONCE='__DEPLOYMENT_NONCE__',EXPIRES=0"));
+ assert.ok(fs.readFileSync(join(dir,'provider.ts'),'utf8').includes('harnessEnv'));
+ assert.ok(fs.readFileSync(join(dir,'sql.ts'),'utf8').includes('export function postgresSQL'));
+}finally{fs.rmSync(bundleParent,{recursive:true,force:true});}
+console.log('PASS: live harness packages disabled-by-default sentinels and production deletion modules without reading credentials.');
