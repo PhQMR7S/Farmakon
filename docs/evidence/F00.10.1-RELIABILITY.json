@@ -1,0 +1,25 @@
+{
+  "scope": "Existing isolated PostgreSQL run only; no new load and no Production capacity claim",
+  "run": 40551244915,
+  "job": 122355263035,
+  "commit": "de5a2d3496d7f30ac67e9d3e73cacd09dccfa08a",
+  "virtualUsers": 25,
+  "operations": 290,
+  "finalErrors": 1,
+  "failedOperation": "startExam",
+  "startExamRequests": 49,
+  "sqlstate": "40001",
+  "httpStatus": {
+    "value": 503,
+    "basis": "inferred from actual route SQLSTATE mapping; original summary did not preserve HTTP status counts"
+  },
+  "postgresEvidence": [
+    "could not serialize access due to read/write dependencies among transactions",
+    "Canceled on identification as a pivot, during write",
+    "Canceled on identification as a pivot, during commit attempt"
+  ],
+  "conclusion": "Bounded transaction retry exhaustion under SERIALIZABLE is evidenced; exact conflicting transactions/predicate locks and root cause remain unproven",
+  "classification": "Reliability Risk — open",
+  "changesToIsolationOrRetryBudget": false,
+  "loadRerun": false
+}
