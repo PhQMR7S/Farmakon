@@ -36,8 +36,11 @@ jobs:
           node tests/auth-smoke.mjs
           node tests/callback-smoke.mjs
           node tests/privacy-smoke.mjs
+          node tests/storage-reliability.mjs
       - name: Bounded request security checks
-        run: node tests/http-smoke.mjs
+        run: |
+          node tests/http-smoke.mjs
+          node tests/database-reliability.mjs
       - name: Preview isolation fail-closed checks
         run: |
           node tests/preview-isolation-smoke.mjs

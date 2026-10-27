@@ -36,7 +36,7 @@ async function transaction<T>(work:()=>Promise<T>):Promise<T>{
   }finally{client.release();}
   // Break lockstep retries; release the scarce connection BEFORE backing off.
   // Same five-attempt budget; never retry an uncertain COMMIT/network error.
-  if(retry)await new Promise(resolve=>setTimeout(resolve,Math.floor(Math.random()*Math.min(160,20*2**attempt))));
+  if(retry)await new Promise(resolve=>setTimeout(resolve,Math.floor(Math.random()*Math.min(640,80*2**attempt))));
  }
 }
 export const database={prepare:(sql:string)=>new Statement(sql),transaction,

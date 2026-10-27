@@ -7,11 +7,11 @@ try{
  for(let i=0;i<100;i++){try{if((await fetch(origin+'/login')).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
  browser=await chromium.launch({executablePath:process.env.FARMAKON_TEST_CHROMIUM,headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
  for(const width of phase==='before'?[390,1280]:[360,390,768,1280]){
-  const ctx=await browser.newContext({viewport:{width,height:900},colorScheme:'light'}),page=await ctx.newPage(),errors=[];page.on('pageerror',()=>errors.push('pageerror'));
+  const ctx=await browser.newContext({viewport:{width,height:900},colorScheme:'light'}),page=await ctx.newPage(),errors=[];page.on('pageerror',()=>errors.push('pageerror'));page.on('console',m=>{if(['error','warning'].includes(m.type()))errors.push('console-'+m.type());});
   await transport(page);
   const start=performance.now();await page.goto(origin+'/login');await page.getByRole('heading',{name:'تسجيل الدخول',exact:true}).waitFor();
   const nav=await page.evaluate(()=>{const n=performance.getEntriesByType('navigation')[0];return {duration:n.duration,transferSize:n.transferSize,domContentLoaded:n.domContentLoadedEventEnd};});
-  const audit=async flow=>{const a=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze();results.push({width,flow,elapsedMs:performance.now()-start,navigation:nav,overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),consoleErrors:errors.length,violations:a.violations.map(v=>({id:v.id,impact:v.impact,count:v.nodes.length,targets:v.nodes.map(n=>n.target)}))});};
+  const audit=async flow=>{const a=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze();results.push({width,flow,auditCumulativeElapsedMs:performance.now()-start,navigation:nav,overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),consoleErrors:errors.length,violations:a.violations.map(v=>({id:v.id,impact:v.impact,count:v.nodes.length,targets:v.nodes.map(n=>n.target)}))});};
   await audit('login');await page.goto(origin);await page.getByRole('heading',{name:'خطوتك القادمة في الصيدلة',exact:true}).waitFor();await audit('dashboard');
   await navigate(page,'الكورسات');await audit('courses');await navigate(page,'المكتبة العلمية');await audit('library');await navigate(page,'بنك الأسئلة');await audit('questions');
   await navigate(page,'الاختبارات');await page.getByRole('button',{name:'ابدأ الاختبار',exact:true}).click();await page.getByRole('timer').waitFor();await audit('exam');

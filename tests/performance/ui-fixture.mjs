@@ -11,4 +11,4 @@ export async function transport(page,{delay=0,admin=false}={}){
   return route.fulfill({json:{ok:true}});
  });
 }
-export async function navigate(page,label){if((page.viewportSize()?.width||1000)<=760){await page.getByRole('button',{name:'القائمة',exact:true}).click();}await page.locator('.sidebar').getByRole('button',{name:label,exact:true}).click();}
+export async function navigate(page,label){if((page.viewportSize()?.width||1000)<=760){await page.getByRole('button',{name:'القائمة',exact:true}).click();}await page.locator('.sidebar').getByRole('button',{name:label,exact:true}).click();if((page.viewportSize()?.width||1000)<=760)await page.waitForFunction(()=>!document.getElementById('main-content')||document.activeElement?.id==='main-content');}
