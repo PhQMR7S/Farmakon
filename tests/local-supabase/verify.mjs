@@ -102,6 +102,12 @@ try{
  assert.equal((await auth('user',undefined,second.data.access_token,publicKey,'GET')).status,200);
  assert.equal((await auth('token?grant_type=refresh_token',{refresh_token:first.data.refresh_token})).status,400);
  passed('real-two-device-local-logout-session-helper-and-refresh-denial');
+ stage='next-revocation';
+ const appDevice=cookieJar();assert.equal((await appReq('/api/auth',appDevice,{action:'login',email:b.email,password})).status,200);
+ assert.equal((await appReq('/api/platform',appDevice)).status,200);
+ const oldCookies=new Map(appDevice);assert.equal((await appReq('/api/auth',appDevice,{action:'logout'})).status,200);
+ for(const path of ['/api/platform','/api/media?id=f0010-none','/api/account/export'])assert.equal((await appReq(path,new Map(oldCookies))).status,401);
+ passed('actual-next-platform-media-export-deny-revoked-cookies');
  stage='owner-storage-fixtures';
  const ownerEmail='f0010-owner-'+suffix+'@example.test';const owner=await auth('admin/users',{email:ownerEmail,password,email_confirm:true},adminKey,adminKey);assert.equal(owner.status,200);
  const ownerLogin=await auth('token?grant_type=password',{email:ownerEmail,password});assert.equal(ownerLogin.status,200);
@@ -146,6 +152,7 @@ try{
  passed('global-logout-denies-storage-with-unexpired-jwt');
  stage='delete-synthetic-objects';
  const del=await fetchLocal(api+'/storage/v1/object/farmakon',{method:'DELETE',headers:{apikey:adminKey,Authorization:'Bearer '+adminKey,'Content-Type':'application/json'},body:JSON.stringify({prefixes:files.map(f=>f.name)})});assert.equal(del.status,200);
+ assert.equal((await db.query("select count(*)::int as n from storage.objects where bucket_id='farmakon'")).rows[0].n,0);
  for(const file of files)assert.notEqual((await storage('object/authenticated/farmakon/'+file.name,tokens[0])).status,200);
  passed('delete-objects');
  console.log(JSON.stringify({result:'PASS_LOCAL',checks:checks.length,provider:'actual-local-Supabase',email:'Mailpit-only',cloud:'not-tested',disasterRecovery:'not-performed'}));

@@ -13,6 +13,10 @@ No larger runner, paid service, artifact upload, cache, cloud login or Supabase
 project linking is configured. Node 24 and Supabase CLI **2.81.3** are pinned;
 the CLI version's config template and help were reviewed. CLI container image
 versions are selected by that release and printed without credentials.
+The official `ghcr.io/supabase` mirror is selected using the pinned CLI's
+supported registry setting, also used by its own CI. No registry credentials
+are supplied. The initial ECR attempts failed with `Data limit exceeded`;
+these failures remain part of the report. Startup is bounded to eight minutes.
 
 The stack is created under RUNNER_TEMP, on a separate network whose published
 ports default to 127.0.0.1. The test audits every binding before using services.
