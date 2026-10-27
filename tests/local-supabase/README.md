@@ -5,6 +5,11 @@ or adding the exact `run-f0010-local` label to same-repository Draft PR #18.
 The label path is needed while the workflow is absent from the default branch.
 Remove and re-add the label only for an intentional rerun. Never merge merely to
 enable manual dispatch. Normal pushes and PR synchronizations do not run it.
+The normal quality workflow checks the audit branch diff against F00.9's fixed
+checkpoint. It skips existing regression only when every changed file belongs
+to the new local tooling, its workflows or its report. Any application,
+dependency, migration or existing-test change runs the ordinary regression.
+This checkpoint does not claim new passing integration tests.
 
 Two serial matrix jobs each receive a fresh standard public GitHub-hosted Ubuntu
 24.04 runner. The preflight requires a public repository, working Docker,
@@ -17,6 +22,10 @@ The official `ghcr.io/supabase` mirror is selected using the pinned CLI's
 supported registry setting, also used by its own CI. No registry credentials
 are supplied. The initial ECR attempts failed with `Data limit exceeded`;
 these failures remain part of the report. Startup is bounded to eight minutes.
+GHCR also returned a registry request limit in the attempted run. No passing
+Auth/Storage/Mailpit integration is claimed; the environment remains Blocked.
+CLI release metadata marks 2.81.3 as prerelease; it is a reviewed pinned
+configuration, not a claim that this is the latest stable CLI.
 
 The stack is created under RUNNER_TEMP, on a separate network whose published
 ports default to 127.0.0.1. The test audits every binding before using services.

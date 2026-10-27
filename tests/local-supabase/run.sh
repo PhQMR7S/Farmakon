@@ -16,6 +16,10 @@ cleanup() {
     test -z "$(docker ps -aq --filter "label=com.supabase.cli.project=$project")"
     test -z "$(docker volume ls -q --filter "label=com.supabase.cli.project=$project")"
     docker network rm "$project-net" >/dev/null 2>&1 || true
+    if docker network inspect "$project-net" >/dev/null 2>&1; then
+      echo 'F0010_NETWORK_CLEANUP_FAILED'
+      return 1
+    fi
     rm -rf "$state"
     echo '{"phase":"cleanup","containers":0,"volumes":0,"privateFilesRemoved":true}'
   fi
