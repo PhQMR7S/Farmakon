@@ -43,7 +43,8 @@ assert.equal((await post({})).status,400);
 isOwner=true;assert.equal((await post(body)).status,403);isOwner=false;
 assert.equal((await post({...body,password:'wrong'})).status,401);
 user={...fixture,id:'another'};assert.equal((await post(body)).status,401);
-user=fixture;assert.equal((await post(body)).status,202);assert.equal(accepted,1);
+user={...fixture,app_metadata:{}};assert.equal((await post(body)).status,403);assert.equal((await route.GET()).status,403);
+user=fixture;assert.equal((await route.GET()).status,200);assert.equal((await post(body)).status,202);assert.equal(accepted,1);
 console.log('PASS: deletion route requires self identity, explicit confirmation, password reauthentication, fixture marker; rejects CSRF/IDOR/owner. No live deletion.');
 
 // Exercise the actual identity gate and sensitive route handlers after acceptance.

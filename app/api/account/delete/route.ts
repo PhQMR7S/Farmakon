@@ -20,5 +20,21 @@ export async function POST(req:Request){
   await verifyDeletionPassword(u.userId,u.email,b.password);
   await db().transaction(async()=>{await db().prepare("INSERT INTO farmakon.deletion_jobs(user_id,email,policy,created,updated) VALUES(?,?,'synthetic-v1',?,?) ON CONFLICT(user_id) DO NOTHING").bind(u.userId,u.email,Date.now(),Date.now()).run();});
   return reply({accepted:true,message:'تم قبول طلب الاختبار وحجب الوصول. التنفيذ النهائي يتطلب العامل المعزول.'},202);
- }catch(e){if(e instanceof RequestError)return reply({error:e.message},e.status);const auth=e instanceof Error&&e.message==='AUTH';return reply({error:auth?'سجّل الدخول للمتابعة':'تعذر قبول الطلب'},auth?401:503);}
+ }catch(e){if(e instanceof Error&&e.message==='DELETION_SCOPE')return reply({error:'هذا المسار للحسابات الاصطناعية المصرّح بها فقط'},403);if(e instanceof RequestError)return reply({error:e.message},e.status);const auth=e instanceof Error&&e.message==='AUTH';return reply({error:auth?'سجّل الدخول للمتابعة':'تعذر قبول الطلب'},auth?401:503);}
+}
+
+// Eligibility contains no email, user ID or job details. Mutations recheck all
+// conditions independently; hiding the form is not the authorization boundary.
+export async function GET(){
+ try{
+  if(!deletionEnabled())return reply({error:'غير متاح'},404);
+  const u=await identity();if(await owner(u))return reply({error:'لا يمكن حذف حساب المالك من هذا المسار'},403);
+  const c=await authClient();const {data,error}=await c.auth.getUser();if(error||data.user?.id!==u.userId)throw Error('AUTH');
+  assertDisposable(data.user,process.env.FARMAKON_OWNER_EMAIL);
+  return reply({eligible:true},200);
+ }catch(e){
+  if(e instanceof Error&&e.message==='AUTH')return reply({error:'سجّل الدخول للمتابعة'},401);
+  if(e instanceof Error&&e.message==='DELETION_SCOPE')return reply({error:'هذا المسار للحسابات الاصطناعية المصرّح بها فقط'},403);
+  return reply({error:'تعذر التحقق من أهلية الحساب. أعد المحاولة.'},503);
+ }
 }
