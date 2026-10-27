@@ -25,8 +25,15 @@ try{
   for(const kind of ['attempt','order','ticket'])await db.prepare('INSERT INTO records VALUES(?,?,?,?,?)').bind(uid+kind,kind,'course',JSON.stringify({userId:uid,email:mail}),0).run();
  }
  await db.prepare('INSERT INTO codes VALUES(?,?,?,?,?,?,?,?)').bind('used','hash','xxxx','course',365,Date.now()+60000,email,0).run();
- const accept=()=>db.prepare("INSERT INTO farmakon.deletion_jobs(user_id,email,policy,created,updated) VALUES(?,?,'synthetic-v1',0,0) ON CONFLICT DO NOTHING").bind(a,email).run();
+ const accept=()=>db.transaction(async()=>db.prepare("INSERT INTO farmakon.deletion_jobs(user_id,email,policy,created,updated) VALUES(?,?,'synthetic-v1',0,0) ON CONFLICT DO NOTHING").bind(a,email).run());
+ const late=await pool.connect();
+ await late.query('BEGIN ISOLATION LEVEL SERIALIZABLE');
+ await late.query('SELECT * FROM farmakon.deletion_jobs WHERE user_id=$1',[a]);
  await Promise.all(Array.from({length:8},accept));
+ try{await assert.rejects(async()=>{
+  await late.query("INSERT INTO farmakon.activity VALUES('late-inflight',$1,'progress','late','{}',0)",[a]);
+  await late.query('COMMIT');
+ },e=>['40001','42501'].includes(e.code));}finally{await late.query('ROLLBACK');late.release();}
  assert.equal((await pool.query('SELECT count(*)::int AS n FROM farmakon.deletion_jobs')).rows[0].n,1);
  for(const sql of ['SELECT * FROM farmakon.deletion_jobs',`SELECT farmakon.revoke_synthetic_sessions('${a}')`,`SELECT * FROM farmakon.synthetic_owned_files('${a}')`]){
   const c=await pool.connect();try{await c.query('BEGIN');await c.query('SET LOCAL ROLE authenticated');await assert.rejects(()=>c.query(sql),e=>e.code==='42501');}finally{await c.query('ROLLBACK');c.release();}

@@ -104,3 +104,5 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: npm run test:e2e
+      - name: Synthetic deletion browser lifecycle (mock transport)
+        run: node tests/privacy-browser.mjs
