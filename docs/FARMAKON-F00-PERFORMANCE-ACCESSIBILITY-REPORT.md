@@ -43,7 +43,7 @@
 
 ## 3. قياسات PostgreSQL قبل/بعد
 
-المصدر: [F00.7-PG-PERFORMANCE.json](evidence/F00.7-PG-PERFORMANCE.json)، job `122174679121` في CI `40499903858`، كود `93d3a878`. Node v24.22.1، Linux x64، 4 CPUs متاحة للـrunner، PostgreSQL 17.11. الاتصال loopback بلا TLS في الاختبار فقط؛ إعداد التطبيق يحتفظ بتحقق TLS.
+المصدر: [F00.7-PG-PERFORMANCE.json](evidence/F00.7-PG-PERFORMANCE.json)، job `122174679121` في CI `40499903858`، كود `93d3a878`. Node v24.21.0، Linux x64، 4 CPUs متاحة للـrunner، PostgreSQL 17.11. الاتصال loopback بلا TLS في الاختبار فقط؛ إعداد التطبيق يحتفظ بتحقق TLS.
 
 Fixture: 750 طالباً، 4 كورسات، 48 محاضرة، 48 ملفاً، 80 سؤالاً، 4 امتحانات و1500 محاولة قديمة. توجد ملاحظة وتقدم اصطناعيان مع عزل كل طالب. baseline GET محفوظ من `e86e67e` في `tests/performance/baseline-get.ts`؛ نفس المحول/البيانات في المقارنة، و20 طلباً متتابعاً لكل حالة بعد warmup. Auth غير داخل زمن القياس.
 
