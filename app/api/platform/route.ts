@@ -63,7 +63,7 @@ if(b.action==='saveExam'){
  const at=await record(id.parse(b.id));if(!at||at.kind!=='attempt'||at.userId!==u.userId)return json({error:'انتهت المحاولة'},409);
  if(!await canReadAttempt(at,u.email,admin))return json({error:'الاختبار غير متاح'},403);
  const now=Date.now();if(at.status!=='active'||(at.timingVersion===2?now>=at.deadline:now>at.deadline)){if(at.status==='active'&&examDue(at,now))await finishExam(at,now);return json({error:'انتهى وقت الإجابة؛ افتح النتيجة',expired:true,serverNow:now},409);}
- const input=z.record(z.number().int().min(0).max(3)).parse(b.answers);
+ const input=z.record(z.string(),z.number().int().min(0).max(3)).parse(b.answers);
  const answers=examAnswers(at,input);await write('attempt',{...at,answers},at.id);return json({ok:true,answers,serverNow:now,deadline:at.deadline});
 }
 if(b.action==='startExam'){
@@ -79,7 +79,7 @@ if(b.action==='submitExam'){
  const at=await record(id.parse(b.id));if(!at||at.kind!=='attempt'||at.userId!==u.userId)return json({error:'المحاولة غير موجودة'},404);
  if(!await canReadAttempt(at,u.email,admin))return json({error:'الاختبار غير متاح'},403);
  if(at.status==='done')return json(at.result);
- const input=z.record(z.number().int().min(0).max(3)).parse(b.answers||{}),now=Date.now();
+ const input=z.record(z.string(),z.number().int().min(0).max(3)).parse(b.answers||{}),now=Date.now();
  // After the boundary only server-confirmed answers count. Legacy rows keep
  // their original transport policy until settled, with no retroactive regrade.
  const accept=at.timingVersion===2?now<at.deadline:now<=at.deadline+15000;

@@ -1,0 +1,33 @@
+// Exercise the actual content schemas across the Zod upgrade. No service calls.
+import fs from 'node:fs';
+import ts from 'typescript';
+import assert from 'node:assert/strict';
+import {z} from 'zod';
+const compile=s=>'data:text/javascript;base64,'+Buffer.from(ts.transpileModule(s,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText).toString('base64');
+let source=fs.readFileSync('app/api/platform/route.ts','utf8');
+const names=source.match(/import \{([^}]+)\} from '..\/..\/lib\/server'/)[1].split(',');
+source=source.replace("'../../lib/server'",JSON.stringify(compile(names.map(n=>'export const '+n.trim()+'=()=>{throw Error("NO_TRANSPORT")};').join('\n')))).replace("'../../../lib/http'",JSON.stringify(compile(fs.readFileSync('lib/http.ts','utf8')))).replace("'../../../lib/farmakon/rate-limit'",JSON.stringify(compile('export async function limitRequest(){throw Error("NO_TRANSPORT")}'))).replace("'zod'",JSON.stringify(import.meta.resolve('zod')));
+const {schemas}=await import(compile(source+'\nexport {schemas};'));
+const course={title:'  كورس  ',description:'',stage:'3',category:'Pharmacy',price:0,days:365,status:'published',color:'teal'};
+assert.equal(schemas.course.parse({...course,ignored:'never-store'}).title,'كورس');assert.equal(schemas.course.parse({...course,ignored:true}).ignored,undefined);
+for(const patch of [{price:-1},{price:'1'},{days:0},{days:1.5},{days:3651},{status:'other'},{color:'other'},{title:' '}])assert.equal(schemas.course.safeParse({...course,...patch}).success,false);
+const question={title:'سؤال',courseId:'course',topic:'',options:['A','B','C','D'],correct:0,explanation:'شرح',source:'مرجع',status:'published',free:false};
+const q=schemas.question.parse(question);assert.equal(q.stage,'');assert.equal(q.questionType,'تدريبي');assert.equal(q.subject,'');assert.equal(q.year,'');
+for(const patch of [{correct:4},{correct:-1},{options:['A']},{options:['A','B','C',' ']},{explanation:''},{free:'true'},{courseId:''}])assert.equal(schemas.question.safeParse({...question,...patch}).success,false);
+const lesson={title:'محاضرة',courseId:'course',module:'',order:0,minutes:30,url:'/api/media?id=fixture',assetId:'fixture',description:'',free:false,status:'draft',download:false};
+assert.equal(schemas.lesson.safeParse(lesson).success,true);
+for(const url of ['javascript:alert(1)','http://example.test','//example.test'])assert.equal(schemas.lesson.safeParse({...lesson,url}).success,false);
+for(const url of ['','https://example.test/lecture.mp4'])assert.equal(schemas.lesson.safeParse({...lesson,url}).success,true);
+const exam={title:'اختبار',courseId:'course',minutes:20,questionIds:['q'],status:'published',free:false};
+assert.equal(schemas.exam.safeParse(exam).success,true);
+for(const patch of [{minutes:0},{minutes:301},{questionIds:[]},{questionIds:Array(101).fill('q')}])assert.equal(schemas.exam.safeParse({...exam,...patch}).success,false);
+assert.equal(schemas.file.safeParse({...lesson,category:'ملخص'}).success,true);
+assert.equal(schemas.announcement.safeParse({title:'إعلان',description:'نص',status:'draft'}).success,true);
+// The production routes use an explicit string-keyed record after migration.
+const answers=z.record(z.string(),z.number().int().min(0).max(3));
+assert.deepEqual(answers.parse({q1:0,q2:3}),{q1:0,q2:3});for(const v of [{q:4},{q:'1'},{q:null}])assert.equal(answers.safeParse(v).success,false);
+assert.equal(z.string().email().safeParse('student+tag@example.test').success,true);
+assert.equal(z.string().email().safeParse("o'connor@example.test").success,true);
+for(const email of ['a..b@example.test','"name"@example.test','a@localhost','اسم@example.test','a@exam_ple.test'])assert.equal(z.string().email().safeParse(email).success,false);
+assert.equal(z.string().email().safeParse('bad').success,false);
+console.log('PASS validation contract: actual course/lesson/file/question/exam/announcement schemas, defaults, trimming, unknown-field stripping, enum/number/URL bounds and answer records.');
