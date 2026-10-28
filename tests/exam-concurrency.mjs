@@ -5,10 +5,12 @@ import assert from 'node:assert/strict';
 import {AsyncLocalStorage} from 'node:async_hooks';
 import {Pool} from 'pg';
 import {testDatabase} from './helpers/postgres.mjs';
+import {createTrace} from './helpers/pg-trace.mjs';
 
-const {db:base,close,stats}=await testDatabase();
+const scope=new AsyncLocalStorage(),trace=createTrace({context:()=>scope.getStore(),maxEvents:100});let requestNumber=0;
+const {db:base,close,stats}=await testDatabase({instrument:trace.instrument});
 const observer=new Pool({connectionString:process.env.FARMAKON_TEST_DATABASE_URL,max:3,ssl:false});
-const scope=new AsyncLocalStorage(),evidence={scope:'isolated real PostgreSQL/production adapter and routes; synthetic identities; Auth/rate transport fixtures; not Production',rounds:[],controlled:[],plans:[],locks:[]};
+const evidence={scope:'isolated real PostgreSQL/production adapter and routes; synthetic identities; Auth/rate transport fixtures; not Production',rounds:[],controlled:[],plans:[],locks:[]};
 const db={transaction:fn=>base.transaction(async()=>{const c=scope.getStore();if(c)c.attempts++;return fn();}),batch:s=>base.batch(s),prepare(sql){const statement=base.prepare(sql);let args=[];const out={bind(...a){args=a;statement.bind(...a);return out;}};for(const method of ['first','all','run'])out[method]=async()=>{const c=scope.getStore();if(c?.hook)await c.hook({sql,args,method,before:true});try{const r=await statement[method]();if(c?.hook)await c.hook({sql,args,method,result:r,before:false});return r;}catch(e){if(c)c.codes.push(e.code||'OTHER');throw e;}};return out;}};
 globalThis.__examConcurrency={db,user:()=>scope.getStore()?.user};process.env.FARMAKON_OWNER_EMAIL='owner@example.test';
 const compile=s=>'data:text/javascript;base64,'+Buffer.from(ts.transpileModule(s,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText).toString('base64');
@@ -16,7 +18,7 @@ const server=compile(fs.readFileSync('app/lib/server.ts','utf8').replace(/^impor
 const route=await import(compile(fs.readFileSync('app/api/platform/route.ts','utf8').replace("'../../lib/server'",JSON.stringify(server)).replace("'../../../lib/http'",JSON.stringify(compile(fs.readFileSync('lib/http.ts','utf8')))).replace("'../../../lib/farmakon/rate-limit'",JSON.stringify(compile('export async function limitRequest(){return null;}'))).replace("'zod'",JSON.stringify(import.meta.resolve('zod')))));
 const student=i=>({userId:'concurrency-'+i,email:`concurrency-${i}@example.test`,displayName:'Synthetic '+i});
 function barrier(n,onReady=async()=>{}){let count=0,release,reject;const gate=new Promise((a,b)=>{release=a;reject=b;});const timer=setTimeout(()=>reject(Error('BARRIER_TIMEOUT')),10000);return async()=>{if(++count===n){try{await onReady();release();}catch(e){reject(e);}finally{clearTimeout(timer);}}await gate;};}
-async function call(i,body,hook){const c={user:student(i),attempts:0,codes:[],hook};return scope.run(c,async()=>{const response=await route.POST(new Request('https://synthetic.test/api/platform',{method:'POST',headers:{origin:'https://synthetic.test','content-type':'application/json'},body:JSON.stringify(body)}));return {status:response.status,data:await response.json(),attempts:c.attempts,codes:c.codes};});}
+async function call(i,body,hook){const c={requestId:'exam-request-'+(++requestNumber),user:student(i),attempts:0,codes:[],hook};return scope.run(c,async()=>{const response=await route.POST(new Request('https://synthetic.test/api/platform',{method:'POST',headers:{origin:'https://synthetic.test','content-type':'application/json'},body:JSON.stringify(body)}));return {status:response.status,data:await response.json(),attempts:c.attempts,codes:c.codes};});}
 const start=(i,hook)=>call(i,{action:'startExam',id:'exam'},hook);
 const save=(i,id,answers,hook)=>call(i,{action:'saveExam',id,answers},hook);
 const submit=(i,id,hook)=>call(i,{action:'submitExam',id,answers:{}},hook);
@@ -64,5 +66,5 @@ try{
  evidence.controlled.push({scenario:'server fault injection on every attempt; not organic load',httpStatus:exhausted.status,attempts:exhausted.attempts,rollback:true,pool:stats()});
  // One real SSI COMMIT failure through the production retry adapter, then success.
  let work=0;await base.transaction(async()=>{work++;await base.prepare('SELECT * FROM farmakon.concurrency_probe').all();if(work===1){const peer=await observer.connect();try{await peer.query('BEGIN ISOLATION LEVEL SERIALIZABLE');await peer.query('SELECT * FROM farmakon.concurrency_probe');await peer.query('UPDATE farmakon.concurrency_probe SET value=value+1 WHERE id=1');await base.prepare('UPDATE farmakon.concurrency_probe SET value=value+1 WHERE id=2').run();await peer.query('COMMIT');}finally{peer.release();}}else await base.prepare('UPDATE farmakon.concurrency_probe SET value=value+1 WHERE id=2').run();});assert.equal(work,2);await healthy();evidence.controlled.push({scenario:'adapter retries actual SSI COMMIT failure',attempts:work,pool:stats()});
- evidence.verdict='PASS within bounded diagnostic scope; historical conflicting pair not identified';console.log(JSON.stringify(evidence));
+ evidence.transactionTrace=trace.summary();evidence.verdict='PASS within bounded diagnostic scope; historical conflicting pair not identified';console.log(JSON.stringify(evidence));
 }finally{await observer.end();await close();delete globalThis.__examConcurrency;console.log('CLEANUP isolated schema and pools closed');}

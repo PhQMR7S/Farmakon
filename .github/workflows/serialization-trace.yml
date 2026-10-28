@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   component-trace:
-    if: github.repository == 'PhQMR7S/Farmakon' && github.event.pull_request.number == 18 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'audit/f00-regression-2026-10-26' && github.event.label.name == 'run-f00103-trace'
+    if: github.repository == 'PhQMR7S/Farmakon' && github.event.pull_request.number == 18 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'audit/f00-regression-2026-10-26' && (github.event.label.name == 'run-f00103-trace' || github.event.label.name == 'run-f00103-validation')
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     services:
@@ -40,8 +40,23 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
-      - name: Two-client component trace, small and 1200-student fixtures
+      - name: Two-client component trace, fresh 1200-student fixture
+        if: github.event.label.name == 'run-f00103-trace'
         run: FARMAKON_TRACE_LARGE_ONLY=true node tests/serialization-root-cause.mjs
+      - name: Actual PostgreSQL integration and exam integrity
+        if: github.event.label.name == 'run-f00103-validation'
+        run: npm run test:postgres
+      - name: Three coordinated exam rounds with test-only transaction tracing
+        if: github.event.label.name == 'run-f00103-validation'
+        run: node tests/exam-concurrency.mjs
+      - name: Privacy, deletion and RLS before load safety gate
+        if: github.event.label.name == 'run-f00103-validation'
+        run: |
+          node tests/privacy-postgres.mjs
+          node tests/storage-policy-smoke.mjs
+      - name: One bounded 1-5-10-25 VU load with actual HTTP and retry counts
+        if: github.event.label.name == 'run-f00103-validation'
+        run: node tests/performance/postgres-load.mjs
       - name: Confirm isolated schema cleanup
         if: always()
         run: |

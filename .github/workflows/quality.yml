@@ -35,7 +35,7 @@ jobs:
           # A follow-up that only extends this diagnostic/docs must not retry that
           # failed load unchanged. This does NOT clear or reclassify its failure.
           delta=subprocess.check_output(['git','diff','--name-only','a8c2c37636a5e87b38338b185c6aa9c0b1e082ad','HEAD'],text=True).splitlines()
-          followup_paths={'tests/serialization-root-cause.mjs','tests/helpers/pg-trace.mjs','tests/helpers/postgres.mjs','.github/workflows/serialization-trace.yml','docs/FARMAKON-F00-POSTGRES-SERIALIZATION-ROOT-CAUSE-REPORT.md','docs/evidence/F00.10.3-COMPONENT-TRACE.json','docs/evidence/F00.10.3-RESULTS.json','tests/exam-concurrency.mjs','.github/workflows/exam-concurrency.yml','.github/workflows/quality.yml','docs/FARMAKON-F00-EXAM-CONCURRENCY-RELIABILITY-REPORT.md','docs/evidence/F00.10.2-EXAM-CONCURRENCY.json'}
+          followup_paths={'tests/performance/postgres-load.mjs','tests/serialization-root-cause.mjs','tests/helpers/pg-trace.mjs','tests/helpers/postgres.mjs','.github/workflows/serialization-trace.yml','docs/FARMAKON-F00-POSTGRES-SERIALIZATION-ROOT-CAUSE-REPORT.md','docs/evidence/F00.10.3-COMPONENT-TRACE.json','docs/evidence/F00.10.3-RESULTS.json','tests/exam-concurrency.mjs','.github/workflows/exam-concurrency.yml','.github/workflows/quality.yml','docs/FARMAKON-F00-EXAM-CONCURRENCY-RELIABILITY-REPORT.md','docs/evidence/F00.10.2-EXAM-CONCURRENCY.json'}
           followup=os.environ.get('LOCAL_MODE')=='true' and bool(delta) and all(p in followup_paths for p in delta)
           isolated=isolated or followup
           with open(os.environ['GITHUB_OUTPUT'],'a') as f: f.write('local_only='+str(isolated).lower()+'\n')
