@@ -55,7 +55,9 @@ A يستخدم records/activity الحالية ومؤشر F00.7. B1 جدول typ
 
 الاختبارات المحلية الأربعة نجحت في قاعدة اصطناعية معزولة: المقارنة، legacy، prototype handlers، وأدوار PG. فشل تشغيل legacy أول مرة بسبب assertion نوع bigint في harness (0 مقابل '0')؛ صُحح اختبار النوع وأعيد بنجاح، دون تغيير بيانات أو سياسة. ظهر تحذير pg عن query متزامن على client في نموذج handlers؛ لم يُعتبر فشلًا صامتًا أو إصلاحًا لموثوقية المحول.
 
-Workflow جديدة `.github/workflows/ssi-p02.yml` تشغل التجارب الأربع على PostgreSQL مؤقتة وبدون أسرار. Quality workflow يتعرف على ملفات التجربة فقط بعد checkpoint P0.1، فلا يعيد baseline/browser الثقيلة دون تغييرات runtime؛ ويُبقي فشل بوابة الحمل ظاهرًا بخطوة حمراء مستقلة. أي ملف خارج القائمة يعيد فحوص quality المعتادة. نتائج GitHub Actions تُراجع في PR #19 ولا تدعي أنها نجحت قبل اكتمالها.
+Workflow جديدة `.github/workflows/ssi-p02.yml` تشغل التجارب الأربع على PostgreSQL مؤقتة وبدون أسرار. [Actions 40759433213](https://github.com/PhQMR7S/Farmakon/actions/runs/40759433213) على commit `171d5aab9fc0a3b05b5e58adbc13f2fffdda020e` **نجح** في الخطوات الأربع والتنظيف، وسجل أعداد التعارضات نفسها للجدول أعلاه؛ أزمنة runner وخططه في سجله، لا تُستبدل بالقيم المحلية. تحديث التقرير اللاحق وحده لا يمثل تشغيلًا جديدًا للكود.
+
+Quality workflow يتعرف على ملفات التجربة فقط بعد checkpoint P0.1، فلا يعيد baseline/browser الثقيلة دون تغييرات runtime؛ ويُبقي فشل بوابة الحمل ظاهرًا بخطوة حمراء مستقلة. أي ملف خارج القائمة يعيد فحوص quality المعتادة. في [Actions 40759437542](https://github.com/PhQMR7S/Farmakon/actions/runs/40759437542) نجح scope، وفشلت خطوة بوابة SSI المعلنة، وتم تجاوز baseline/postgres/browser؛ هذا ليس نجاحًا جديدًا لفحوص التطبيق أو الحمل.
 
 ## خطة التراجع والقرار التالي
 
