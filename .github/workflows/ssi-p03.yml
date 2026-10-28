@@ -1,0 +1,50 @@
+name: Farmakon P0.3 isolated migration safety
+on:
+  push:
+    branches: [codex/farmakon-p0-critical-fixes-2026-10-28]
+    paths: [tests/ssi-migration-p03.mjs, tests/ssi-runtime-p03.mjs, tests/ssi-privacy-p03.mjs, tests/ssi-backup-p03.mjs, .github/workflows/ssi-p03.yml]
+permissions:
+  contents: read
+jobs:
+  prototype:
+    if: github.repository == 'PhQMR7S/Farmakon'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: farmakon_v2_test
+          POSTGRES_USER: farmakon_test
+          POSTGRES_PASSWORD: fixture-only-password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U farmakon_test -d farmakon_v2_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Fence and dual-write SQL protocol
+        run: node tests/ssi-migration-p03.mjs
+        env:
+          FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
+      - name: Actual exam handlers with test-only serialized dual-write adapter
+        run: node tests/ssi-runtime-p03.mjs
+        env:
+          NODE_OPTIONS: --trace-deprecation
+          FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
+      - name: Fixture privacy and snapshot reconciliation
+        run: node tests/ssi-privacy-p03.mjs
+        env:
+          FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
+      - name: Synthetic PostgreSQL dump and restore
+        run: node tests/ssi-backup-p03.mjs
+        env:
+          FARMAKON_P03_CONTAINER: ${{ job.services.postgres.id }}
+

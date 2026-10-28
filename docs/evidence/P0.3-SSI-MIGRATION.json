@@ -1,0 +1,22 @@
+{
+  "scope": "synthetic SQL protocol only; not production cutover",
+  "checks": {
+    "duplicatesDetectedReadOnly": true,
+    "duplicateReservationPreservesBoth": true,
+    "fenceFailureRollback": true,
+    "fenceSerializationRetries": 1,
+    "fenceWaitAndAtomicCopy": true,
+    "protocolWriterUsesNewOnly": true,
+    "legacyWriterBypassesProtocol": true,
+    "dualWriteFailureAtomic": true,
+    "missingShadowRollsBack": true,
+    "lostResponseStableId": true,
+    "submitSettleSingleEvent": true,
+    "doneImmutableAndTombstoneDenied": true,
+    "keyReuseDifferentPayloadRejected": true,
+    "injected40001RollsBack": true,
+    "syntheticDeletionBothCopies": true,
+    "legacyDoneDuplicatesRevokedPreserved": true
+  },
+  "errors": []
+}
