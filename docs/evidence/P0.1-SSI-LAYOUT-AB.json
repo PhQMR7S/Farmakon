@@ -1,0 +1,3635 @@
+{
+  "scope": "isolated PostgreSQL component experiment; synthetic data, two concurrent transactions, no HTTP or provider",
+  "students": 1200,
+  "clients": 2,
+  "layouts": {
+    "A-submit": {
+      "pairs": 20,
+      "transactions": 40,
+      "aborted": 20,
+      "retries": 20,
+      "confirmedEvents": 40
+    },
+    "A-start": {
+      "pairs": 20,
+      "transactions": 40,
+      "aborted": 20,
+      "retries": 20,
+      "confirmedEvents": 0
+    },
+    "B-submit": {
+      "pairs": 20,
+      "transactions": 40,
+      "aborted": 0,
+      "retries": 0,
+      "confirmedEvents": 40
+    },
+    "B-start": {
+      "pairs": 20,
+      "transactions": 40,
+      "aborted": 3,
+      "retries": 3,
+      "confirmedEvents": 0
+    }
+  },
+  "cases": [
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 0,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.987,
+        1.476
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 1
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 2
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 0,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.837,
+        0.574
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p23",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p26",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 1,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.963,
+        1.101
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 3
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 4
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 1,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.762,
+        0.696
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p7",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p19",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 2,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.128,
+        1.905
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 5
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 6
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 2,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        2.023,
+        2.407
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p2",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p30",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 3,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.715,
+        1.026
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 7
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 8
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 3,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.893,
+        0.978
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p14",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p18",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 4,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.984,
+        0.896
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 9
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 10
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 4,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.784,
+        1.192
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p15",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p31",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 5,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.841,
+        1.377
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 11
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 12
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 5,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.841,
+        0.522
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p20",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p7",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 6,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.999,
+        1.636
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 13
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 14
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 6,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.9,
+        0.696
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p13",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p17",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 7,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.052,
+        1.392
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 15
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 16
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 7,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.957,
+        0.674
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p2",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p3",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 8,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.141,
+        0.959
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 17
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 18
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 8,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.846,
+        0.711
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p30",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p9",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 9,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.989,
+        1.77
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 19
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 20
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 9,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.819,
+        0.859
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p0",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p24",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 10,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.012,
+        3.291
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 21
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 22
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 10,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        1.234,
+        0.632
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p8",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p23",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 11,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.268,
+        0.655
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 23
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 24
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 11,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.792,
+        0.604
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p25",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p15",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 12,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.898,
+        0.796
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 25
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 26
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 12,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.708,
+        0.745
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p0",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p31",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 13,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        7.934,
+        1.628
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 27
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 28
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 13,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        3.862,
+        3.008
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p22",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p15",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 14,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        5.27,
+        1.309
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 29
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 30
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 14,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        1.866,
+        0.971
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p1",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p30",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 15,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.026,
+        1.121
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 31
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 32
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 15,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.794,
+        0.621
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p8",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p21",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 16,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.242,
+        2.207
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 33
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 34
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 16,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.775,
+        0.931
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p7",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p16",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 17,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.993,
+        0.828
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 35
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 36
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 17,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.962,
+        0.525
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p29",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p26",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 18,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.457,
+        1.168
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 37
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 38
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 18,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.996,
+        0.814
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p28",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p0",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "submit",
+      "round": 19,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.784,
+        0.956
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 39
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 40
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "B",
+      "mode": "submit",
+      "round": 19,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        2.721,
+        1.868
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p20",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p4",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 2
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 0,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.518,
+        1.755
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 27,
+            "tuple": 40
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 44
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 0,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        1.175,
+        0.84
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p17",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p15",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 1,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.81,
+        1.028
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 0,
+            "tuple": 45
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 27,
+            "tuple": 41
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 1,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.969,
+        0.704
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p19",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p28",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 2,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.162,
+        1.784
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 44
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 45
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 2,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.977,
+        0.548
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p8",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p2",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 3,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.218,
+        0.769
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 46
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 47
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 3,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.119,
+        1.561
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p11",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p11",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 4,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.795,
+        1
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 48
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 49
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 4,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        1.133,
+        1.187
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p27",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p10",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 5,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.419,
+        0.955
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 50
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 51
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 5,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.755,
+        0.597
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p29",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p25",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 6,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.967,
+        0.658
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 52
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 53
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 6,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        1.564,
+        2.325
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p14",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p6",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 7,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.054,
+        1.571
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 54
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 55
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 7,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        2.351,
+        2.175
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p24",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p9",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 8,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        2.333,
+        0.753
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 56
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 57
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 8,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.659,
+        0.832
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p23",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p6",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 9,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.778,
+        1.512
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 58
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 59
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 1,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 9,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        2.068,
+        0.96
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p8",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p15",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 10,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.905,
+        0.981
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 60
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 61
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 10,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.738,
+        1.039
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p26",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p25",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 11,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.977,
+        1.001
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 62
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 63
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 11,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.792,
+        0.578
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p20",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p5",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 12,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.187,
+        3.488
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 64
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 65
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 12,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        1.513,
+        0.941
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p8",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p18",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 13,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.823,
+        0.941
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 66
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 67
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 13,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.839,
+        0.695
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p3",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p31",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 14,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.134,
+        0.789
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 68
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 69
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 14,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.799,
+        0.638
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p27",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p19",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 15,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.117,
+        0.992
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 70
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 71
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 15,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.69,
+        0.639
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p14",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p14",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 16,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.813,
+        0.774
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 72
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 73
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 16,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.941,
+        0.817
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p15",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p18",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 17,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        1.845,
+        0.907
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 74
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 75
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 17,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.629,
+        0.6
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p20",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p20",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 18,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.728,
+        0.705
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 76
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 77
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 18,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        1.371,
+        1.237
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p3",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p30",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "start",
+      "round": 19,
+      "statuses": [
+        "committed",
+        "aborted"
+      ],
+      "failures": [
+        {
+          "client": 1,
+          "phase": "commit",
+          "sqlstate": "40001"
+        }
+      ],
+      "retries": 1,
+      "commitMs": [
+        0.65,
+        0.862
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 78
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "tuple",
+            "relation": "farmakon.records",
+            "page": 1,
+            "tuple": 79
+          },
+          {
+            "locktype": "page",
+            "relation": "farmakon.records_owner_kind_created",
+            "page": 12,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "B",
+      "mode": "start",
+      "round": 19,
+      "statuses": [
+        "committed",
+        "committed"
+      ],
+      "failures": [],
+      "retries": 0,
+      "commitMs": [
+        0.577,
+        0.578
+      ],
+      "locks": [
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p27",
+            "page": null,
+            "tuple": null
+          }
+        ],
+        [
+          {
+            "locktype": "relation",
+            "relation": "farmakon.ab_attempts_p23",
+            "page": null,
+            "tuple": null
+          }
+        ]
+      ],
+      "resultEvents": 0
+    },
+    {
+      "layout": "A",
+      "mode": "same-student-start",
+      "sqlstate": "40001",
+      "activeCount": 1
+    },
+    {
+      "layout": "B",
+      "mode": "same-student-start",
+      "sqlstate": "40001",
+      "activeCount": 1
+    }
+  ],
+  "plans": {
+    "A": {
+      "Plan": {
+        "Node Type": "Index Scan",
+        "Parallel Aware": false,
+        "Async Capable": false,
+        "Scan Direction": "Forward",
+        "Index Name": "records_owner_kind_created",
+        "Relation Name": "records",
+        "Alias": "records",
+        "Startup Cost": 0.28,
+        "Total Cost": 8.31,
+        "Plan Rows": 1,
+        "Plan Width": 157,
+        "Actual Startup Time": 0.022,
+        "Actual Total Time": 0.022,
+        "Actual Rows": 1,
+        "Actual Loops": 1,
+        "Index Cond": "((((data)::jsonb ->> 'userId'::text) = 'ab-student-0000'::text) AND (kind = 'attempt'::text))",
+        "Rows Removed by Index Recheck": 0,
+        "Filter": "(((data)::jsonb ->> 'status'::text) = 'active'::text)",
+        "Rows Removed by Filter": 0,
+        "Shared Hit Blocks": 3,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0
+      },
+      "Planning": {
+        "Shared Hit Blocks": 30,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0
+      },
+      "Planning Time": 0.2,
+      "Triggers": [],
+      "Execution Time": 0.032
+    },
+    "B": {
+      "Plan": {
+        "Node Type": "Sort",
+        "Parallel Aware": false,
+        "Async Capable": false,
+        "Startup Cost": 2.76,
+        "Total Cost": 2.76,
+        "Plan Rows": 1,
+        "Plan Width": 170,
+        "Actual Startup Time": 0.02,
+        "Actual Total Time": 0.021,
+        "Actual Rows": 1,
+        "Actual Loops": 1,
+        "Sort Key": [
+          "ab_attempts.created DESC",
+          "ab_attempts.id DESC"
+        ],
+        "Sort Method": "quicksort",
+        "Sort Space Used": 25,
+        "Sort Space Type": "Memory",
+        "Shared Hit Blocks": 2,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "Plans": [
+          {
+            "Node Type": "Seq Scan",
+            "Parent Relationship": "Outer",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Relation Name": "ab_attempts_p23",
+            "Alias": "ab_attempts",
+            "Startup Cost": 0,
+            "Total Cost": 2.75,
+            "Plan Rows": 1,
+            "Plan Width": 170,
+            "Actual Startup Time": 0.011,
+            "Actual Total Time": 0.016,
+            "Actual Rows": 1,
+            "Actual Loops": 1,
+            "Filter": "((user_id = 'ab-student-0000'::text) AND (status = 'active'::text))",
+            "Rows Removed by Filter": 49,
+            "Shared Hit Blocks": 2,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          }
+        ]
+      },
+      "Planning": {
+        "Shared Hit Blocks": 12,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0
+      },
+      "Planning Time": 0.13,
+      "Triggers": [],
+      "Execution Time": 0.028
+    }
+  },
+  "postgres": "17.11 (Debian 17.11-1.pgdg13+2)"
+}
