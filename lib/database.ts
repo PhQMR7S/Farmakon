@@ -24,16 +24,20 @@ async function transaction<T>(work:()=>Promise<T>):Promise<T>{
  if(transactions.getStore())return work();
  for(let attempt=0;;attempt++){
   const client=await connection().connect();let retry=false;
+  let discard=false;
   try{
    await client.query('BEGIN ISOLATION LEVEL SERIALIZABLE');
    const result=await transactions.run(client,work);
    await client.query('COMMIT');return result;
   }catch(error){
-   try{await client.query('ROLLBACK');}catch{/* Preserve the original failure. */}
    const code=(error as {code?:string}).code;
+   // A failed rollback leaves connection/transaction state untrusted. Never
+   // return that client (or a connection-class failure) to another request.
+   discard=!!code?.startsWith('08');
+   try{await client.query('ROLLBACK');}catch{discard=true;/* Preserve the original failure. */}
    // PostgreSQL guarantees these errors abort the transaction, including at COMMIT.
    if((code==='40001'||code==='40P01')&&attempt<4)retry=true;else throw error;
-  }finally{client.release();}
+  }finally{client.release(discard);}
   // Break lockstep retries; release the scarce connection BEFORE backing off.
   // Same five-attempt budget; never retry an uncertain COMMIT/network error.
   if(retry)await new Promise(resolve=>setTimeout(resolve,Math.floor(Math.random()*Math.min(640,80*2**attempt))));
