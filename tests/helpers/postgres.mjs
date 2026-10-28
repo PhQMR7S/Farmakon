@@ -4,7 +4,7 @@ import ts from 'typescript';
 import assert from 'node:assert/strict';
 
 // Deliberately accepts only an empty, dedicated loopback database. Never uses DATABASE_URL.
-export async function testDatabase(){
+export async function testDatabase({instrument}={}){
  const url=new URL(process.env.FARMAKON_TEST_DATABASE_URL);
  assert.ok(['127.0.0.1','localhost','[::1]'].includes(url.hostname),'Tests require loopback Postgres');
  assert.equal(url.pathname,'/farmakon_v2_test','Tests require dedicated farmakon_v2_test database');
@@ -15,6 +15,7 @@ export async function testDatabase(){
  await bootstrap.query(fs.readFileSync('tests/fixtures/postgres.sql','utf8'));
  for(const name of ['anon','authenticated'])await bootstrap.query(`DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='${name}') THEN CREATE ROLE ${name} NOLOGIN;END IF;END $$`);
  for(const name of fs.readdirSync('supabase/migrations').filter(n=>n.endsWith('.sql')).sort())await bootstrap.query(fs.readFileSync('supabase/migrations/'+name,'utf8'));
+ if(instrument)globalThis.__farmakonTestInstrument=instrument;
  // Load the actual production adapter; inject only the disposable connection and local TLS setting.
  const source=fs.readFileSync('lib/database.ts','utf8')
   .replace("import 'server-only';",'')
@@ -22,9 +23,10 @@ export async function testDatabase(){
   .replace("from 'pg'",`from ${JSON.stringify(import.meta.resolve('pg'))}`)
   .replaceAll('process.env.DATABASE_URL','process.env.FARMAKON_TEST_DATABASE_URL')
   .replace('ssl:{rejectUnauthorized:true,ca:process.env.DATABASE_CA_CERT}','ssl:false')
+  .replace('const client=await connection().connect();let retry=false;','const raw=await connection().connect();const client=globalThis.__farmakonTestInstrument?.(raw,attempt)??raw;let retry=false;')
   +'\nexport async function closeTestPool(){await pool?.end();}export function testPoolStats(){return {total:pool?.totalCount||0,idle:pool?.idleCount||0,waiting:pool?.waitingCount||0};}';
  const code=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText;
  const mod=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
  console.log('PostgreSQL integration: real production SQL adapter + route handlers; stubbed Auth/Storage transport.');
- return {db:mod.database,stats:mod.testPoolStats,async close(){await mod.closeTestPool();await bootstrap.query('DROP SCHEMA farmakon CASCADE');await bootstrap.end();}};
+ return {db:mod.database,stats:mod.testPoolStats,async close(){await mod.closeTestPool();await bootstrap.query('DROP SCHEMA farmakon CASCADE');await bootstrap.end();delete globalThis.__farmakonTestInstrument;}};
 }
