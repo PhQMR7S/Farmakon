@@ -1,7 +1,7 @@
 name: Farmakon quality checks
 on:
   pull_request:
-    branches: [main, feat/farmakon-v2-p0-privacy]
+    branches: [main, feat/farmakon-v2-p0-privacy, audit/f00-regression-2026-10-26]
   workflow_dispatch:
 
 permissions:
@@ -62,7 +62,10 @@ jobs:
       - name: TypeScript check
         run: npm run typecheck
       - name: Backend regression smoke (SQLite test adapter)
-        run: node tests/backend-smoke.mjs
+        run: |
+          node tests/backend-smoke.mjs
+          node tests/subscriptions.mjs
+          node tests/validation-contract.mjs
       - name: Auth contract smoke (no live provider)
         run: |
           node tests/auth-smoke.mjs
@@ -73,6 +76,7 @@ jobs:
         run: |
           node tests/http-smoke.mjs
           node tests/database-reliability.mjs
+          node tests/database-rollback.mjs
       - name: Preview isolation fail-closed checks
         run: |
           node tests/preview-isolation-smoke.mjs
@@ -118,8 +122,8 @@ jobs:
         run: node tests/exam-concurrency.mjs
         env:
           FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
-      - name: Isolated performance baseline and bounded 1-5-10-25 VU load
-        run: node tests/performance/postgres-load.mjs
+      - name: Atomic subscription renewal and coordinated code claims
+        run: node tests/subscriptions.mjs
         env:
           FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
       - name: Synthetic account deletion PostgreSQL lifecycle
@@ -136,6 +140,16 @@ jobs:
           node tests/recovery-dr.mjs
         env:
           FARMAKON_TEST_CONTAINER: ${{ job.services.postgres.id }}
+      - name: Isolated performance baseline and bounded 1-5-10-25 VU load
+        if: github.event.pull_request.head.ref != 'codex/farmakon-p0-critical-fixes-2026-10-28'
+        run: node tests/performance/postgres-load.mjs
+        env:
+          FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
+      - name: Existing load gate remains failed pending SSI fix
+        if: github.event.pull_request.head.ref == 'codex/farmakon-p0-critical-fixes-2026-10-28'
+        run: |
+          echo 'BLOCKED: isolated load failed at 10 VU (startExam 503 / SQLSTATE 40001); no unchanged rerun or acceptance threshold change.'
+          exit 1
 
   browser:
     needs: scope
