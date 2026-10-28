@@ -51,8 +51,8 @@
 
 - [دليل SQL الاصطناعي](evidence/P0.3-SSI-MIGRATION.json): نجاح الفحوص الواردة، بما فيها bypass الذي يبقي fence غير معتمد.
 - محليًا نجحت: migration protocol، محول handlers المتسلسل، أدوار PG، وpg_dump/restore الاصطناعي. تسجيل التحذير الأصلي ونجاح المحول الاختباري ليس نجاحًا لإصلاح التطبيق.
-- [workflow اختبار P0.3](../.github/workflows/ssi-p03.yml) تستخدم PostgreSQL مؤقتة وبيانات اصطناعية. نتائج Actions تُراجع في PR #19 عند اكتمالها؛ لا تعني نجاح حمل HTTP أو تكامل Supabase.
-- scope الجديد يسمح بتجاوز الاختبارات الثقيلة غير المتغيرة عند تغير ملفات P0.3 فقط، لكنه يُبقي بوابة الحمل السابقة حمراء صراحةً؛ أي تغييرات runtime خارج القائمة تعيد فحوص quality.
+- [workflow اختبار P0.3](../.github/workflows/ssi-p03.yml) تستخدم PostgreSQL مؤقتة وبيانات اصطناعية. [Actions 40760990732](https://github.com/PhQMR7S/Farmakon/actions/runs/40760990732) على commit [fabd939](https://github.com/PhQMR7S/Farmakon/commit/fabd9393ca4ae09d02caf7380e1a73cc71ca38fb) نجحت فيه الخطوات الأربع والتنظيف؛ لا تعني نجاح حمل HTTP أو تكامل Supabase. هذا commit يشمل أدوات الاختبار والتقرير والأدلة وworkflow فقط.
+- [Quality 40760998377](https://github.com/PhQMR7S/Farmakon/actions/runs/40760998377): نجح scope، وفشلت خطوة بوابة الحمل السابقة صراحةً، وتجاوزت baseline/postgres/browser لكون التغيير اختباريًا فقط. أي تغييرات runtime خارج القائمة تعيد فحوص quality. تحديث التقرير اللاحق لا يشكل تشغيلًا جديدًا للكود.
 
 ## 8. التراجع وقرارات المالك
 
