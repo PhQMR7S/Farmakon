@@ -1,0 +1,18 @@
+{
+  "scope": "synthetic SQL backfill only; no live application cutover or Supabase provider",
+  "checks": {
+    "partialRollback": true,
+    "exactIdsAndPayload": true,
+    "repeatNoDuplicates": true,
+    "duplicateGroups": 1,
+    "uniqueBlockedWithoutDeletion": true,
+    "tombstoneAndRevokedUnchanged": true,
+    "oldActivityUnchanged": true,
+    "commitFailureRollback": true,
+    "lockBlockedWritersDuringCopy": true,
+    "staleAfterUnlock": 3,
+    "oldReaderStillSeesSource": true,
+    "oldReaderMissesNewOnly": true
+  },
+  "duplicateResolution": "none; owner decision needed"
+}

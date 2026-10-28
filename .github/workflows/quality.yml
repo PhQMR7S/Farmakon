@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       local_only: ${{ steps.scope.outputs.local_only }}
+      p02_only: ${{ steps.scope.outputs.p02_only }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -25,6 +26,7 @@ jobs:
       - id: scope
         env:
           LOCAL_MODE: ${{ github.repository == 'PhQMR7S/Farmakon' && github.event.pull_request.head.ref == 'audit/f00-regression-2026-10-26' }}
+          P02_MODE: ${{ github.repository == 'PhQMR7S/Farmakon' && github.event.pull_request.head.ref == 'codex/farmakon-p0-critical-fixes-2026-10-28' }}
         run: |
           python3 - <<'PY'
           import os, subprocess
@@ -38,9 +40,23 @@ jobs:
           followup_paths={'tests/performance/postgres-load.mjs','tests/serialization-root-cause.mjs','tests/helpers/pg-trace.mjs','tests/helpers/postgres.mjs','.github/workflows/serialization-trace.yml','docs/FARMAKON-F00-POSTGRES-SERIALIZATION-ROOT-CAUSE-REPORT.md','docs/evidence/F00.10.3-COMPONENT-TRACE.json','docs/evidence/F00.10.3-RESULTS.json','tests/exam-concurrency.mjs','.github/workflows/exam-concurrency.yml','.github/workflows/quality.yml','docs/FARMAKON-F00-EXAM-CONCURRENCY-RELIABILITY-REPORT.md','docs/evidence/F00.10.2-EXAM-CONCURRENCY.json'}
           followup=os.environ.get('LOCAL_MODE')=='true' and bool(delta) and all(p in followup_paths for p in delta)
           isolated=isolated or followup
-          with open(os.environ['GITHUB_OUTPUT'],'a') as f: f.write('local_only='+str(isolated).lower()+'\n')
+          p02_delta=subprocess.check_output(['git','diff','--name-only','00e7cbaef57631d2fc551d24fdd40c635d901a2d','HEAD'],text=True).splitlines()
+          p02_paths={'tests/ssi-architecture-p02.mjs','tests/ssi-legacy-p02.mjs','tests/ssi-runtime-p02.mjs','tests/ssi-roles-p02.mjs','docs/evidence/P0.2-SSI-ARCHITECTURE.json','docs/evidence/P0.2-SSI-LEGACY.json','docs/FARMAKON-P0-SSI-ARCHITECTURE-VALIDATION-REPORT.md','.github/workflows/ssi-p02.yml','.github/workflows/quality.yml'}
+          p02=os.environ.get('P02_MODE')=='true' and bool(p02_delta) and all(p in p02_paths for p in p02_delta)
+          isolated=isolated or p02
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f: f.write('local_only='+str(isolated).lower()+'\np02_only='+str(p02).lower()+'\n')
           print('Only reviewed isolated tooling changes may skip unchanged regression. F00.10.2 load failure remains OPEN; follow-up does not rerun or clear it.')
           PY
+
+  p02_existing_load_gate:
+    needs: scope
+    if: needs.scope.outputs.p02_only == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Keep previously failed SSI load gate visible
+        run: |
+          echo 'FAILED: prior 10 VU load produced startExam HTTP 503 / SQLSTATE 40001; P0.2 is a test-only prototype and does not repair runtime.'
+          exit 1
 
   baseline:
     needs: scope
