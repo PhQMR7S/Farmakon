@@ -1,0 +1,274 @@
+{
+  "measuredCommit": "93d3a8786d74dc01b97e09bcd97889a3a8b6182b",
+  "actionsRun": 40499903858,
+  "actionsJob": 122174679208,
+  "scope": "local production Next build; synthetic Auth/API/Storage, no real provider timing or capacity claim",
+  "node": "v24.21.0",
+  "cpus": 4,
+  "profiles": {
+    "unthrottled": "loopback; cold browser contexts; 10 samples per action",
+    "slow": "Chromium CDP 150ms latency, 1.6Mbps download/0.75Mbps upload, CPU x4; intercepted API additionally delayed 250ms; 3 samples only"
+  },
+  "timings": {
+    "local-unthrottled": {
+      "first-login-render": {
+        "n": 10,
+        "p50Ms": 280.79,
+        "p95Ms": 310.05
+      },
+      "login-to-dashboard-fixture": {
+        "n": 10,
+        "p50Ms": 178.89,
+        "p95Ms": 241.04
+      },
+      "courses-navigation": {
+        "n": 10,
+        "p50Ms": 290.08,
+        "p95Ms": 318.73
+      },
+      "open-course": {
+        "n": 10,
+        "p50Ms": 43.95,
+        "p95Ms": 46.81
+      },
+      "open-lecture": {
+        "n": 10,
+        "p50Ms": 38.73,
+        "p95Ms": 41.47
+      },
+      "library-search": {
+        "n": 10,
+        "p50Ms": 280.55,
+        "p95Ms": 304.48
+      },
+      "questions-navigation": {
+        "n": 10,
+        "p50Ms": 105.42,
+        "p95Ms": 110.54
+      },
+      "start-exam-fixture": {
+        "n": 10,
+        "p50Ms": 56.27,
+        "p95Ms": 57.53
+      },
+      "save-answer-fixture": {
+        "n": 10,
+        "p50Ms": 65.43,
+        "p95Ms": 67.25
+      },
+      "submit-result-fixture": {
+        "n": 10,
+        "p50Ms": 149.83,
+        "p95Ms": 151.16
+      },
+      "reload-study-resume-fixture": {
+        "n": 10,
+        "p50Ms": 525.88,
+        "p95Ms": 558.98
+      }
+    },
+    "slow-network-fixture": {
+      "first-login-render": {
+        "n": 3,
+        "p50Ms": 2489.04,
+        "p95Ms": 2492.1
+      },
+      "login-to-dashboard-fixture": {
+        "n": 3,
+        "p50Ms": 3039.82,
+        "p95Ms": 3046.27
+      },
+      "courses-navigation": {
+        "n": 3,
+        "p50Ms": 381.69,
+        "p95Ms": 382.06
+      },
+      "open-course": {
+        "n": 3,
+        "p50Ms": 150.39,
+        "p95Ms": 162.9
+      },
+      "open-lecture": {
+        "n": 3,
+        "p50Ms": 57.2,
+        "p95Ms": 73.97
+      },
+      "library-search": {
+        "n": 3,
+        "p50Ms": 400.23,
+        "p95Ms": 421.27
+      },
+      "questions-navigation": {
+        "n": 3,
+        "p50Ms": 325.61,
+        "p95Ms": 333.11
+      },
+      "start-exam-fixture": {
+        "n": 3,
+        "p50Ms": 849.9,
+        "p95Ms": 850.33
+      },
+      "save-answer-fixture": {
+        "n": 3,
+        "p50Ms": 330.68,
+        "p95Ms": 337.07
+      },
+      "submit-result-fixture": {
+        "n": 3,
+        "p50Ms": 398.99,
+        "p95Ms": 401.4
+      },
+      "reload-study-resume-fixture": {
+        "n": 3,
+        "p50Ms": 2679.31,
+        "p95Ms": 2682.02
+      }
+    }
+  },
+  "resourceSamples": [
+    {
+      "profile": "local-unthrottled",
+      "operation": "navigation-resource-sample",
+      "ttfbMs": 6.80000000000291,
+      "documentTransferBytes": 7521,
+      "jsTransferBytes": 157948,
+      "cssTransferBytes": 7486,
+      "imageTransferBytes": 0,
+      "fcpMs": 80
+    },
+    {
+      "profile": "local-unthrottled",
+      "operation": "navigation-resource-sample",
+      "ttfbMs": 6.899999999994179,
+      "documentTransferBytes": 7521,
+      "jsTransferBytes": 157948,
+      "cssTransferBytes": 7486,
+      "imageTransferBytes": 0,
+      "fcpMs": 88
+    },
+    {
+      "profile": "local-unthrottled",
+      "operation": "navigation-resource-sample",
+      "ttfbMs": 9.89999999999418,
+      "documentTransferBytes": 7521,
+      "jsTransferBytes": 157948,
+      "cssTransferBytes": 7486,
+      "imageTransferBytes": 0,
+      "fcpMs": 84
+    },
+    {
+      "profile": "local-unthrottled",
+      "operation": "navigation-resource-sample",
+      "ttfbMs": 6.100000000005821,
+      "documentTransferBytes": 7521,
+      "jsTransferBytes": 157948,
+      "cssTransferBytes": 7486,
+      "imageTransferBytes": 0,
+      "fcpMs": 72
+    },
+    {
+      "profile": "local-unthrottled",
+      "operation": "navigation-resource-sample",
+      "ttfbMs": 6.80000000000291,
+      "documentTransferBytes": 7521,
+      "jsTransferBytes": 157948,
+      "cssTransferBytes": 7486,
+      "imageTransferBytes": 0,
+      "fcpMs": 80
+    },
+    {
+      "profile": "local-unthrottled",
+      "operation": "navigation-resource-sample",
+      "ttfbMs": 6.100000000005821,
+      "documentTransferBytes": 7521,
+      "jsTransferBytes": 157948,
+      "cssTransferBytes": 7486,
+      "imageTransferBytes": 0,
+      "fcpMs": 72
+    },
+    {
+      "profile": "local-unthrottled",
+      "operation": "navigation-resource-sample",
+      "ttfbMs": 8.69999999999709,
+      "documentTransferBytes": 7521,
+      "jsTransferBytes": 157948,
+      "cssTransferBytes": 7486,
+      "imageTransferBytes": 0,
+      "fcpMs": 72
+    },
+    {
+      "profile": "local-unthrottled",
+      "operation": "navigation-resource-sample",
+      "ttfbMs": 4.899999999994179,
+      "documentTransferBytes": 7521,
+      "jsTransferBytes": 157948,
+      "cssTransferBytes": 7486,
+      "imageTransferBytes": 0,
+      "fcpMs": 68
+    },
+    {
+      "profile": "local-unthrottled",
+      "operation": "navigation-resource-sample",
+      "ttfbMs": 9.10000000000582,
+      "documentTransferBytes": 7521,
+      "jsTransferBytes": 157948,
+      "cssTransferBytes": 7486,
+      "imageTransferBytes": 0,
+      "fcpMs": 68
+    },
+    {
+      "profile": "local-unthrottled",
+      "operation": "navigation-resource-sample",
+      "ttfbMs": 5.80000000000291,
+      "documentTransferBytes": 7521,
+      "jsTransferBytes": 157948,
+      "cssTransferBytes": 7486,
+      "imageTransferBytes": 0,
+      "fcpMs": 64
+    },
+    {
+      "profile": "slow-network-fixture",
+      "operation": "navigation-resource-sample",
+      "ttfbMs": 4.400000000008731,
+      "documentTransferBytes": 7521,
+      "jsTransferBytes": 157948,
+      "cssTransferBytes": 7486,
+      "imageTransferBytes": 0,
+      "fcpMs": 656
+    },
+    {
+      "profile": "slow-network-fixture",
+      "operation": "navigation-resource-sample",
+      "ttfbMs": 4.199999999982538,
+      "documentTransferBytes": 7521,
+      "jsTransferBytes": 157948,
+      "cssTransferBytes": 7486,
+      "imageTransferBytes": 0,
+      "fcpMs": 632
+    },
+    {
+      "profile": "slow-network-fixture",
+      "operation": "navigation-resource-sample",
+      "ttfbMs": 5.100000000005821,
+      "documentTransferBytes": 7521,
+      "jsTransferBytes": 157948,
+      "cssTransferBytes": 7486,
+      "imageTransferBytes": 0,
+      "fcpMs": 628
+    }
+  ],
+  "buildAssetsAllRoutes": {
+    "js": {
+      "files": 11,
+      "rawBytes": 657122,
+      "gzipBytes": 200345,
+      "brotliBytes": 171738
+    },
+    "css": {
+      "files": 1,
+      "rawBytes": 29004,
+      "gzipBytes": 7186,
+      "brotliBytes": 6319
+    }
+  }
+}

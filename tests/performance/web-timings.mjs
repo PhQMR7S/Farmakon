@@ -1,0 +1,32 @@
+// Local Next production build, fixture Auth/API. Never targets Preview/Production.
+import {chromium} from '@playwright/test';import fs from 'node:fs';import path from 'node:path';import os from 'node:os';import {gzipSync,brotliCompressSync} from 'node:zlib';import {spawn} from 'node:child_process';import {performance} from 'node:perf_hooks';import {transport,navigate} from './ui-fixture.mjs';
+const origin='http://127.0.0.1:3108',rows=[];let browser;
+const server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port','3108'],{env:{...process.env,DATABASE_URL:'',NEXT_PUBLIC_SUPABASE_URL:'',NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:''},stdio:'ignore'});
+const pct=(v,p)=>Number([...v].sort((a,b)=>a-b)[Math.ceil(v.length*p)-1].toFixed(2));
+try{
+ for(let i=0;i<100;i++){try{if((await fetch(origin+'/login')).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
+ browser=await chromium.launch({executablePath:process.env.FARMAKON_TEST_CHROMIUM,headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+ for(const profile of ['local-unthrottled','slow-network-fixture'])for(let i=0;i<(profile==='local-unthrottled'?10:3);i++){
+  const ctx=await browser.newContext({viewport:{width:390,height:844}}),page=await ctx.newPage();await transport(page,{delay:profile==='slow-network-fixture'?250:0});
+  if(profile==='slow-network-fixture'){const cdp=await ctx.newCDPSession(page);await cdp.send('Network.enable');await cdp.send('Network.emulateNetworkConditions',{offline:false,latency:150,downloadThroughput:200000,uploadThroughput:93750});await cdp.send('Emulation.setCPUThrottlingRate',{rate:4});}
+  const measure=async(name,fn)=>{const t=performance.now();await fn();rows.push({profile,operation:name,ms:performance.now()-t});};
+  await measure('first-login-render',async()=>{await page.goto(origin+'/login');await page.getByRole('heading',{name:'تسجيل الدخول',exact:true}).waitFor();});
+  await page.route('**/api/auth',async route=>{if(profile==='slow-network-fixture')await new Promise(r=>setTimeout(r,250));return route.fulfill({json:{ok:true}});});
+  await page.getByLabel('البريد الإلكتروني').fill('f007@example.test');await page.getByLabel(/^كلمة المرور/).fill('Synthetic-fixture-only');
+  await measure('login-to-dashboard-fixture',async()=>{await page.getByRole('button',{name:'دخول',exact:true}).click();await page.getByRole('heading',{name:'خطوتك القادمة في الصيدلة',exact:true}).waitFor();});
+  await measure('courses-navigation',()=>navigate(page,'الكورسات'));
+  const course=page.locator('.course-card').first();await measure('open-course',()=>course.getByRole('button',{name:'متابعة الدراسة',exact:true}).click());
+  await measure('open-lecture',()=>page.locator('.lesson-row').first().click());
+  await measure('library-search',async()=>{await navigate(page,'المكتبة العلمية');await page.getByLabel('المادة',{exact:true}).fill('علم الأدوية');await page.getByText('ملخص اصطناعي',{exact:true}).waitFor();});
+  await measure('questions-navigation',()=>navigate(page,'بنك الأسئلة'));
+  await navigate(page,'الاختبارات');await measure('start-exam-fixture',async()=>{await page.getByRole('button',{name:'ابدأ الاختبار',exact:true}).click();await page.getByRole('timer').waitFor();});
+  await measure('save-answer-fixture',async()=>{await page.getByRole('button',{name:'B ثان',exact:true}).click();await page.getByText('محفوظ',{exact:true}).waitFor();});
+  await measure('submit-result-fixture',async()=>{await page.getByRole('button',{name:'تسليم الإجابات',exact:true}).click();await page.getByRole('heading',{name:'نتيجتك: 1 / 1',exact:true}).waitFor();});
+  await measure('reload-study-resume-fixture',async()=>{await page.reload();await page.getByRole('heading',{name:'خطوتك القادمة في الصيدلة',exact:true}).waitFor();await navigate(page,'الكورسات');await page.locator('.course-card').first().getByRole('button',{name:'متابعة الدراسة',exact:true}).click();await page.locator('.lesson-row').first().click();if(await page.getByLabel('ملاحظاتي على المحاضرة').inputValue()!=='ملاحظة اصطناعية')throw Error('resume fixture');});
+  const resources=await page.evaluate(()=>{const rs=performance.getEntriesByType('resource');const nav=performance.getEntriesByType('navigation')[0];return {ttfbMs:nav.responseStart-nav.requestStart,documentTransferBytes:nav.transferSize,jsTransferBytes:rs.filter(r=>/\.js(?:\?|$)/.test(r.name)).reduce((s,r)=>s+r.transferSize,0),cssTransferBytes:rs.filter(r=>/\.css(?:\?|$)/.test(r.name)).reduce((s,r)=>s+r.transferSize,0),imageTransferBytes:rs.filter(r=>r.initiatorType==='img').reduce((s,r)=>s+r.transferSize,0),fcpMs:performance.getEntriesByName('first-contentful-paint')[0]?.startTime||null};});rows.push({profile,operation:'navigation-resource-sample',...resources});await ctx.close();
+ }
+ const timings=Object.fromEntries(['local-unthrottled','slow-network-fixture'].map(profile=>[profile,Object.fromEntries([...new Set(rows.filter(x=>x.profile===profile&&x.ms!==undefined).map(x=>x.operation))].map(k=>{const values=rows.filter(x=>x.profile===profile&&x.operation===k).map(x=>x.ms);return [k,{n:values.length,p50Ms:pct(values,.5),p95Ms:pct(values,.95)}];}))]));
+ const files=fs.readdirSync('.next/static/chunks',{recursive:true}).map(p=>path.join('.next/static/chunks',String(p))).filter(p=>fs.statSync(p).isFile()&&/\.(js|css)$/.test(p));const assets={};for(const ext of ['js','css']){const selected=files.filter(p=>p.endsWith('.'+ext)),data=selected.map(p=>fs.readFileSync(p));assets[ext]={files:selected.length,rawBytes:data.reduce((s,b)=>s+b.length,0),gzipBytes:data.reduce((s,b)=>s+gzipSync(b).length,0),brotliBytes:data.reduce((s,b)=>s+brotliCompressSync(b).length,0)};}
+ const result={scope:'local production Next build; synthetic Auth/API/Storage, no real provider timing or capacity claim',node:process.version,cpus:os.availableParallelism(),profiles:{unthrottled:'loopback; cold browser contexts; 10 samples per action',slow:'Chromium CDP 150ms latency, 1.6Mbps download/0.75Mbps upload, CPU x4; intercepted API additionally delayed 250ms; 3 samples only'},timings,resourceSamples:rows.filter(x=>x.operation==='navigation-resource-sample'),buildAssetsAllRoutes:assets};
+ fs.mkdirSync('docs/evidence',{recursive:true});fs.writeFileSync('docs/evidence/F00.7-WEB-PERFORMANCE.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));
+}finally{await browser?.close();server.kill('SIGTERM');}

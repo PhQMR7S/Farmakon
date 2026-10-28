@@ -35,3 +35,18 @@ test('API rejects cross-origin mutation',async({request})=>{
  const r=await request.post('/api/auth',{headers:{origin:'https://evil.example.test'},data:{action:'logout'}});
  expect(r.status()).toBe(403);
 });
+
+test('legacy login constraints and generic callback failure',async({page})=>{
+ await page.goto('/login?auth_error=callback&error_description=PRIVATE_PROVIDER_DETAIL');
+ await expect(page.getByRole('status')).toContainText('اطلب رابطاً جديداً');
+ await expect(page.locator('body')).not.toContainText('PRIVATE_PROVIDER_DETAIL');
+ await expect(page.getByLabel(/^كلمة المرور/)).toHaveAttribute('minlength','1');
+ await page.getByRole('button',{name:'إنشاء حساب جديد',exact:true}).click();
+ await expect(page.getByLabel(/^كلمة المرور/)).toHaveAttribute('minlength','10');
+});
+
+test('synthetic deletion is unavailable without isolated Staging opt-in',async({page,request})=>{
+ const r=await request.post('/api/account/delete',{data:{confirmation:'DELETE SYNTHETIC ACCOUNT',password:'fixture-only'}});
+ expect(r.status()).toBe(404);expect(r.headers()['cache-control']).toContain('no-store');
+ const response=await page.goto('/account/delete');expect(response?.status()).toBe(404);
+});

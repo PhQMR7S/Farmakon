@@ -1,0 +1,21 @@
+F00.3 / 2026-10-26 / code b55e45e81c9e6d2a4b635c794e924bbd9bee2460
+Local chain exit=0: npm ci, typecheck, backend, auth, callback, http, preview-isolation, pwa, build.
+PASS: two-user notes/attempt isolation and revocation/unpublication on attempt read/save/submit.
+PASS: API rejects chunked/underdeclared overflow, malformed JSON and mismatched upload length.
+PASS: auth, owner setup, CRUD, upload/read, course gating, answer secrecy, one-time codes, persistent progress, exam resume/grading, payment review, course unpublish, CSRF. Isolated fixture database; no production data.
+PASS: scoped study export, cross-user/admin/content secrecy, bounded output, CSRF/auth, attachment headers and PostgreSQL quota.
+PASS: Drive URL allowlist and payment approval issues a code without enrollment.
+PASS: strict session gate verifies the exact token first; rejects missing/revoked/mismatched sessions and fails closed on database outage. Provider and session transport are fixtures.
+PASS: verified email identity, metadata cannot grant owner, CSRF, malformed signup, unauthenticated reset, generic recovery, no-store logout. Auth transport stubbed; live delivery unverified.
+PASS: enabled limiter fails closed before provider call; untrusted forwarded header is ignored.
+PASS: legacy credentials reach Auth; new signup passwords still require 10 characters.
+PASS: reset validates active exact-token identity and rejects revoked/unconfirmed/provider-error/outage cases before password update. Transport is a fixture.
+PASS: actual callback route validates code shape, fixed same-origin targets, no-store/no-referrer, generic invalid/consumed/expired failures and quota fail-closed. Provider exchange is a fixture; real email/link consumption unverified.
+PASS: bounded bytes with absent/false/invalid Content-Length, UTF-8/JSON shape and stream cancellation.
+PASS: preview rejects mixed/production/missing endpoints and disabled guards before network use; production/local unaffected.
+PASS: actual Auth client, database adapter and proxy reject unsafe preview before provider/cookie/SQL calls.
+PASS: manifest PNG sizes, Apple touch icon, shell upgrade preserves downloads.
+✓ Compiled successfully in 796ms
+Local browser install BLOCKED: Chromium archive download invalid/truncated; no local browser result claimed.
+Real mailbox tests NOT RUN: no dedicated authorized receiving inbox.
+Natural JWT expiration NOT RUN: Auth configuration unavailable behind dashboard sign-in; no TTL changes.

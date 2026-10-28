@@ -1,0 +1,579 @@
+{
+  "measuredCommit": "e15d6aca9dcece6cfd1628f449938b7640a2d348",
+  "actionsRun": 40498624964,
+  "scope": "isolated loopback PostgreSQL; real production SQL adapter and route handlers; Auth/Storage/quota transport fixtures; NOT Vercel/Supabase capacity",
+  "environment": {
+    "node": "v24.21.0",
+    "postgres": "17.11 (Debian 17.11-1.pgdg13+2)",
+    "platform": "linux",
+    "architecture": "x64",
+    "cpuCount": 4,
+    "memoryLimitStopMiB": 768
+  },
+  "fixture": {
+    "registeredStudents": 750,
+    "courses": 4,
+    "lessons": 48,
+    "files": 48,
+    "questions": 80,
+    "exams": 4,
+    "oldAttempts": 1500
+  },
+  "comparison": {
+    "before": {
+      "requests": 20,
+      "p50Ms": 123.32,
+      "p95Ms": 136.4,
+      "errorRate": 0,
+      "failureCodes": {},
+      "queriesP50": 380,
+      "queryRoundTripP95Ms": 131.28,
+      "responseBytesP50": 53324
+    },
+    "afterUnindexed": {
+      "requests": 20,
+      "p50Ms": 31.78,
+      "p95Ms": 33.05,
+      "errorRate": 0,
+      "failureCodes": {},
+      "queriesP50": 13,
+      "queryRoundTripP95Ms": 39.26,
+      "responseBytesP50": 53324
+    },
+    "after": {
+      "requests": 20,
+      "p50Ms": 6.63,
+      "p95Ms": 7.6,
+      "errorRate": 0,
+      "failureCodes": {},
+      "queriesP50": 13,
+      "queryRoundTripP95Ms": 14.2,
+      "responseBytesP50": 53324
+    }
+  },
+  "unindexedDiagnostic": [
+    {
+      "virtualUsers": 1,
+      "requests": 1,
+      "p50Ms": 36.14,
+      "p95Ms": 36.14,
+      "errorRate": 0,
+      "failureCodes": {},
+      "queriesP50": 18,
+      "queryRoundTripP95Ms": 30.13,
+      "responseBytesP50": 1180
+    },
+    {
+      "virtualUsers": 5,
+      "requests": 5,
+      "p50Ms": 119.23,
+      "p95Ms": 226.21,
+      "errorRate": 0,
+      "failureCodes": {},
+      "queriesP50": 36,
+      "queryRoundTripP95Ms": 161.78,
+      "responseBytesP50": 1180
+    },
+    {
+      "virtualUsers": 10,
+      "requests": 10,
+      "p50Ms": 180.68,
+      "p95Ms": 374.61,
+      "errorRate": 0,
+      "failureCodes": {},
+      "queriesP50": 36,
+      "queryRoundTripP95Ms": 160.07,
+      "responseBytesP50": 1180
+    }
+  ],
+  "loads": [
+    {
+      "virtualUsers": 1,
+      "rounds": 2,
+      "requests": 12,
+      "p50Ms": 3.38,
+      "p95Ms": 6.79,
+      "errorRate": 0,
+      "failureCodes": {},
+      "queriesP50": 7,
+      "queryRoundTripP95Ms": 13.19,
+      "responseBytesP50": 1178,
+      "elapsedMs": 56.27,
+      "requestsPerSecond": 213.24,
+      "nodeCpuMs": 27.025,
+      "operations": {
+        "dashboard/catalogue/library/questions/resume": {
+          "requests": 2,
+          "p50Ms": 6.23,
+          "p95Ms": 6.55,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 13,
+          "queryRoundTripP95Ms": 13.19,
+          "responseBytesP50": 53294
+        },
+        "startExam": {
+          "requests": 2,
+          "p50Ms": 6.06,
+          "p95Ms": 6.79,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 18,
+          "queryRoundTripP95Ms": 5.76,
+          "responseBytesP50": 1178
+        },
+        "saveExam": {
+          "requests": 2,
+          "p50Ms": 2.93,
+          "p95Ms": 3.38,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 6,
+          "queryRoundTripP95Ms": 1.92,
+          "responseBytesP50": 95
+        },
+        "submitExam": {
+          "requests": 2,
+          "p50Ms": 3.08,
+          "p95Ms": 3.31,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 7,
+          "queryRoundTripP95Ms": 2.16,
+          "responseBytesP50": 1213
+        },
+        "results/reload": {
+          "requests": 2,
+          "p50Ms": 6.38,
+          "p95Ms": 6.5,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 13,
+          "queryRoundTripP95Ms": 12.87,
+          "responseBytesP50": 54828
+        },
+        "protected-media-Storage-fixture": {
+          "requests": 2,
+          "p50Ms": 1.79,
+          "p95Ms": 2.7,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 4,
+          "queryRoundTripP95Ms": 1.82,
+          "responseBytesP50": 12
+        }
+      }
+    },
+    {
+      "virtualUsers": 5,
+      "rounds": 2,
+      "requests": 60,
+      "p50Ms": 8.48,
+      "p95Ms": 85.51,
+      "errorRate": 0,
+      "failureCodes": {},
+      "queriesP50": 13,
+      "queryRoundTripP95Ms": 29.68,
+      "responseBytesP50": 1178,
+      "elapsedMs": 321.87,
+      "requestsPerSecond": 186.41,
+      "nodeCpuMs": 187.755,
+      "operations": {
+        "dashboard/catalogue/library/questions/resume": {
+          "requests": 10,
+          "p50Ms": 10.07,
+          "p95Ms": 23.82,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 13,
+          "queryRoundTripP95Ms": 29.68,
+          "responseBytesP50": 54828
+        },
+        "startExam": {
+          "requests": 10,
+          "p50Ms": 33.8,
+          "p95Ms": 170.01,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 36,
+          "queryRoundTripP95Ms": 38.59,
+          "responseBytesP50": 1178
+        },
+        "saveExam": {
+          "requests": 10,
+          "p50Ms": 4.61,
+          "p95Ms": 12.91,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 6,
+          "queryRoundTripP95Ms": 3.3,
+          "responseBytesP50": 95
+        },
+        "submitExam": {
+          "requests": 10,
+          "p50Ms": 5.64,
+          "p95Ms": 17.33,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 7,
+          "queryRoundTripP95Ms": 6.16,
+          "responseBytesP50": 1213
+        },
+        "results/reload": {
+          "requests": 10,
+          "p50Ms": 8.48,
+          "p95Ms": 14.18,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 13,
+          "queryRoundTripP95Ms": 24.26,
+          "responseBytesP50": 56362
+        },
+        "protected-media-Storage-fixture": {
+          "requests": 10,
+          "p50Ms": 2.39,
+          "p95Ms": 13.81,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 4,
+          "queryRoundTripP95Ms": 13.54,
+          "responseBytesP50": 12
+        }
+      }
+    },
+    {
+      "virtualUsers": 10,
+      "rounds": 2,
+      "requests": 100,
+      "p50Ms": 16.84,
+      "p95Ms": 67.39,
+      "errorRate": 0.02,
+      "failureCodes": {
+        "40001": 2
+      },
+      "queriesP50": 13,
+      "queryRoundTripP95Ms": 39.62,
+      "responseBytesP50": 1178,
+      "elapsedMs": 373.57,
+      "requestsPerSecond": 267.69,
+      "nodeCpuMs": 330.281,
+      "operations": {
+        "dashboard/catalogue/library/questions/resume": {
+          "requests": 18,
+          "p50Ms": 16.59,
+          "p95Ms": 44.03,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 13,
+          "queryRoundTripP95Ms": 26.15,
+          "responseBytesP50": 54828
+        },
+        "startExam": {
+          "requests": 18,
+          "p50Ms": 34.86,
+          "p95Ms": 304.13,
+          "errorRate": 0.1111111111111111,
+          "failureCodes": {
+            "40001": 2
+          },
+          "queriesP50": 18,
+          "queryRoundTripP95Ms": 44.76,
+          "responseBytesP50": 1178
+        },
+        "saveExam": {
+          "requests": 16,
+          "p50Ms": 11.84,
+          "p95Ms": 41.6,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 6,
+          "queryRoundTripP95Ms": 6,
+          "responseBytesP50": 95
+        },
+        "submitExam": {
+          "requests": 16,
+          "p50Ms": 6.65,
+          "p95Ms": 63.06,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 7,
+          "queryRoundTripP95Ms": 7.68,
+          "responseBytesP50": 1213
+        },
+        "results/reload": {
+          "requests": 16,
+          "p50Ms": 13.58,
+          "p95Ms": 27.06,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 13,
+          "queryRoundTripP95Ms": 41.77,
+          "responseBytesP50": 56362
+        },
+        "protected-media-Storage-fixture": {
+          "requests": 16,
+          "p50Ms": 7.98,
+          "p95Ms": 42.74,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 4,
+          "queryRoundTripP95Ms": 42.48,
+          "responseBytesP50": 12
+        }
+      }
+    },
+    {
+      "virtualUsers": 25,
+      "rounds": 2,
+      "requests": 270,
+      "p50Ms": 45.02,
+      "p95Ms": 170.63,
+      "errorRate": 0.011111111111111112,
+      "failureCodes": {
+        "40001": 3
+      },
+      "queriesP50": 13,
+      "queryRoundTripP95Ms": 105.54,
+      "responseBytesP50": 1179,
+      "elapsedMs": 813.99,
+      "requestsPerSecond": 331.7,
+      "nodeCpuMs": 762.548,
+      "operations": {
+        "dashboard/catalogue/library/questions/resume": {
+          "requests": 47,
+          "p50Ms": 43.27,
+          "p95Ms": 91.45,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 13,
+          "queryRoundTripP95Ms": 27.07,
+          "responseBytesP50": 54844
+        },
+        "startExam": {
+          "requests": 47,
+          "p50Ms": 96.07,
+          "p95Ms": 451.38,
+          "errorRate": 0.06382978723404255,
+          "failureCodes": {
+            "40001": 3
+          },
+          "queriesP50": 18,
+          "queryRoundTripP95Ms": 40.83,
+          "responseBytesP50": 1179
+        },
+        "saveExam": {
+          "requests": 44,
+          "p50Ms": 39.05,
+          "p95Ms": 100.33,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 6,
+          "queryRoundTripP95Ms": 5.66,
+          "responseBytesP50": 95
+        },
+        "submitExam": {
+          "requests": 44,
+          "p50Ms": 37.26,
+          "p95Ms": 131.27,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 7,
+          "queryRoundTripP95Ms": 8.67,
+          "responseBytesP50": 1213
+        },
+        "results/reload": {
+          "requests": 44,
+          "p50Ms": 41.25,
+          "p95Ms": 55.06,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 13,
+          "queryRoundTripP95Ms": 24.37,
+          "responseBytesP50": 56379
+        },
+        "protected-media-Storage-fixture": {
+          "requests": 44,
+          "p50Ms": 87.06,
+          "p95Ms": 150.74,
+          "errorRate": 0,
+          "failureCodes": {},
+          "queriesP50": 4,
+          "queryRoundTripP95Ms": 150.53,
+          "responseBytesP50": 12
+        }
+      }
+    }
+  ],
+  "resource": {
+    "peakNodeRSSMiB": 285.47,
+    "appPoolConnectionsPeak": 3,
+    "appPoolWaitingPeak": 22,
+    "observedTestDatabaseClientConnections": 5
+  },
+  "plans": [
+    {
+      "name": "scoped-before-index",
+      "executionMs": 29.504,
+      "planningMs": 0.178,
+      "plan": {
+        "Node Type": "Sort",
+        "Parallel Aware": false,
+        "Async Capable": false,
+        "Startup Cost": 300.69,
+        "Total Cost": 300.7,
+        "Plan Rows": 8,
+        "Plan Width": 1122,
+        "Actual Startup Time": 29.494,
+        "Actual Total Time": 29.495,
+        "Actual Rows": 2,
+        "Actual Loops": 1,
+        "Sort Key": [
+          "created DESC",
+          "id DESC"
+        ],
+        "Sort Method": "quicksort",
+        "Sort Space Used": 27,
+        "Sort Space Type": "Memory",
+        "Shared Hit Blocks": 262,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "Plans": [
+          {
+            "Node Type": "Seq Scan",
+            "Parent Relationship": "Outer",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Relation Name": "records",
+            "Alias": "records",
+            "Startup Cost": 0,
+            "Total Cost": 300.56,
+            "Plan Rows": 8,
+            "Plan Width": 1122,
+            "Actual Startup Time": 3.586,
+            "Actual Total Time": 29.489,
+            "Actual Rows": 2,
+            "Actual Loops": 1,
+            "Filter": "((kind = 'attempt'::text) AND (((data)::jsonb ->> 'userId'::text) = 'f007-user-100'::text))",
+            "Rows Removed by Filter": 1702,
+            "Shared Hit Blocks": 262,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "baseline-attempts",
+      "planningMs": 0.206,
+      "executionMs": 1.758,
+      "plan": {
+        "Node Type": "Sort",
+        "Parallel Aware": false,
+        "Async Capable": false,
+        "Startup Cost": 416.36,
+        "Total Cost": 420.68,
+        "Plan Rows": 1730,
+        "Plan Width": 1125,
+        "Actual Startup Time": 1.602,
+        "Actual Total Time": 1.68,
+        "Actual Rows": 1588,
+        "Actual Loops": 1,
+        "Sort Key": [
+          "created DESC"
+        ],
+        "Sort Method": "quicksort",
+        "Sort Space Used": 1942,
+        "Sort Space Type": "Memory",
+        "Shared Hit Blocks": 299,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "Plans": [
+          {
+            "Node Type": "Seq Scan",
+            "Parent Relationship": "Outer",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Relation Name": "records",
+            "Alias": "records",
+            "Startup Cost": 0,
+            "Total Cost": 323.31,
+            "Plan Rows": 1730,
+            "Plan Width": 1125,
+            "Actual Startup Time": 0.023,
+            "Actual Total Time": 0.524,
+            "Actual Rows": 1588,
+            "Actual Loops": 1,
+            "Filter": "(kind = 'attempt'::text)",
+            "Rows Removed by Filter": 188,
+            "Shared Hit Blocks": 299,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "scoped-attempts",
+      "planningMs": 0.083,
+      "executionMs": 0.02,
+      "plan": {
+        "Node Type": "Index Scan",
+        "Parallel Aware": false,
+        "Async Capable": false,
+        "Scan Direction": "Forward",
+        "Index Name": "records_owner_kind_created",
+        "Relation Name": "records",
+        "Alias": "records",
+        "Startup Cost": 0.28,
+        "Total Cost": 11.34,
+        "Plan Rows": 2,
+        "Plan Width": 1125,
+        "Actual Startup Time": 0.01,
+        "Actual Total Time": 0.013,
+        "Actual Rows": 8,
+        "Actual Loops": 1,
+        "Index Cond": "((((data)::jsonb ->> 'userId'::text) = 'f007-user-0'::text) AND (kind = 'attempt'::text))",
+        "Rows Removed by Index Recheck": 0,
+        "Shared Hit Blocks": 9,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0
+      }
+    }
+  ],
+  "stopped": false
+}

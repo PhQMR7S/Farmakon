@@ -1,0 +1,28 @@
+name: Farmakon bounded registry metadata
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [feat/farmakon-v2-p0-privacy]
+    types: [labeled]
+permissions:
+  contents: read
+jobs:
+  metadata:
+    if: >-
+      github.repository == 'PhQMR7S/Farmakon' &&
+      ((github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/audit/f00-regression-2026-10-26') ||
+      (github.event.label.name == 'run-f00101-registry' && github.event.pull_request.number == 18 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'audit/f00-regression-2026-10-26'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Public metadata only; no docker pull or blob GET
+        run: node tests/local-supabase/registry-probe.mjs

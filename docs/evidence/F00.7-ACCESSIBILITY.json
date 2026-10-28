@@ -1,0 +1,539 @@
+{
+  "scope": "local production UI; HTTP/Auth/Storage fixture transport; automated subset, not WCAG certification",
+  "baselineCommit": "e86e67ee825299985c71214bbbaa96c561b91abe",
+  "reviewedClientCommit": "93d3a8786d74dc01b97e09bcd97889a3a8b6182b",
+  "before": {
+    "phase": "before",
+    "scope": "local production Next build; HTTP/Auth/Storage transport fixtures; axe automated subset",
+    "results": [
+      {
+        "width": 390,
+        "flow": "login",
+        "elapsedMs": 435.1828459999999,
+        "navigation": {
+          "duration": 94.5,
+          "transferSize": 2986,
+          "domContentLoaded": 29.700000000186265
+        },
+        "overflow": false,
+        "consoleErrors": 0,
+        "violations": []
+      },
+      {
+        "width": 390,
+        "flow": "dashboard",
+        "elapsedMs": 976.6327939999999,
+        "navigation": {
+          "duration": 94.5,
+          "transferSize": 2986,
+          "domContentLoaded": 29.700000000186265
+        },
+        "overflow": false,
+        "consoleErrors": 0,
+        "violations": []
+      },
+      {
+        "width": 390,
+        "flow": "courses",
+        "elapsedMs": 1612.792307,
+        "navigation": {
+          "duration": 94.5,
+          "transferSize": 2986,
+          "domContentLoaded": 29.700000000186265
+        },
+        "overflow": false,
+        "consoleErrors": 0,
+        "violations": []
+      },
+      {
+        "width": 390,
+        "flow": "library",
+        "elapsedMs": 2280.4633059999996,
+        "navigation": {
+          "duration": 94.5,
+          "transferSize": 2986,
+          "domContentLoaded": 29.700000000186265
+        },
+        "overflow": false,
+        "consoleErrors": 0,
+        "violations": []
+      },
+      {
+        "width": 390,
+        "flow": "questions",
+        "elapsedMs": 2973.685104,
+        "navigation": {
+          "duration": 94.5,
+          "transferSize": 2986,
+          "domContentLoaded": 29.700000000186265
+        },
+        "overflow": false,
+        "consoleErrors": 0,
+        "violations": []
+      },
+      {
+        "width": 390,
+        "flow": "exam",
+        "elapsedMs": 3841.7421589999994,
+        "navigation": {
+          "duration": 94.5,
+          "transferSize": 2986,
+          "domContentLoaded": 29.700000000186265
+        },
+        "overflow": false,
+        "consoleErrors": 0,
+        "violations": []
+      },
+      {
+        "width": 1280,
+        "flow": "login",
+        "elapsedMs": 406.30713899999955,
+        "navigation": {
+          "duration": 102.6999999997206,
+          "transferSize": 2986,
+          "domContentLoaded": 33.09999999962747
+        },
+        "overflow": false,
+        "consoleErrors": 0,
+        "violations": []
+      },
+      {
+        "width": 1280,
+        "flow": "dashboard",
+        "elapsedMs": 958.0627990000003,
+        "navigation": {
+          "duration": 102.6999999997206,
+          "transferSize": 2986,
+          "domContentLoaded": 33.09999999962747
+        },
+        "overflow": false,
+        "consoleErrors": 0,
+        "violations": []
+      },
+      {
+        "width": 1280,
+        "flow": "courses",
+        "elapsedMs": 1300.5013019999997,
+        "navigation": {
+          "duration": 102.6999999997206,
+          "transferSize": 2986,
+          "domContentLoaded": 33.09999999962747
+        },
+        "overflow": false,
+        "consoleErrors": 0,
+        "violations": []
+      },
+      {
+        "width": 1280,
+        "flow": "library",
+        "elapsedMs": 1640.0936089999996,
+        "navigation": {
+          "duration": 102.6999999997206,
+          "transferSize": 2986,
+          "domContentLoaded": 33.09999999962747
+        },
+        "overflow": false,
+        "consoleErrors": 0,
+        "violations": []
+      },
+      {
+        "width": 1280,
+        "flow": "questions",
+        "elapsedMs": 1987.0902639999995,
+        "navigation": {
+          "duration": 102.6999999997206,
+          "transferSize": 2986,
+          "domContentLoaded": 33.09999999962747
+        },
+        "overflow": false,
+        "consoleErrors": 0,
+        "violations": []
+      },
+      {
+        "width": 1280,
+        "flow": "exam",
+        "elapsedMs": 2442.476648,
+        "navigation": {
+          "duration": 102.6999999997206,
+          "transferSize": 2986,
+          "domContentLoaded": 33.09999999962747
+        },
+        "overflow": false,
+        "consoleErrors": 0,
+        "violations": []
+      }
+    ]
+  },
+  "after": {
+    "phase": "after",
+    "scope": "local production Next build; HTTP/Auth/Storage transport fixtures; axe automated subset",
+    "results": [
+      {
+        "width": 360,
+        "flow": "login",
+        "auditCumulativeElapsedMs": 520.9825369999999,
+        "navigation": {
+          "duration": 119.79999999981374,
+          "transferSize": 2994,
+          "domContentLoaded": 75
+        },
+        "overflow": false,
+        "consoleErrors": 3,
+        "violations": []
+      },
+      {
+        "width": 360,
+        "flow": "dashboard",
+        "auditCumulativeElapsedMs": 1048.907714,
+        "navigation": {
+          "duration": 119.79999999981374,
+          "transferSize": 2994,
+          "domContentLoaded": 75
+        },
+        "overflow": false,
+        "consoleErrors": 6,
+        "violations": []
+      },
+      {
+        "width": 360,
+        "flow": "courses",
+        "auditCumulativeElapsedMs": 1640.09825,
+        "navigation": {
+          "duration": 119.79999999981374,
+          "transferSize": 2994,
+          "domContentLoaded": 75
+        },
+        "overflow": false,
+        "consoleErrors": 8,
+        "violations": []
+      },
+      {
+        "width": 360,
+        "flow": "library",
+        "auditCumulativeElapsedMs": 2195.654995,
+        "navigation": {
+          "duration": 119.79999999981374,
+          "transferSize": 2994,
+          "domContentLoaded": 75
+        },
+        "overflow": false,
+        "consoleErrors": 10,
+        "violations": []
+      },
+      {
+        "width": 360,
+        "flow": "questions",
+        "auditCumulativeElapsedMs": 2803.63948,
+        "navigation": {
+          "duration": 119.79999999981374,
+          "transferSize": 2994,
+          "domContentLoaded": 75
+        },
+        "overflow": false,
+        "consoleErrors": 12,
+        "violations": []
+      },
+      {
+        "width": 360,
+        "flow": "exam",
+        "auditCumulativeElapsedMs": 3581.6576379999997,
+        "navigation": {
+          "duration": 119.79999999981374,
+          "transferSize": 2994,
+          "domContentLoaded": 75
+        },
+        "overflow": false,
+        "consoleErrors": 14,
+        "violations": []
+      },
+      {
+        "width": 360,
+        "flow": "exam-dark",
+        "auditCumulativeElapsedMs": 4008.578378,
+        "navigation": {
+          "duration": 119.79999999981374,
+          "transferSize": 2994,
+          "domContentLoaded": 75
+        },
+        "overflow": false,
+        "consoleErrors": 16,
+        "violations": []
+      },
+      {
+        "width": 390,
+        "flow": "login",
+        "auditCumulativeElapsedMs": 482.2814419999995,
+        "navigation": {
+          "duration": 72.1000000005588,
+          "transferSize": 2994,
+          "domContentLoaded": 25.90000000037253
+        },
+        "overflow": false,
+        "consoleErrors": 3,
+        "violations": []
+      },
+      {
+        "width": 390,
+        "flow": "dashboard",
+        "auditCumulativeElapsedMs": 1183.4512299999997,
+        "navigation": {
+          "duration": 72.1000000005588,
+          "transferSize": 2994,
+          "domContentLoaded": 25.90000000037253
+        },
+        "overflow": false,
+        "consoleErrors": 6,
+        "violations": []
+      },
+      {
+        "width": 390,
+        "flow": "courses",
+        "auditCumulativeElapsedMs": 1923.3343779999996,
+        "navigation": {
+          "duration": 72.1000000005588,
+          "transferSize": 2994,
+          "domContentLoaded": 25.90000000037253
+        },
+        "overflow": false,
+        "consoleErrors": 8,
+        "violations": []
+      },
+      {
+        "width": 390,
+        "flow": "library",
+        "auditCumulativeElapsedMs": 2487.5219129999996,
+        "navigation": {
+          "duration": 72.1000000005588,
+          "transferSize": 2994,
+          "domContentLoaded": 25.90000000037253
+        },
+        "overflow": false,
+        "consoleErrors": 10,
+        "violations": []
+      },
+      {
+        "width": 390,
+        "flow": "questions",
+        "auditCumulativeElapsedMs": 3056.063945,
+        "navigation": {
+          "duration": 72.1000000005588,
+          "transferSize": 2994,
+          "domContentLoaded": 25.90000000037253
+        },
+        "overflow": false,
+        "consoleErrors": 12,
+        "violations": []
+      },
+      {
+        "width": 390,
+        "flow": "exam",
+        "auditCumulativeElapsedMs": 3695.891680999999,
+        "navigation": {
+          "duration": 72.1000000005588,
+          "transferSize": 2994,
+          "domContentLoaded": 25.90000000037253
+        },
+        "overflow": false,
+        "consoleErrors": 14,
+        "violations": []
+      },
+      {
+        "width": 390,
+        "flow": "exam-dark",
+        "auditCumulativeElapsedMs": 4011.6303769999995,
+        "navigation": {
+          "duration": 72.1000000005588,
+          "transferSize": 2994,
+          "domContentLoaded": 25.90000000037253
+        },
+        "overflow": false,
+        "consoleErrors": 16,
+        "violations": []
+      },
+      {
+        "width": 768,
+        "flow": "login",
+        "auditCumulativeElapsedMs": 419.68073000000004,
+        "navigation": {
+          "duration": 109.29999999981374,
+          "transferSize": 2994,
+          "domContentLoaded": 24.200000000186265
+        },
+        "overflow": false,
+        "consoleErrors": 3,
+        "violations": []
+      },
+      {
+        "width": 768,
+        "flow": "dashboard",
+        "auditCumulativeElapsedMs": 907.3165200000003,
+        "navigation": {
+          "duration": 109.29999999981374,
+          "transferSize": 2994,
+          "domContentLoaded": 24.200000000186265
+        },
+        "overflow": false,
+        "consoleErrors": 6,
+        "violations": []
+      },
+      {
+        "width": 768,
+        "flow": "courses",
+        "auditCumulativeElapsedMs": 1260.2361390000005,
+        "navigation": {
+          "duration": 109.29999999981374,
+          "transferSize": 2994,
+          "domContentLoaded": 24.200000000186265
+        },
+        "overflow": false,
+        "consoleErrors": 8,
+        "violations": []
+      },
+      {
+        "width": 768,
+        "flow": "library",
+        "auditCumulativeElapsedMs": 1560.0175960000015,
+        "navigation": {
+          "duration": 109.29999999981374,
+          "transferSize": 2994,
+          "domContentLoaded": 24.200000000186265
+        },
+        "overflow": false,
+        "consoleErrors": 10,
+        "violations": []
+      },
+      {
+        "width": 768,
+        "flow": "questions",
+        "auditCumulativeElapsedMs": 1873.1202410000005,
+        "navigation": {
+          "duration": 109.29999999981374,
+          "transferSize": 2994,
+          "domContentLoaded": 24.200000000186265
+        },
+        "overflow": false,
+        "consoleErrors": 12,
+        "violations": []
+      },
+      {
+        "width": 768,
+        "flow": "exam",
+        "auditCumulativeElapsedMs": 2278.144841000001,
+        "navigation": {
+          "duration": 109.29999999981374,
+          "transferSize": 2994,
+          "domContentLoaded": 24.200000000186265
+        },
+        "overflow": false,
+        "consoleErrors": 14,
+        "violations": []
+      },
+      {
+        "width": 768,
+        "flow": "exam-dark",
+        "auditCumulativeElapsedMs": 2672.531863,
+        "navigation": {
+          "duration": 109.29999999981374,
+          "transferSize": 2994,
+          "domContentLoaded": 24.200000000186265
+        },
+        "overflow": false,
+        "consoleErrors": 16,
+        "violations": []
+      },
+      {
+        "width": 1280,
+        "flow": "login",
+        "auditCumulativeElapsedMs": 450.00430499999857,
+        "navigation": {
+          "duration": 118.59999999962747,
+          "transferSize": 2994,
+          "domContentLoaded": 46
+        },
+        "overflow": false,
+        "consoleErrors": 3,
+        "violations": []
+      },
+      {
+        "width": 1280,
+        "flow": "dashboard",
+        "auditCumulativeElapsedMs": 976.4092229999987,
+        "navigation": {
+          "duration": 118.59999999962747,
+          "transferSize": 2994,
+          "domContentLoaded": 46
+        },
+        "overflow": false,
+        "consoleErrors": 6,
+        "violations": []
+      },
+      {
+        "width": 1280,
+        "flow": "courses",
+        "auditCumulativeElapsedMs": 1336.9987819999988,
+        "navigation": {
+          "duration": 118.59999999962747,
+          "transferSize": 2994,
+          "domContentLoaded": 46
+        },
+        "overflow": false,
+        "consoleErrors": 8,
+        "violations": []
+      },
+      {
+        "width": 1280,
+        "flow": "library",
+        "auditCumulativeElapsedMs": 1672.5399669999988,
+        "navigation": {
+          "duration": 118.59999999962747,
+          "transferSize": 2994,
+          "domContentLoaded": 46
+        },
+        "overflow": false,
+        "consoleErrors": 10,
+        "violations": []
+      },
+      {
+        "width": 1280,
+        "flow": "questions",
+        "auditCumulativeElapsedMs": 2017.003811999999,
+        "navigation": {
+          "duration": 118.59999999962747,
+          "transferSize": 2994,
+          "domContentLoaded": 46
+        },
+        "overflow": false,
+        "consoleErrors": 12,
+        "violations": []
+      },
+      {
+        "width": 1280,
+        "flow": "exam",
+        "auditCumulativeElapsedMs": 2433.2101189999994,
+        "navigation": {
+          "duration": 118.59999999962747,
+          "transferSize": 2994,
+          "domContentLoaded": 46
+        },
+        "overflow": false,
+        "consoleErrors": 14,
+        "violations": []
+      },
+      {
+        "width": 1280,
+        "flow": "exam-dark",
+        "auditCumulativeElapsedMs": 2839.8202599999986,
+        "navigation": {
+          "duration": 118.59999999962747,
+          "transferSize": 2994,
+          "domContentLoaded": 46
+        },
+        "overflow": false,
+        "consoleErrors": 16,
+        "violations": []
+      }
+    ]
+  },
+  "keyboard": "44 Browser E2E including drawer inert/focus loop/Escape, skip link, modal return, native filters, RTL, text enlargement; screen reader and physical device not tested",
+  "consoleMeasurementCaveat": "before counts pageerror only; after counts pageerror plus console error/warning cumulatively per context; these counters are not comparable and do not prove a console regression. External font/preload resource failures remain unresolved."
+}

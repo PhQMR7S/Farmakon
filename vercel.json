@@ -1,4 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "git": {"deploymentEnabled": {"feat/farmakon-v2-p0-privacy": false}}
+  "git": {"deploymentEnabled": {"feat/farmakon-v2-p0-privacy": false, "audit/f00-regression-2026-10-26": false}}
 }

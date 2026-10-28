@@ -1,0 +1,7 @@
+PASS live: three distinct confirmed provider users; owner/student role separation and response ownership. Empty collections are not cross-user data-isolation proof.
+PASS live: editable user metadata does not grant owner.
+PASS live: owner CRUD/upload, actual private Storage transfer, populated A/B note/export isolation, answer secrecy, cross-user attempt denial, immediate revoke across media/progress/questions/exams; B remains independent. Synthetic course archived.
+PASS live: changing fixture password preserves current session and revokes the other device; original fixture password restored.
+PASS live: two devices, local/global sign-out and stale-cookie rejection on platform API.
+PASS live: actual provider session not_after expiration denies platform, media and export without changing JWT clock/signature.
+NOT TESTED by this script: delivered signup/recovery emails, recovery callback and natural token expiry. Admin-confirmed fixtures are not email-delivery evidence.

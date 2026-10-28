@@ -1,0 +1,65 @@
+name: Farmakon isolated local Supabase
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [feat/farmakon-v2-p0-privacy]
+    types: [labeled]
+permissions:
+  contents: read
+concurrency:
+  group: farmakon-f0010-local
+  cancel-in-progress: true
+jobs:
+  local:
+    if: >-
+      github.repository == 'PhQMR7S/Farmakon' &&
+      ((github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/audit/f00-regression-2026-10-26') ||
+      (github.event_name == 'pull_request' && github.event.label.name == 'run-f0010-local' &&
+      github.event.pull_request.number == 18 && github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'audit/f00-regression-2026-10-26'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      max-parallel: 1
+      fail-fast: true
+      matrix:
+        round: [1, 2]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Reject stale PR event before downloads
+        run: |
+          current=$(git ls-remote https://github.com/PhQMR7S/Farmakon.git refs/heads/audit/f00-regression-2026-10-26 | cut -f1)
+          test "$(git rev-parse HEAD)" = "$current"
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Resource and repository preflight
+        env:
+          REPO_VISIBILITY: ${{ github.event.repository.visibility }}
+        run: |
+          test "$REPO_VISIBILITY" = public
+          docker info --format '{{.ServerVersion}}'
+          python3 - <<'PY'
+          import os, shutil, json
+          mem=int(next(x.split()[1] for x in open('/proc/meminfo') if x.startswith('MemAvailable:')))*1024
+          disk=shutil.disk_usage(os.environ['RUNNER_TEMP']).free
+          print(json.dumps({'phase':'preflight','cpus':os.cpu_count(),'availableMemoryBytes':mem,'freeDiskBytes':disk}))
+          assert mem>=7*1024**3 and disk>=10*1024**3, 'LOCAL_RESOURCES_BLOCKED'
+          PY
+      - run: npm ci
+      - name: Build actual callback application
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: npm run build
+      - name: Isolated local integration round
+        env:
+          F0010_ROUND: ${{ matrix.round }}
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: bash tests/local-supabase/run.sh
+      - name: Final exact-scope cleanup audit
+        if: always()
+        run: |
+          bash tests/local-supabase/run.sh cleanup

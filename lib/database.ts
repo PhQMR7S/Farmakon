@@ -1,13 +1,14 @@
 import 'server-only';
+import {assertPreviewIsolation} from './farmakon/preview-isolation';
 import {Pool,types,type PoolClient} from 'pg';
 import {AsyncLocalStorage} from 'node:async_hooks';
 const transactions=new AsyncLocalStorage<PoolClient>();
 const executor=()=>transactions.getStore()??connection();
 types.setTypeParser(20,Number);
 let pool:Pool|undefined;
-function connection(){if(!process.env.DATABASE_URL)throw new Error('DATABASE_NOT_CONFIGURED');return pool??=new Pool({connectionString:process.env.DATABASE_URL,max:3,idleTimeoutMillis:10000,connectionTimeoutMillis:10000,ssl:{rejectUnauthorized:true,ca:process.env.DATABASE_CA_CERT}});}
+function connection(){assertPreviewIsolation();if(!process.env.DATABASE_URL)throw new Error('DATABASE_NOT_CONFIGURED');return pool??=new Pool({connectionString:process.env.DATABASE_URL,max:3,idleTimeoutMillis:10000,connectionTimeoutMillis:10000,ssl:{rejectUnauthorized:true,ca:process.env.DATABASE_CA_CERT}});}
 export function postgresSQL(sql:string){
- let out=sql.replace(/json_extract\(data,'\$\.(status|userId)'\)/g,"(data::jsonb->>'$1')").replace(/\bMAX\(enrollments\.expires,/g,'GREATEST(enrollments.expires,');
+ let out=sql.replace(/json_extract\(data,'\$\.(status|userId|assetId)'\)/g,"(data::jsonb->>'$1')").replace(/\bMAX\(enrollments\.expires,/g,'GREATEST(enrollments.expires,');
  const ignore=/^INSERT OR IGNORE INTO /i.test(out);out=out.replace(/^INSERT OR IGNORE INTO /i,'INSERT INTO ');if(ignore)out+=' ON CONFLICT DO NOTHING';
  out=out.replace(/\b(FROM|INTO|UPDATE) (records|settings|members|enrollments|codes|activity)\b/g,'$1 farmakon.$2');
  let n=0;out=out.replace(/\?/g,()=>`$${++n}`);return out;
@@ -22,7 +23,7 @@ class Statement{
 async function transaction<T>(work:()=>Promise<T>):Promise<T>{
  if(transactions.getStore())return work();
  for(let attempt=0;;attempt++){
-  const client=await connection().connect();
+  const client=await connection().connect();let retry=false;
   try{
    await client.query('BEGIN ISOLATION LEVEL SERIALIZABLE');
    const result=await transactions.run(client,work);
@@ -31,9 +32,11 @@ async function transaction<T>(work:()=>Promise<T>):Promise<T>{
    try{await client.query('ROLLBACK');}catch{/* Preserve the original failure. */}
    const code=(error as {code?:string}).code;
    // PostgreSQL guarantees these errors abort the transaction, including at COMMIT.
-   if((code==='40001'||code==='40P01')&&attempt<4)continue;
-   throw error;
+   if((code==='40001'||code==='40P01')&&attempt<4)retry=true;else throw error;
   }finally{client.release();}
+  // Break lockstep retries; release the scarce connection BEFORE backing off.
+  // Same five-attempt budget; never retry an uncertain COMMIT/network error.
+  if(retry)await new Promise(resolve=>setTimeout(resolve,Math.floor(Math.random()*Math.min(640,80*2**attempt))));
  }
 }
 export const database={prepare:(sql:string)=>new Statement(sql),transaction,

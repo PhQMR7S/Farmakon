@@ -1,6 +1,7 @@
 import {database} from '../../lib/database';
 import {storage} from '../../lib/storage';
 import {authClient} from '../../lib/supabase/server';
+import {deletionEnabled} from '../../lib/farmakon/privacy/gate';
 export const db=()=>database;
 export const bucket=()=>storage;
 export const uuid=()=>crypto.randomUUID();
@@ -18,11 +19,34 @@ export async function identity(){
   let session;try{session=await db().prepare('SELECT farmakon.session_is_active(?,?) AS active').bind(claims.session_id,user.id).first<{active:boolean}>();}catch{throw new Error('SESSION_CHECK_UNAVAILABLE');}
   if(session?.active!==true)throw new Error('AUTH');
  }
+ if(deletionEnabled()){
+  let deleting;try{deleting=await db().prepare('SELECT user_id FROM farmakon.deletion_jobs WHERE user_id=?').bind(user.id).first();}catch{throw Error('SESSION_CHECK_UNAVAILABLE');}
+  if(deleting)throw Error('AUTH');
+ }
  return {userId:user.id,email:user.email.toLowerCase(),displayName:user.user_metadata?.name||user.email};
 }
 export async function owner(u:{userId:string,email?:string}){return !!process.env.FARMAKON_OWNER_EMAIL&&u.email===process.env.FARMAKON_OWNER_EMAIL.toLowerCase();}
 export async function record(id:string){const r=await db().prepare('SELECT * FROM records WHERE id=?').bind(id).first<any>();return r?{...JSON.parse(r.data),id:r.id,kind:r.kind,courseId:r.course_id,created:r.created}:null;}
 export async function rows(kind:string){const {results}=await db().prepare('SELECT * FROM records WHERE kind=? ORDER BY created DESC').bind(kind).all<any>();return results.map(r=>({...JSON.parse(r.data),id:r.id,kind:r.kind,courseId:r.course_id,created:r.created}));}
+// Request-scoped database filtering; never a cross-user/shared cache.
+export async function userRows(kind:string,userId:string,status?:string,limit?:number){
+ const clause=status?" AND json_extract(data,'$.status')=?":'';
+ const cap=limit?' LIMIT ?':'';
+ const args:unknown[]=[kind,userId];if(status)args.push(status);if(limit)args.push(limit);
+ const {results}=await db().prepare("SELECT * FROM records WHERE kind=? AND json_extract(data,'$.userId')=?"+clause+' ORDER BY created DESC,id DESC'+cap).bind(...args).all<any>();
+ return results.map(r=>({...JSON.parse(r.data),id:r.id,kind:r.kind,courseId:r.course_id,created:r.created}));
+}
+export async function assetReferences(assetId:string){
+ const {results}=await db().prepare("SELECT * FROM records WHERE kind IN ('lesson','file') AND json_extract(data,'$.assetId')=?").bind(assetId).all<any>();
+ return results.map(r=>({...JSON.parse(r.data),id:r.id,kind:r.kind,courseId:r.course_id,created:r.created}));
+}
+export async function publishedRows(kind:string){
+ const {results}=await db().prepare("SELECT * FROM records WHERE kind=? AND json_extract(data,'$.status')='published' ORDER BY created DESC,id DESC").bind(kind).all<any>();
+ return results.map(r=>({...JSON.parse(r.data),id:r.id,kind:r.kind,courseId:r.course_id,created:r.created}));
+}
+// Only fixed operation names enter technical logs; never serialize provider/SQL
+// exceptions, which can embed account values, cookies or signed URLs.
+export function reportFailure(operation:string){console.error(JSON.stringify({event:'farmakon_api_failure',operation}));}
 export async function write(kind:string,data:any,id=uuid()){await db().prepare('INSERT INTO records(id,kind,course_id,data,created) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data,course_id=excluded.course_id').bind(id,kind,data.courseId||'',JSON.stringify(data),Date.now()).run();return id;}
 export async function access(email:string,courseId:string,isAdmin:boolean){if(isAdmin)return true;if(!courseId)return false;return !!await db().prepare('SELECT id FROM enrollments WHERE email=? AND course_id=? AND expires>?').bind(email,courseId,Date.now()).first();}
 export async function canRead(r:any,email:string,admin:boolean){if(admin)return true;if(!r||r.status!=='published')return false;const c=r.kind==='course'?r:await record(r.courseId);if(!c||c.kind!=='course'||c.status!=='published')return false;return !!r.free||await access(email,c.id,false);}
@@ -32,3 +56,26 @@ export async function hash(s:string){const b=await crypto.subtle.digest('SHA-256
 
 // Attempt snapshots contain protected course content; recheck live authorization on every use.
 export async function canReadAttempt(at:any,email:string,admin:boolean){const ex=await record(at.examId);return !!ex&&ex.kind==='exam'&&ex.courseId===at.courseId&&await canRead(ex,email,admin);}
+
+// v2 freezes answer input at deadline. The historical 15s transport grace is
+// retained for legacy attempts only; never reinterpret already awarded results.
+export const examGraceMs=15000;
+export function examAnswers(at:any,input:Record<string,number>){
+ const keys=new Set(at.questions.map((q:any)=>q.id));
+ if(Object.keys(input).some(k=>!keys.has(k)))throw Error('EXAM_ANSWERS');
+ return {...(at.answers||{}),...input};
+}
+export function examDue(at:any,now:number){return at.timingVersion===2?now>=at.deadline:now>at.deadline+examGraceMs;}
+export function publicAttempt(at:any,now=Date.now()){
+ const {questions,result,...safe}=at;
+ return {...safe,serverNow:now,questions:questions.map(({correct,explanation,...q}:any)=>q),...(at.status==='done'?{result}:{} )};
+}
+// Must run within the existing SERIALIZABLE transaction. Concurrent save/submit
+// or lazy settlement conflicts are rolled back and retried by the DB adapter.
+export async function finishExam(at:any,now:number,answers=at.answers||{}){
+ if(at.status==='done')return at.result;
+ const result={score:at.questions.filter((q:any)=>answers[q.id]===q.correct).length,total:at.questions.length,late:now>at.deadline+examGraceMs,expired:now>=at.deadline,questions:at.questions.map((q:any)=>({...q,selected:answers[q.id]??null}))};
+ await write('attempt',{...at,answers,status:'done',settledAt:now,result},at.id);
+ await db().prepare('INSERT INTO activity(id,user_id,kind,target,data,updated) VALUES(?,?,?,?,?,?) ON CONFLICT(user_id,kind,target) DO NOTHING').bind(uuid(),at.userId,'exam',at.id,JSON.stringify({score:result.score,total:result.total,title:at.title||(await record(at.examId))?.title}),now).run();
+ return result;
+}

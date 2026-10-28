@@ -1,0 +1,496 @@
+{
+  "metadataRun": 40555923254,
+  "metadataJob": 122371829013,
+  "metadata": {
+    "scope": "public registry metadata; NO integration or layer download",
+    "source": "supabase/cli@v2.81.3:pkg/config/templates/Dockerfile",
+    "registries": [
+      {
+        "host": "ghcr.io",
+        "dns": "resolved",
+        "tls": "verified-response",
+        "images": [
+          {
+            "repository": "ghcr.io/supabase/postgres",
+            "tag": "17.6.1.095",
+            "manifestStatus": 200,
+            "limits": {},
+            "tagDigest": "sha256:965e2dfb5a23a0d6541b6106541e777b303656ebabd4e878746b189d550c0a66",
+            "platformManifestStatus": 200,
+            "platformDigest": "sha256:4c087262afbfbb47da86e2863a52d7e424eb21ab589f732d77eeaab51be8e521",
+            "layers": [
+              {
+                "digest": "sha256:bc1da058f299723f8258c5a82dd007d1dd72e275087b726d5e1be5ef6198f286",
+                "compressedBytes": 3643742
+              },
+              {
+                "digest": "sha256:8d060365675f62aba3744110ec7f80a8ef62ac1916600fa6c3a2e8e33b4f6a3c",
+                "compressedBytes": 4217989
+              },
+              {
+                "digest": "sha256:e250c506ab3753c3f055f11df32b20b9fb30d821e725df7f59918b99ea66a631",
+                "compressedBytes": 1024
+              },
+              {
+                "digest": "sha256:27438be3656358f309b9150bb77e9f847dde9cc02e117032d7d6426485da19cf",
+                "compressedBytes": 353111029
+              },
+              {
+                "digest": "sha256:b79178751e00c3da8cbe76664944321ebb6e36649abccc39d799266147a81a6d",
+                "compressedBytes": 77892
+              },
+              {
+                "digest": "sha256:a87e58227e7576e5e7c3b97de2e4be312750752671982bcf5649e2d1bc631fb2",
+                "compressedBytes": 982815
+              },
+              {
+                "digest": "sha256:76cbc4199645397504c23ede0b9b2a0fb817505f73089790c52bbc021d730321",
+                "compressedBytes": 294
+              },
+              {
+                "digest": "sha256:10f99713f6e23896e24f9f3ef4f92d85e13cc8ddfdf2403663e89f7b41c868ef",
+                "compressedBytes": 2204
+              },
+              {
+                "digest": "sha256:3e2957d01b4c684ccf94fcbb53a0dc1732401fe26afb25dc2e31a2d971af9d25",
+                "compressedBytes": 1034
+              },
+              {
+                "digest": "sha256:768b0a82e837fc74604c2c87e544c7ded5264a2b2e02672ea1874ae215ea0de3",
+                "compressedBytes": 1971
+              },
+              {
+                "digest": "sha256:d07ddc3555d3449ecb027f713421efbf1e93e7c6822541b3b55eaa58251f78c1",
+                "compressedBytes": 8537
+              },
+              {
+                "digest": "sha256:4fd280f249ee6ee23327dc781fc7043a5063d1a5d106c0106b731fb9be83f98f",
+                "compressedBytes": 1891
+              },
+              {
+                "digest": "sha256:949879916aa73329ded8a0b898fb15548e589e4036efb8f8cc33b93cb99ead22",
+                "compressedBytes": 1016
+              },
+              {
+                "digest": "sha256:92d30e5da7ce48b5b0ea32a308804b269a4ce85093a69ff374b3bb6f722ea696",
+                "compressedBytes": 342
+              },
+              {
+                "digest": "sha256:b31b17fe0614f9ccfd046aa0bc5f0aea05598580d8fff225ff2ab41c359266da",
+                "compressedBytes": 277
+              },
+              {
+                "digest": "sha256:6e48c8a05b3452eab5d2752a97c1b43ed74061808d72ee3aacd17393fe6d0b5f",
+                "compressedBytes": 1504
+              },
+              {
+                "digest": "sha256:55ac25541fea8b70572c2ad37ff62d5c8669f9e8f89cb08a64527eb55d82ed9b",
+                "compressedBytes": 3853
+              },
+              {
+                "digest": "sha256:8e286171f23b2075d1cf4d02331109dfd7b4ab6ac96a02561fe9ea233316eaee",
+                "compressedBytes": 362
+              },
+              {
+                "digest": "sha256:a60f06be4529d1e0ad911c047103c4872abc9be2d17ffe719c3ac2273cb9696d",
+                "compressedBytes": 389
+              },
+              {
+                "digest": "sha256:4583e41fa5091e925b10f8e4128e2e0ed13bae1a4a87bf09ebab960034144958",
+                "compressedBytes": 334
+              },
+              {
+                "digest": "sha256:2990667d0b1a1bf8b39c21ae5cf7b2ba30a709360da9bcbed8215ba558b9284f",
+                "compressedBytes": 397
+              },
+              {
+                "digest": "sha256:7af7ad608592d72787afdc0c578709e4ac9184f4e885004cec74b1f9e71cc209",
+                "compressedBytes": 638
+              },
+              {
+                "digest": "sha256:9f0ff145842a717c747c7100600fcf5fa918482bdf6046b7fc23558445fbcb31",
+                "compressedBytes": 8577
+              },
+              {
+                "digest": "sha256:8435e8c510ac0aa230089cdc81df2c31f8b81c54743cc96268d97b257c45319a",
+                "compressedBytes": 9777
+              },
+              {
+                "digest": "sha256:06abca25ffd20c7b081b80c5c98e8d26a2181473565ef9fe25511938b8b36ab5",
+                "compressedBytes": 12859
+              },
+              {
+                "digest": "sha256:4250c68bb01a11dac819d9df6c233ee96b930b71a0340745c7430290e97ff8a3",
+                "compressedBytes": 523
+              },
+              {
+                "digest": "sha256:3e3d448d8306f8e7e23b37bf5017cee0fb26c577e17cb5476f5ba54b0e673a83",
+                "compressedBytes": 272
+              },
+              {
+                "digest": "sha256:45bbd0d82fe91dd25431438339058b04b7688b23a9cd750c1246397bd3220816",
+                "compressedBytes": 5367
+              },
+              {
+                "digest": "sha256:b6024a0e9e3ad3779e5b6b2d2da767eec12df9ac1f7543d1e5f1a6ebd67ecbf1",
+                "compressedBytes": 313
+              }
+            ],
+            "compressedLayerBytes": 362097222,
+            "firstLayerProbe": {
+              "digest": "sha256:bc1da058f299723f8258c5a82dd007d1dd72e275087b726d5e1be5ef6198f286",
+              "status": 200,
+              "redirectNotFollowed": false,
+              "contentLength": "3643742",
+              "limits": {}
+            }
+          },
+          {
+            "repository": "ghcr.io/supabase/gotrue",
+            "tag": "v2.187.0",
+            "manifestStatus": 200,
+            "limits": {},
+            "tagDigest": "sha256:8b0b3f68d9a8667e183b481ff74f5d72eedc1e8b70f6bde2aab1e5d79d16df62",
+            "platformManifestStatus": 200,
+            "platformDigest": "sha256:6ff0cda74c95330a3a7836d6b1f67b1c27de9fa9044e738bd170765c205eed5a",
+            "layers": [
+              {
+                "digest": "sha256:589002ba0eaed121a1dbf42f6648f29e5be55d5c8a6ee0f8eaa0285cc21ac153",
+                "compressedBytes": 3861821
+              },
+              {
+                "digest": "sha256:a6d41d3f7e67dd7b738493400c784de2d54222a27d1b8c791fe91c520706f335",
+                "compressedBytes": 939
+              },
+              {
+                "digest": "sha256:e04b88aaeceaf17e6871173ca814043d5b366b6756e07c0c459c7901e7fd95c0",
+                "compressedBytes": 296064
+              },
+              {
+                "digest": "sha256:dc1793847bc2891a8a6ac5b5185a42ae22119be2508f8cc75fa92bfa12e5878f",
+                "compressedBytes": 21121688
+              },
+              {
+                "digest": "sha256:8787ed0bca68b371e3fd922b27453a6cf798cae934f663a9105d943ac011ebec",
+                "compressedBytes": 13075
+              },
+              {
+                "digest": "sha256:649e65abca8b2cd472264b3d5d33f5da69c563eee3a9de2325991d3e6def7137",
+                "compressedBytes": 170
+              }
+            ],
+            "compressedLayerBytes": 25293757
+          },
+          {
+            "repository": "ghcr.io/supabase/storage-api",
+            "tag": "v1.41.8",
+            "manifestStatus": 200,
+            "limits": {},
+            "tagDigest": "sha256:e43d86f81570b58e2a5d048d32694635f467cfd34348ede6fd7ceeb89825d842",
+            "platformManifestStatus": 200,
+            "platformDigest": "sha256:60593d7bb7c37adfef80077db6b079330495dfd83cc4be4c7b3d87b455c392d6",
+            "layers": [
+              {
+                "digest": "sha256:589002ba0eaed121a1dbf42f6648f29e5be55d5c8a6ee0f8eaa0285cc21ac153",
+                "compressedBytes": 3861821
+              },
+              {
+                "digest": "sha256:d8573c1c310e7789794576ea96c600be3bb905a6cf0ef787f89922d992d39b78",
+                "compressedBytes": 51112009
+              },
+              {
+                "digest": "sha256:0653b96c7e89eb8a796a819757fa29a918692669e68f09eac2215c6401407538",
+                "compressedBytes": 1262120
+              },
+              {
+                "digest": "sha256:867a770c9b3548b3b2357b54112add9711dd53d8679a3c1bb4c3d9ac675a5c02",
+                "compressedBytes": 448
+              },
+              {
+                "digest": "sha256:c452f782d9c84e8f6f2daf692d9482fdbf30507ec3c9646eb782832682b8ea6e",
+                "compressedBytes": 111191200
+              },
+              {
+                "digest": "sha256:8a4f58c70c69975c61bbe0af16c1977ac4d19e5d357caa016356500586125312",
+                "compressedBytes": 93
+              },
+              {
+                "digest": "sha256:16f4253396ccbfd8989024cff29c5011a2ccf9e022d0478a669447ab0949aef2",
+                "compressedBytes": 253241
+              },
+              {
+                "digest": "sha256:6eb06cc71fc84fe5f4cc4c8f2aca26defa318ee9b8221538f5dc9045a2c19f33",
+                "compressedBytes": 26959
+              },
+              {
+                "digest": "sha256:089a34de04ac5ed42a9e0ddedd925b12136060b09ab853278a1608d522107fa9",
+                "compressedBytes": 45473033
+              },
+              {
+                "digest": "sha256:337b433928c54a32c01d2761f32e04ea86981bf3aa645efdd74b0154ea3ce064",
+                "compressedBytes": 701895
+              }
+            ],
+            "compressedLayerBytes": 213882819
+          },
+          {
+            "repository": "ghcr.io/supabase/kong",
+            "tag": "2.8.1",
+            "manifestStatus": 200,
+            "limits": {},
+            "tagDigest": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d",
+            "platformManifestStatus": 200,
+            "platformDigest": "sha256:e21b0b793879ab96720ed4188f9441260273f4bf775bcbff8d435e019ffb759a",
+            "layers": [
+              {
+                "digest": "sha256:213ec9aee27d8be045c6a92b7eac22c9a64b44558193775a1a7f626352392b49",
+                "compressedBytes": 2806054
+              },
+              {
+                "digest": "sha256:a70653f7a2d526d9024e271d864947f47000d34d971f36a44665b51e8c3b739c",
+                "compressedBytes": 132
+              },
+              {
+                "digest": "sha256:531e3bd93090d08ef911bb2c8320f2fef2428ef96597535a55111fda18efde52",
+                "compressedBytes": 46528590
+              },
+              {
+                "digest": "sha256:814dd06d26c72ec884803b7dd47e90f8855d4df9267025e9eb33d22aaa061e88",
+                "compressedBytes": 881
+              }
+            ],
+            "compressedLayerBytes": 49335657
+          },
+          {
+            "repository": "ghcr.io/supabase/postgrest",
+            "tag": "v14.5",
+            "manifestStatus": 200,
+            "limits": {},
+            "tagDigest": "sha256:b574528fe109c8343c1247155734d03df8c34b462f342dca0ccc20244fc36ef9",
+            "platformManifestStatus": 200,
+            "platformDigest": "sha256:bb289d00570b569525e1e22fb77c49cd17c17ca3f41da9ee2b4351a35027551b",
+            "layers": [
+              {
+                "digest": "sha256:6f15f912791d3c7700b57967191bd66ad4568d3bb1c8ed25c71a156294febabf",
+                "compressedBytes": 6287369
+              }
+            ],
+            "compressedLayerBytes": 6287369
+          },
+          {
+            "repository": "ghcr.io/supabase/mailpit",
+            "tag": "v1.22.3",
+            "manifestStatus": 200,
+            "limits": {},
+            "tagDigest": "sha256:f7f7c31de4de59540ad6515a0ca057a77525bca2069b6e747d873ca66c10fe08",
+            "platformManifestStatus": 200,
+            "platformDigest": "sha256:168f762c218e167ba88ae7e48194126eb5ba5e99ef652063e3f14f9c4f0ee70f",
+            "layers": [
+              {
+                "digest": "sha256:f18232174bc91741fdf3da96d85011092101a032a93a388b79e99e69c2d5c870",
+                "compressedBytes": 3642247
+              },
+              {
+                "digest": "sha256:fe2636d028631935c92403ab6051d2a0fbaf72267d79bacaa6972a9420831baf",
+                "compressedBytes": 8450325
+              },
+              {
+                "digest": "sha256:900bac0c57cc3582dfb98572ad46e10de0e3763fdaefb8c88cd2d412c27b8cdb",
+                "compressedBytes": 171563
+              }
+            ],
+            "compressedLayerBytes": 12264135
+          }
+        ],
+        "tokenExchangeStatus": 200
+      },
+      {
+        "host": "public.ecr.aws",
+        "dns": "resolved",
+        "tls": "verified-response",
+        "images": [
+          {
+            "repository": "public.ecr.aws/supabase/postgres",
+            "tag": "17.6.1.095",
+            "manifestStatus": 200,
+            "limits": {},
+            "tagDigest": "sha256:965e2dfb5a23a0d6541b6106541e777b303656ebabd4e878746b189d550c0a66",
+            "platformManifestStatus": 200,
+            "platformDigest": "sha256:4c087262afbfbb47da86e2863a52d7e424eb21ab589f732d77eeaab51be8e521",
+            "layers": [
+              {
+                "digest": "sha256:bc1da058f299723f8258c5a82dd007d1dd72e275087b726d5e1be5ef6198f286",
+                "compressedBytes": 3643742
+              },
+              {
+                "digest": "sha256:8d060365675f62aba3744110ec7f80a8ef62ac1916600fa6c3a2e8e33b4f6a3c",
+                "compressedBytes": 4217989
+              },
+              {
+                "digest": "sha256:e250c506ab3753c3f055f11df32b20b9fb30d821e725df7f59918b99ea66a631",
+                "compressedBytes": 1024
+              },
+              {
+                "digest": "sha256:27438be3656358f309b9150bb77e9f847dde9cc02e117032d7d6426485da19cf",
+                "compressedBytes": 353111029
+              },
+              {
+                "digest": "sha256:b79178751e00c3da8cbe76664944321ebb6e36649abccc39d799266147a81a6d",
+                "compressedBytes": 77892
+              },
+              {
+                "digest": "sha256:a87e58227e7576e5e7c3b97de2e4be312750752671982bcf5649e2d1bc631fb2",
+                "compressedBytes": 982815
+              },
+              {
+                "digest": "sha256:76cbc4199645397504c23ede0b9b2a0fb817505f73089790c52bbc021d730321",
+                "compressedBytes": 294
+              },
+              {
+                "digest": "sha256:10f99713f6e23896e24f9f3ef4f92d85e13cc8ddfdf2403663e89f7b41c868ef",
+                "compressedBytes": 2204
+              },
+              {
+                "digest": "sha256:3e2957d01b4c684ccf94fcbb53a0dc1732401fe26afb25dc2e31a2d971af9d25",
+                "compressedBytes": 1034
+              },
+              {
+                "digest": "sha256:768b0a82e837fc74604c2c87e544c7ded5264a2b2e02672ea1874ae215ea0de3",
+                "compressedBytes": 1971
+              },
+              {
+                "digest": "sha256:d07ddc3555d3449ecb027f713421efbf1e93e7c6822541b3b55eaa58251f78c1",
+                "compressedBytes": 8537
+              },
+              {
+                "digest": "sha256:4fd280f249ee6ee23327dc781fc7043a5063d1a5d106c0106b731fb9be83f98f",
+                "compressedBytes": 1891
+              },
+              {
+                "digest": "sha256:949879916aa73329ded8a0b898fb15548e589e4036efb8f8cc33b93cb99ead22",
+                "compressedBytes": 1016
+              },
+              {
+                "digest": "sha256:92d30e5da7ce48b5b0ea32a308804b269a4ce85093a69ff374b3bb6f722ea696",
+                "compressedBytes": 342
+              },
+              {
+                "digest": "sha256:b31b17fe0614f9ccfd046aa0bc5f0aea05598580d8fff225ff2ab41c359266da",
+                "compressedBytes": 277
+              },
+              {
+                "digest": "sha256:6e48c8a05b3452eab5d2752a97c1b43ed74061808d72ee3aacd17393fe6d0b5f",
+                "compressedBytes": 1504
+              },
+              {
+                "digest": "sha256:55ac25541fea8b70572c2ad37ff62d5c8669f9e8f89cb08a64527eb55d82ed9b",
+                "compressedBytes": 3853
+              },
+              {
+                "digest": "sha256:8e286171f23b2075d1cf4d02331109dfd7b4ab6ac96a02561fe9ea233316eaee",
+                "compressedBytes": 362
+              },
+              {
+                "digest": "sha256:a60f06be4529d1e0ad911c047103c4872abc9be2d17ffe719c3ac2273cb9696d",
+                "compressedBytes": 389
+              },
+              {
+                "digest": "sha256:4583e41fa5091e925b10f8e4128e2e0ed13bae1a4a87bf09ebab960034144958",
+                "compressedBytes": 334
+              },
+              {
+                "digest": "sha256:2990667d0b1a1bf8b39c21ae5cf7b2ba30a709360da9bcbed8215ba558b9284f",
+                "compressedBytes": 397
+              },
+              {
+                "digest": "sha256:7af7ad608592d72787afdc0c578709e4ac9184f4e885004cec74b1f9e71cc209",
+                "compressedBytes": 638
+              },
+              {
+                "digest": "sha256:9f0ff145842a717c747c7100600fcf5fa918482bdf6046b7fc23558445fbcb31",
+                "compressedBytes": 8577
+              },
+              {
+                "digest": "sha256:8435e8c510ac0aa230089cdc81df2c31f8b81c54743cc96268d97b257c45319a",
+                "compressedBytes": 9777
+              },
+              {
+                "digest": "sha256:06abca25ffd20c7b081b80c5c98e8d26a2181473565ef9fe25511938b8b36ab5",
+                "compressedBytes": 12859
+              },
+              {
+                "digest": "sha256:4250c68bb01a11dac819d9df6c233ee96b930b71a0340745c7430290e97ff8a3",
+                "compressedBytes": 523
+              },
+              {
+                "digest": "sha256:3e3d448d8306f8e7e23b37bf5017cee0fb26c577e17cb5476f5ba54b0e673a83",
+                "compressedBytes": 272
+              },
+              {
+                "digest": "sha256:45bbd0d82fe91dd25431438339058b04b7688b23a9cd750c1246397bd3220816",
+                "compressedBytes": 5367
+              },
+              {
+                "digest": "sha256:b6024a0e9e3ad3779e5b6b2d2da767eec12df9ac1f7543d1e5f1a6ebd67ecbf1",
+                "compressedBytes": 313
+              }
+            ],
+            "compressedLayerBytes": 362097222,
+            "firstLayerProbe": {
+              "digest": "sha256:bc1da058f299723f8258c5a82dd007d1dd72e275087b726d5e1be5ef6198f286",
+              "status": 401,
+              "redirectNotFollowed": false,
+              "contentLength": "58",
+              "limits": {}
+            }
+          },
+          {
+            "repository": "public.ecr.aws/supabase/gotrue",
+            "tag": "v2.187.0"
+          }
+        ],
+        "tokenExchangeStatus": 200,
+        "failure": {
+          "kind": "PROBE_BOUNDARY"
+        },
+        "blocked": true
+      }
+    ],
+    "requests": 32,
+    "result": "BLOCKED_OR_PARTIAL_METADATA"
+  },
+  "changedPullRun": 40556678468,
+  "changedPullJob": 122374479994,
+  "observations": [
+    {
+      "phase": "preflight",
+      "cpus": 4,
+      "availableMemoryBytes": 15357829120,
+      "freeDiskBytes": 92039258112
+    },
+    {
+      "phase": "prefetch",
+      "result": "BLOCKED",
+      "image": "ghcr.io/supabase/postgres@sha256:4c087262afbfbb47da86e2863a52d7e424eb21ab589f732d77eeaab51be8e521",
+      "category": "REQUEST_LIMIT",
+      "mentionedDigests": [],
+      "reportedLimit": "allowed: 44000/minute"
+    },
+    {
+      "phase": "daemon-config-cleanup",
+      "restored": true
+    },
+    {
+      "phase": "cleanup",
+      "containers": 0,
+      "volumes": 0,
+      "privateFilesRemoved": true
+    }
+  ],
+  "limitations": [
+    "HEAD is not a blob stream test",
+    "ECR probe boundary is client request budget, not provider limit",
+    "Failing layer and quota owner are unknown",
+    "Second integration cycle canceled; no service tests ran"
+  ]
+}

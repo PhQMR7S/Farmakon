@@ -1,0 +1,12 @@
+{
+  "deploymentId": "dpl_DAsiFvNDwavZ9yWvEam8fzDWwxqW",
+  "commit": "dca1525015d4697612017f34b1233985e658a90f",
+  "ttlSeconds": 60,
+  "privateDeletionJobsStatus": 406,
+  "nextAfterRevocation": 401,
+  "directStorageAfterRevocation": 400,
+  "signedURLAfterRevocation": 200,
+  "signedURLAfterExpiry": 400,
+  "controlBRelogin": true,
+  "limitation": "Already received bytes and independent caches cannot be revoked by deleting a session."
+}

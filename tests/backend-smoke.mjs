@@ -21,6 +21,13 @@ const httpURL='data:text/javascript;base64,'+Buffer.from(compile(fs.readFileSync
 const databaseURL='data:text/javascript;base64,'+Buffer.from('export const database=globalThis.__farmTest.env.DB;').toString('base64');
 const rateURL='data:text/javascript;base64,'+Buffer.from(compile(fs.readFileSync('lib/farmakon/rate-limit.ts','utf8').replace("'../database'",JSON.stringify(databaseURL)))).toString('base64');
 const routeSource=fs.readFileSync('app/api/platform/route.ts','utf8').replace("'../../lib/server'",JSON.stringify(serverURL)).replace("'zod'",JSON.stringify(zodURL)).replace("'../../../lib/http'",JSON.stringify(httpURL)).replace("'../../../lib/farmakon/rate-limit'",JSON.stringify(rateURL));
+const helpers=await import(serverURL);
+assert.equal(helpers.examDue({deadline:100,timingVersion:2},100),true);
+assert.equal(helpers.examDue({deadline:100},15100),false);
+assert.equal(helpers.examDue({deadline:100},15101),true);
+assert.deepEqual(helpers.examAnswers({questions:[{id:'q'}],answers:{q:1}},{}),{q:1});
+assert.throws(()=>helpers.examAnswers({questions:[],answers:{}},{unknown:1}),/EXAM_ANSWERS/);
+console.log('PASS F00.6 unit: exact new/legacy timing boundaries and answer-patch membership.');
 const mod=await import('data:text/javascript;base64,'+Buffer.from(compile(routeSource)).toString('base64'));
 const mediaSource=fs.readFileSync('app/api/media/route.ts','utf8').replace("'../../lib/server'",JSON.stringify(serverURL)).replace("'../../../lib/http'",JSON.stringify(httpURL)).replace("'../../../lib/farmakon/rate-limit'",JSON.stringify(rateURL));
 const media=await import('data:text/javascript;base64,'+Buffer.from(compile(mediaSource)).toString('base64'));
@@ -120,4 +127,72 @@ console.log('PASS: scoped study export, cross-user/admin/content secrecy, bounde
 
 const driveSource=compile(fs.readFileSync('app/lib/drive.ts','utf8'));const {drivePreview}=await import('data:text/javascript;base64,'+Buffer.from(driveSource).toString('base64'));assert.equal(drivePreview('https://drive.google.com/file/d/abc_123/view?resourcekey=key'),'https://drive.google.com/file/d/abc_123/preview?resourcekey=key');assert.equal(drivePreview('https://drive.google.com.evil.test/file/d/abc/view'),null);assert.equal(drivePreview('javascript:alert(1)'),null);console.log('PASS: Drive URL allowlist and payment approval issues a code without enrollment.');
 
+// F00.6: controllable server clock exists only inside this test process.
+const realNow=Date.now;let clock=realNow();Date.now=()=>clock;
+try{
+ user=owner;await post({action:'save',kind:'course',id:c.id,data:{title:'Test course',description:'',stage:'3',category:'Pharmacy',price:50000,days:180,status:'published',color:'teal'}});await post({action:'enroll',email:student.email,courseId:c.id,days:1});
+ const q2=await post({action:'save',kind:'question',data:{title:'Second snapshot question',courseId:c.id,topic:'test',options:['one','two','three','four'],correct:2,explanation:'Original key explanation',source:'Fixture',status:'published',free:false}});
+ const timed=await post({action:'save',kind:'exam',data:{title:'Clock fixture',courseId:c.id,minutes:1,questionIds:[q.id,q2.id],free:false,status:'published'}});
+ user=student;const first=await post({action:'startExam',id:timed.id});assert.equal(first.startedAt,clock);assert.equal(first.deadline,clock+60000);assert.equal(first.serverNow,clock);assert.equal(first.timingVersion,2);assert.ok(!JSON.stringify(first).includes('"correct"'));
+ clock+=10000;assert.equal((await post({action:'startExam',id:timed.id})).deadline,first.deadline);
+ await post({action:'saveExam',id:first.id,answers:{[q.id]:1}});await post({action:'saveExam',id:first.id,answers:{notInSnapshot:0}},400);
+ // Administration edits must not change the held snapshot or scoring key.
+ user=owner;await post({action:'save',kind:'question',id:q2.id,data:{title:'Edited after start',courseId:c.id,topic:'test',options:['new one','new two','new three','new four'],correct:0,explanation:'Changed',source:'Fixture',status:'draft',free:false}});
+ user=student;clock=first.deadline-1;await post({action:'saveExam',id:first.id,answers:{[q2.id]:2}});
+ clock=first.deadline;await post({action:'saveExam',id:first.id,answers:{[q.id]:0}},409);
+ // A request processed at deadline cannot inject new answers through submit's grace.
+ const expired=await post({action:'submitExam',id:first.id,answers:{[q.id]:0,[q2.id]:0}});assert.equal(expired.score,2);assert.equal(expired.expired,true);assert.equal(expired.late,false);assert.equal(expired.questions[1].title,'Second snapshot question');
+ assert.deepEqual(await post({action:'submitExam',id:first.id,answers:{}}),expired);
+ assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM activity WHERE target=? AND kind=?').bind(first.id,'exam').first()).n,1);
+ // Direct submit while still active in the 15s transport grace cannot inject.
+ const direct=await post({action:'startExam',id:ex.id});await post({action:'saveExam',id:direct.id,answers:{[q.id]:1}});clock=direct.deadline+5000;
+ const graceResult=await post({action:'submitExam',id:direct.id,answers:{[q.id]:0}});assert.equal(graceResult.score,1);assert.equal(graceResult.expired,true);assert.equal(graceResult.late,false);
+ // Close all pages: no client event, then lazy settlement on actual GET.
+ const absent=await post({action:'startExam',id:ex.id});await post({action:'saveExam',id:absent.id,answers:{[q.id]:1}});clock=absent.deadline+20000;
+ state=await(await mod.GET()).json();assert.ok(state.completedAttempts.some(a=>a.id===absent.id&&a.result.score===1&&a.result.late));assert.ok(!state.attempts.some(a=>a.id===absent.id));
+ await mod.GET();assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM activity WHERE target=? AND kind=?').bind(absent.id,'exam').first()).n,1);
+ // Old active rows retain the historical grace; awarded old rows never regrade.
+ const legacy={userId:student.userId,examId:ex.id,courseId:c.id,questions:[{id:q.id,options:['a','b','c','d'],correct:1}],answers:{},deadline:clock-10000,status:'active'};
+ await db.prepare('INSERT INTO records(id,kind,course_id,data,created) VALUES(?,?,?,?,?)').bind('legacy-grace','attempt',c.id,JSON.stringify(legacy),clock).run();
+ state=await(await mod.GET()).json();assert.ok(state.attempts.some(a=>a.id==='legacy-grace'));
+ assert.equal((await post({action:'submitExam',id:'legacy-grace',answers:{[q.id]:1}})).score,1);
+ await db.prepare('INSERT INTO records(id,kind,course_id,data,created) VALUES(?,?,?,?,?)').bind('legacy-late','attempt',c.id,JSON.stringify({...legacy,deadline:clock-15001,answers:{[q.id]:1}}),clock).run();
+ assert.equal((await post({action:'submitExam',id:'legacy-late',answers:{[q.id]:0}})).score,1);
+ if(process.env.FARMAKON_TEST_DATABASE_URL){
+  const pair=await Promise.all([post({action:'startExam',id:ex.id}),post({action:'startExam',id:ex.id})]);assert.equal(pair[0].id,pair[1].id);
+  const cid=pair[0].id;
+  // Two patches of different snapshot questions merge without clearing saved keys.
+  user=owner;await post({action:'save',kind:'question',id:q2.id,data:{title:'Second question',courseId:c.id,topic:'test',options:['one','two','three','four'],correct:2,explanation:'Explanation',source:'Fixture',status:'published',free:false}});
+  user=student;const multi=await post({action:'startExam',id:timed.id});
+  await Promise.all([post({action:'saveExam',id:multi.id,answers:{[q.id]:1}}),post({action:'saveExam',id:multi.id,answers:{[q2.id]:2}})]);
+  const persisted=JSON.parse((await db.prepare('SELECT data FROM records WHERE id=?').bind(multi.id).first()).data);assert.deepEqual(persisted.answers,{[q.id]:1,[q2.id]:2});
+  await Promise.all([post({action:'saveExam',id:multi.id,answers:{[q.id]:0}}),post({action:'saveExam',id:multi.id,answers:{[q.id]:1}})]);
+  const sameKey=JSON.parse((await db.prepare('SELECT data FROM records WHERE id=?').bind(multi.id).first()).data);assert.ok([0,1].includes(sameKey.answers[q.id]));assert.equal(sameKey.answers[q2.id],2);
+  clock=pair[0].deadline+20000;await Promise.all([mod.GET(),mod.GET(),post({action:'submitExam',id:cid,answers:{[q.id]:1}})]);
+  assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM activity WHERE target=? AND kind=?').bind(cid,'exam').first()).n,1);
+  const settledMulti=JSON.parse((await db.prepare('SELECT data FROM records WHERE id=?').bind(multi.id).first()).data);assert.equal(settledMulti.result.score,(sameKey.answers[q.id]===1?1:0)+1);
+  console.log('PASS: PostgreSQL concurrent patch merge, two-device starts and GET/submit expiry settlement exactly once.');
+ }
+ const withdrawn=await post({action:'startExam',id:ex.id});
+ user=owner;await post({action:'archive',id:ex.id});user=student;
+ await post({action:'startExam',id:ex.id},403);await post({action:'saveExam',id:withdrawn.id,answers:{}},403);await post({action:'submitExam',id:withdrawn.id,answers:{}},403);
+ state=await(await mod.GET()).json();assert.ok(!state.attempts.some(a=>a.id===withdrawn.id));
+ user=owner;await post({action:'save',kind:'question',id:q2.id,data:{...await helpers.record(q2.id),status:'published'}});await post({action:'save',kind:'exam',id:ex.id,data:{title:'Edited exam definition',courseId:c.id,minutes:1,questionIds:[q2.id],free:false,status:'published'}});user=student;
+ const unchanged=await post({action:'startExam',id:ex.id});assert.equal(unchanged.id,withdrawn.id);assert.equal(unchanged.deadline,withdrawn.deadline);assert.equal(unchanged.questions[0].id,q.id);
+ await db.prepare('UPDATE enrollments SET expires=? WHERE email=? AND course_id=?').bind(clock+500,student.email,c.id).run();clock+=501;
+ await post({action:'saveExam',id:withdrawn.id,answers:{}},403);await post({action:'submitExam',id:withdrawn.id,answers:{}},403);
+ console.log('PASS F00.6: exam unpublish/republish, changed definition keeps held snapshot/deadline, subscription time expiry denies writes.');
+ console.log('PASS F00.6: fixed server deadline, exact boundary, grace injection denied for v2, immutable keys, preserved acknowledged answers, lazy settlement, legacy grace and stable results.');
+}finally{Date.now=realNow;}
+
+// F00.7 failure evidence: exceptions may contain private data; logs must not.
+const privateMarker='SYNTHETIC_PASSWORD_TOKEN_COOKIE_EMAIL_NEVER_LOG';const dbBeforeFault=globalThis.__farmTest.env.DB;const bucketBeforeFault=globalThis.__farmTest.env.BUCKET;const logBeforeFault=console.error;const captured=[];
+try{
+ console.error=(...args)=>captured.push(args.join(' '));user=student;
+ globalThis.__farmTest.env.DB={transaction:async()=>{throw Error(privateMarker)},prepare(){throw Error(privateMarker)}};
+ for(const response of [await mod.GET(),await mod.POST(new Request('https://farm.test/api/platform',{method:'POST',headers:{origin:'https://farm.test'},body:JSON.stringify({action:'saveExam',id:'synthetic',answers:{}})}))]){assert.ok([500,503].includes(response.status));assert.ok(!(await response.text()).includes(privateMarker));}
+ globalThis.__farmTest.env.DB=dbBeforeFault;user=owner;globalThis.__farmTest.env.BUCKET={async get(){throw Error(privateMarker)}};
+ const unavailableMedia=await media.GET(new Request('https://farm.test/api/media?id='+asset.id));assert.equal(unavailableMedia.status,503);assert.ok(!(await unavailableMedia.text()).includes(privateMarker));assert.ok(!captured.join(' ').includes(privateMarker));assert.ok(captured.some(v=>v.includes('farmakon_api_failure')));
+ console.log('PASS F00.7: DB/Storage outages return generic failures; raw exceptions, private values and tokens cannot enter technical logs.');
+}finally{globalThis.__farmTest.env.DB=dbBeforeFault;globalThis.__farmTest.env.BUCKET=bucketBeforeFault;console.error=logBeforeFault;}
 } finally { await closeDatabase(); }

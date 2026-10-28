@@ -1,0 +1,30 @@
+{
+  "projectRef": "qfzharpouemueipsrduv",
+  "scope": "f006-exam-20261027-77beae19 synthetic fixture only",
+  "independentPostgreSQLAudit": {
+    "auth_users": 0,
+    "sessions": 0,
+    "members": 0,
+    "enrollments": 0,
+    "course_records": 0,
+    "user_records": 0,
+    "activity": 0,
+    "storage_objects": 0
+  },
+  "ephemeralController": {
+    "name": "farmakon-f006-exam-probe",
+    "id": "e7766fb6-d734-4226-a129-393b5c3c242b",
+    "version": 3,
+    "verify_jwt": true,
+    "implementation": "unconditional HTTP 410; no imports, credentials or actions",
+    "verifiedHTTPStatus": 410
+  },
+  "temporaryDeploymentGrantsRemaining": 0,
+  "temporaryEnvironmentCAEntriesRemoved": 1,
+  "syntheticDeletionFlag": false,
+  "stagingRoleExpiryUTC": "2026-11-02T23:59:59Z",
+  "productionUnchanged": {
+    "deploymentId": "dpl_BNWbrbCXEvRK9BxEqJd4Tkmorctg",
+    "commit": "7258c50062f4bb08cdf9686a727953313ad30260"
+  }
+}
