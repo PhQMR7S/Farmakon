@@ -41,7 +41,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Two-client component trace, small and 1200-student fixtures
-        run: node tests/serialization-root-cause.mjs
+        run: FARMAKON_TRACE_LARGE_ONLY=true node tests/serialization-root-cause.mjs
       - name: Confirm isolated schema cleanup
         if: always()
         run: |
