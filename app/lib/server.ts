@@ -49,6 +49,14 @@ export async function publishedRows(kind:string){
 export function reportFailure(operation:string){console.error(JSON.stringify({event:'farmakon_api_failure',operation}));}
 export async function write(kind:string,data:any,id=uuid()){await db().prepare('INSERT INTO records(id,kind,course_id,data,created) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data,course_id=excluded.course_id').bind(id,kind,data.courseId||'',JSON.stringify(data),Date.now()).run();return id;}
 export async function access(email:string,courseId:string,isAdmin:boolean){if(isAdmin)return true;if(!courseId)return false;return !!await db().prepare('SELECT id FROM enrollments WHERE email=? AND course_id=? AND expires>?').bind(email,courseId,Date.now()).first();}
+// Caller owns a SERIALIZABLE transaction. Zero is the existing explicit revoke
+// sentinel; only an owner-initiated manual enrollment may restore that right.
+export async function extendEnrollment(email:string,courseId:string,days:number,source:'manual'|'code',now=Date.now()){
+ const duration=days*86400000;
+ const guard=source==='code'?' WHERE enrollments.expires<>0':'';
+ const result=await db().prepare('INSERT INTO enrollments(id,email,course_id,expires,source) VALUES(?,?,?,?,?) ON CONFLICT(email,course_id) DO UPDATE SET expires=MAX(enrollments.expires,?)+?,source=excluded.source'+guard).bind(uuid(),email,courseId,now+duration,source,now,duration).run();
+ if(!result.meta.changes)throw Error('ENROLLMENT_REVOKED');
+}
 export async function canRead(r:any,email:string,admin:boolean){if(admin)return true;if(!r||r.status!=='published')return false;const c=r.kind==='course'?r:await record(r.courseId);if(!c||c.kind!=='course'||c.status!=='published')return false;return !!r.free||await access(email,c.id,false);}
 export async function audit(user:string,action:string,target:string){await write('audit',{user,action,target});}
 export function json(data:unknown,status=200){return Response.json(data,{status,headers:{'Cache-Control':'no-store'}});}
