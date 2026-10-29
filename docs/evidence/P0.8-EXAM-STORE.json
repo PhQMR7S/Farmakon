@@ -1,0 +1,88 @@
+{
+  "scope": "P0.8 specialized runtime safety gates",
+  "checks": [
+    {
+      "name": "actual application adapter uses limited login under RLS",
+      "status": "PASS"
+    },
+    {
+      "name": "concurrent original startExam creates one attempt",
+      "status": "PASS"
+    },
+    {
+      "name": "concurrent save patches survive and resume unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "cross-user save and submit denied",
+      "status": "PASS"
+    },
+    {
+      "name": "concurrent submit returns identical grade",
+      "status": "PASS"
+    },
+    {
+      "name": "done rejects save and has one result event",
+      "status": "PASS"
+    },
+    {
+      "name": "save versus submit preserves accepted answers and final state",
+      "status": "PASS"
+    },
+    {
+      "name": "fixture activation preserves legacy JSON, IDs, dates and grades",
+      "status": "PASS"
+    },
+    {
+      "name": "specialized runtime writes attempts and results outside generic tables",
+      "status": "PASS"
+    },
+    {
+      "name": "specialized result failure rolls back grade and answers; retry commits once",
+      "status": "PASS"
+    },
+    {
+      "name": "specialized concurrent start/save/resume and ownership",
+      "status": "PASS"
+    },
+    {
+      "name": "GET settlement retains saved answers and original timing policy",
+      "status": "PASS"
+    },
+    {
+      "name": "actual export includes legacy and specialized results without answer keys",
+      "status": "PASS"
+    },
+    {
+      "name": "flag-only rollback is rejected before legacy reads",
+      "status": "PASS"
+    },
+    {
+      "name": "actual purge removes specialized attempts and results atomically",
+      "status": "PASS"
+    },
+    {
+      "name": "accepted deletion blocks stale authenticated writer from recreating attempts",
+      "status": "PASS"
+    },
+    {
+      "name": "prepared fixture rollback restores legacy JSON and mode",
+      "status": "PASS"
+    },
+    {
+      "name": "cleanup isolated schema and role",
+      "status": "PASS"
+    }
+  ],
+  "result": "PASS",
+  "load": "Separate bounded HTTP comparison completed in run 40850263098",
+  "ssiGate": "OPEN",
+  "postgresVersion": "17.11 (Debian 17.11-1.pgdg13+2)",
+  "provenance": {
+    "sourceCommit": "40b69a00c6b1f2df329badcb944bfc94e9dac278",
+    "runId": 40849622593,
+    "jobId": 123365546893,
+    "url": "https://github.com/PhQMR7S/Farmakon/actions/runs/40849622593",
+    "source": "successful completed job log"
+  }
+}
