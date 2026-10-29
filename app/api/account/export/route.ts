@@ -28,7 +28,7 @@ export async function POST(req:Request){
     db().prepare('SELECT COUNT(*) AS n FROM enrollments WHERE email=?').bind(u.email).first<{n:number}>()
    ]);
    if(summaries.some(s=>!s||s.n>1000)||(summaries[0]?.bytes||0)+(summaries[1]?.bytes||0)>maxBytes)return fail('حجم بياناتك يتجاوز التنزيل المباشر. تواصل مع الدعم للحصول على نسخة كاملة.',413);
-   const records=(await db().prepare(`SELECT id,kind,data,created FROM records WHERE ${recordWhere} ORDER BY created,id LIMIT 1001`).bind(u.userId).all<Row>()).results;
+   const records=(await db().prepare(`SELECT id,kind,data,created FROM ${recordSource} AS export_records WHERE ${recordWhere} ORDER BY created,id LIMIT 1001`).bind(u.userId).all<Row>()).results;
    const activity=(await db().prepare(`SELECT id,kind,target,data,updated FROM ${activitySource} AS export_activity WHERE user_id=? ORDER BY updated,id LIMIT 1001`).bind(u.userId).all<{id:string,kind:string,target:string,data:string,updated:number}>()).results;
    const enrollments=(await db().prepare('SELECT id,course_id,expires,source FROM enrollments WHERE email=? ORDER BY id LIMIT 1001').bind(u.email).all()).results;
    if(records.length>1000||activity.length>1000||enrollments.length>1000)return fail('حجم البيانات كبير. تواصل مع الدعم.',413);
