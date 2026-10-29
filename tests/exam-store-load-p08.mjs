@@ -1,7 +1,7 @@
 import {createServer} from 'node:http';
 const specialized=process.argv.includes('--specialized');process.env.FARMAKON_EXAM_STORE_ENABLED='false';
 // Refuses remote/real databases via testDatabase. No Auth/Storage network calls.
-import fs from 'node:fs';import os from 'node:os';import ts from 'typescript';import assert from 'node:assert/strict';import {AsyncLocalStorage} from 'node:async_hooks';import {performance} from 'node:perf_hooks';import {Pool} from 'pg';import {testDatabase} from '../helpers/postgres.mjs';import {createTrace} from '../helpers/pg-trace.mjs';
+import fs from 'node:fs';import os from 'node:os';import ts from 'typescript';import assert from 'node:assert/strict';import {AsyncLocalStorage} from 'node:async_hooks';import {performance} from 'node:perf_hooks';import {Pool} from 'pg';import {testDatabase} from './helpers/postgres.mjs';import {createTrace} from './helpers/pg-trace.mjs';
 const scope=new AsyncLocalStorage(),trace=createTrace({context:()=>scope.getStore(),maxEvents:900});let requestNumber=0;
 const {db:base,close,stats:poolStats}=await testDatabase({instrument:(client,attempt)=>{const c=scope.getStore();if(c)c.txAttempts=(c.txAttempts||0)+1;return trace.instrument(client,attempt);}});const observer=new Pool({connectionString:process.env.FARMAKON_TEST_DATABASE_URL,max:1,ssl:false});
 const samples=[];let peakRSS=0,peakConnections=0,peakWaiting=0;
