@@ -2,7 +2,7 @@ name: Farmakon P0.8 specialized exam safety
 on:
   push:
     branches: [codex/farmakon-p0-critical-fixes-2026-10-28]
-    paths: [tests/exam-store-p08.mjs, tests/fixtures/exam-store-p08.sql, .github/workflows/exam-store-p08.yml]
+    paths: [app/lib/server.ts, lib/database.ts, app/api/platform/route.ts, app/api/account/export/route.ts, lib/farmakon/privacy/store.ts, tests/exam-store-p08.mjs, tests/fixtures/exam-store-p08.sql, .github/workflows/exam-store-p08.yml]
 permissions:
   contents: read
 jobs:
