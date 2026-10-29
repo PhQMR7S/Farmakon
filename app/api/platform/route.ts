@@ -1,7 +1,7 @@
 import {limitRequest} from '../../../lib/farmakon/rate-limit';
 import {readJson,RequestError} from '../../../lib/http';
 import { z } from 'zod';
-import {db,identity,owner,rows,record,write,access,canRead,canReadAttempt,uuid,audit,json,hash,examAnswers,examDue,publicAttempt,finishExam,userRows,publishedRows,reportFailure,extendEnrollment} from '../../lib/server';
+import {db,identity,owner,rows,record,write,access,canRead,canReadAttempt,uuid,audit,json,hash,examAnswers,examDue,publicAttempt,finishExam,userRows,publishedRows,reportFailure,extendEnrollment,attemptRecord,studyActivity} from '../../lib/server';
 export const dynamic='force-dynamic';
 const text=z.string().trim().max(10000);const id=z.string().max(100);const url=z.string().max(2000).refine(s=>!s||s.startsWith('/api/media?id=')||/^https:\/\//.test(s),'الرابط يجب أن يبدأ بـ https://');
 const schemas:any={course:z.object({title:text.min(2),description:text,stage:text,category:text,price:z.number().min(0).max(10000000),days:z.number().int().min(1).max(3650),status:z.enum(['draft','published']),color:z.enum(['teal','blue','purple','amber'])}),lesson:z.object({title:text.min(2),courseId:id.min(1),module:text,order:z.number().int().min(0),minutes:z.number().min(0).max(600),url,assetId:id,description:text,free:z.boolean(),status:z.enum(['draft','published']),download:z.boolean()}),file:z.object({title:text.min(2),courseId:id.min(1),category:z.enum(['ملخص','ملزمة','نموذج','محاضرة','أسئلة وزارية','بنك أسئلة','أخرى']),stage:text.default(''),subject:text.default(''),year:text.default(''),url,assetId:id,description:text,free:z.boolean(),status:z.enum(['draft','published']),download:z.boolean()}),question:z.object({title:text.min(2),courseId:id.min(1),topic:text,stage:text.default(''),subject:text.default(''),year:text.default(''),questionType:z.enum(['تدريبي','وزاري']).default('تدريبي'),options:z.array(text.min(1)).length(4),correct:z.number().int().min(0).max(3),explanation:text.min(2),source:text.min(1),status:z.enum(['draft','published']),free:z.boolean()}),exam:z.object({title:text.min(2),courseId:id.min(1),minutes:z.number().int().min(1).max(300),questionIds:z.array(id).min(1).max(100),status:z.enum(['draft','published']),free:z.boolean()}),announcement:z.object({title:text.min(2),description:text.min(1),status:z.enum(['draft','published'])})};
@@ -28,7 +28,7 @@ for(const at of ownAttempts){
  else if(at.status==='done'&&completedAttempts.length<50)completedAttempts.push({id:at.id,examId:at.examId,title:at.title,result:at.result});
 }
 let extras:any={};if(admin){extras={members:(await db().prepare('SELECT * FROM members ORDER BY created DESC').all()).results,codes:(await db().prepare('SELECT id,suffix,course_id,days,expires,used_by FROM codes').all()).results,orders:await rows('order'),tickets:await rows('ticket'),audit:(await rows('audit')).slice(0,100)};}else{extras={orders:await userRows('order',u.userId),tickets:await userRows('ticket',u.userId)};}
-const act=await db().prepare('SELECT * FROM activity WHERE user_id=?').bind(u.userId).all<any>();
+const act={results:await studyActivity(u.userId)};
 return json({user:{name:u.displayName,email:u.email,id:u.userId,admin},needsSetup:false,serverNow:Date.now(),attempts,completedAttempts,...lists,enrollments:enr.results,activity:act.results.map(a=>({...a,data:JSON.parse(a.data)})),settings:s?JSON.parse(s.data):{name:'Farmakon',tagline:'مساحتك لتعلّم الصيدلة',paymentInstructions:'',support:'',offlineHours:48},...extras});});}catch(e){reportFailure('platform');return json({error:e instanceof Error&&e.message==='AUTH'?'سجّل الدخول للمتابعة':'تعذّر تحميل البيانات، أعد المحاولة'},e instanceof Error&&e.message==='AUTH'?401:503);}}
 export async function POST(req:Request){try{if(req.headers.get('origin')!==new URL(req.url).origin)return json({error:'طلب غير مسموح'},403);const u=await identity();const b=await readJson(req);const limited=await limitRequest('platform-write',u.userId,120,60000);if(limited)return limited;const admin=await owner(u);return await db().transaction(async()=>{
 if(b.action==='setup')return json({error:'إعداد المالك العام غير متاح'},403);
@@ -60,7 +60,7 @@ if(b.action==='reviewOrder'){if(!admin)return json({error:'للمسؤول فقط
 if(b.action==='ticket'){await write('ticket',{userId:u.userId,email:u.email,title:z.string().trim().min(3).max(180).parse(b.title),description:text.min(5).parse(b.description),status:'open',reply:''});return json({ok:true});}
 if(b.action==='reply'){if(!admin)return json({error:'للمسؤول فقط'},403);const r=await record(id.parse(b.id));if(!r||r.kind!=='ticket')return json({error:'غير موجود'},404);await write('ticket',{...r,reply:text.min(1).parse(b.reply),status:'closed'},r.id);return json({ok:true});}
 if(b.action==='saveExam'){
- const at=await record(id.parse(b.id));if(!at||at.kind!=='attempt'||at.userId!==u.userId)return json({error:'انتهت المحاولة'},409);
+ const at=await attemptRecord(id.parse(b.id),u.userId);if(!at||at.kind!=='attempt'||at.userId!==u.userId)return json({error:'انتهت المحاولة'},409);
  if(!await canReadAttempt(at,u.email,admin))return json({error:'الاختبار غير متاح'},403);
  const now=Date.now();if(at.status!=='active'||(at.timingVersion===2?now>=at.deadline:now>at.deadline)){if(at.status==='active'&&examDue(at,now))await finishExam(at,now);return json({error:'انتهى وقت الإجابة؛ افتح النتيجة',expired:true,serverNow:now},409);}
  const input=z.record(z.string(),z.number().int().min(0).max(3)).parse(b.answers);
@@ -68,7 +68,9 @@ if(b.action==='saveExam'){
 }
 if(b.action==='startExam'){
  const ex=await record(id.parse(b.id));if(!ex||ex.kind!=='exam'||!await canRead(ex,u.email,admin))return json({error:'الاختبار غير متاح'},403);
- const pending=(await userRows('attempt',u.userId,'active')).find((a:any)=>a.examId===ex.id);
+ const candidates=(await userRows('attempt',u.userId,'active')).filter((a:any)=>a.examId===ex.id);
+ if(candidates.length>1)return json({error:'توجد محاولات قديمة متكررة؛ تواصل مع الإدارة'},409);
+ const pending=candidates[0];
  if(pending){if(!await canReadAttempt(pending,u.email,admin))return json({error:'تغير الاختبار؛ تواصل مع الإدارة'},409);const now=Date.now();if(examDue(pending,now)){const result=await finishExam(pending,now);return json({...publicAttempt({...pending,status:'done',result},now)});}return json(publicAttempt(pending,now));}
  const attempt=uuid(),qs=[];for(const qid of ex.questionIds){const q=await record(qid);if(q&&q.kind==='question'&&q.courseId===ex.courseId&&await canRead(q,u.email,admin))qs.push(q);}
  if(!qs.length)return json({error:'لا توجد أسئلة منشورة'},400);
@@ -76,7 +78,7 @@ if(b.action==='startExam'){
  await write('attempt',at,attempt);return json(publicAttempt(at,now));
 }
 if(b.action==='submitExam'){
- const at=await record(id.parse(b.id));if(!at||at.kind!=='attempt'||at.userId!==u.userId)return json({error:'المحاولة غير موجودة'},404);
+ const at=await attemptRecord(id.parse(b.id),u.userId);if(!at||at.kind!=='attempt'||at.userId!==u.userId)return json({error:'المحاولة غير موجودة'},404);
  if(!await canReadAttempt(at,u.email,admin))return json({error:'الاختبار غير متاح'},403);
  if(at.status==='done')return json(at.result);
  const input=z.record(z.string(),z.number().int().min(0).max(3)).parse(b.answers||{}),now=Date.now();

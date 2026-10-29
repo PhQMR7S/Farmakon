@@ -9,6 +9,12 @@ export function deletionStore(db=database):DeletionStore{
   async advance(id,from,to){const r=await db.prepare('UPDATE farmakon.deletion_jobs SET state=?,updated=? WHERE user_id=? AND state=? AND lease=?').bind(to,Date.now(),id,from,lease).run();if(r.meta.changes!==1)throw Error('DELETION_LEASE');},
   async release(id){await db.prepare('UPDATE farmakon.deletion_jobs SET lease=NULL,updated=? WHERE user_id=? AND lease=?').bind(Date.now(),id,lease).run();},
   async purge(id,email){await db.transaction(async()=>{
+   if(process.env.FARMAKON_EXAM_STORE_ENABLED==='true'){
+    const ready=await db.prepare("SELECT ready FROM farmakon.exam_store_control WHERE id='exam-v1'").first<{ready:boolean}>();
+    if(ready?.ready!==true)throw Error('EXAM_STORE_NOT_READY');
+    await db.prepare('DELETE FROM farmakon.exam_results WHERE user_id=?').bind(id).run();
+    await db.prepare('DELETE FROM farmakon.exam_attempts WHERE user_id=?').bind(id).run();
+   }
    // Unknown record ownership and shared attachments require manual review.
    const unsafe=await db.prepare("SELECT id FROM records WHERE (data::jsonb->>'userId'=? OR data::jsonb->>'owner'=?) AND kind NOT IN ('attempt','ticket','order','asset') LIMIT 1").bind(id,id).first();
    const assets=await db.prepare("SELECT id FROM records WHERE kind='asset' AND data::jsonb->>'owner'=? LIMIT 1").bind(id).first();

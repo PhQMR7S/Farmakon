@@ -30,6 +30,7 @@ export async function record(id:string){const r=await db().prepare('SELECT * FRO
 export async function rows(kind:string){const {results}=await db().prepare('SELECT * FROM records WHERE kind=? ORDER BY created DESC').bind(kind).all<any>();return results.map(r=>({...JSON.parse(r.data),id:r.id,kind:r.kind,courseId:r.course_id,created:r.created}));}
 // Request-scoped database filtering; never a cross-user/shared cache.
 export async function userRows(kind:string,userId:string,status?:string,limit?:number){
+ if(kind==='attempt'&&examStoreEnabled())return examRows(userId,status,limit);
  const clause=status?" AND json_extract(data,'$.status')=?":'';
  const cap=limit?' LIMIT ?':'';
  const args:unknown[]=[kind,userId];if(status)args.push(status);if(limit)args.push(limit);
@@ -47,7 +48,12 @@ export async function publishedRows(kind:string){
 // Only fixed operation names enter technical logs; never serialize provider/SQL
 // exceptions, which can embed account values, cookies or signed URLs.
 export function reportFailure(operation:string){console.error(JSON.stringify({event:'farmakon_api_failure',operation}));}
-export async function write(kind:string,data:any,id=uuid()){await db().prepare('INSERT INTO records(id,kind,course_id,data,created) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data,course_id=excluded.course_id').bind(id,kind,data.courseId||'',JSON.stringify(data),Date.now()).run();return id;}
+export async function write(kind:string,data:any,id=uuid()){
+ if(kind==='attempt'&&examStoreEnabled()){
+  await examStoreReady();
+  await db().prepare('INSERT INTO farmakon.exam_attempts(user_id,id,kind,course_id,data,created) VALUES(?,?,?,?,?,?) ON CONFLICT(user_id,id) DO UPDATE SET data=excluded.data,course_id=excluded.course_id').bind(data.userId,id,kind,data.courseId||'',JSON.stringify(data),Date.now()).run();return id;
+ }
+await db().prepare('INSERT INTO records(id,kind,course_id,data,created) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data,course_id=excluded.course_id').bind(id,kind,data.courseId||'',JSON.stringify(data),Date.now()).run();return id;}
 export async function access(email:string,courseId:string,isAdmin:boolean){if(isAdmin)return true;if(!courseId)return false;return !!await db().prepare('SELECT id FROM enrollments WHERE email=? AND course_id=? AND expires>?').bind(email,courseId,Date.now()).first();}
 // Caller owns a SERIALIZABLE transaction. Zero is the existing explicit revoke
 // sentinel; only an owner-initiated manual enrollment may restore that right.
@@ -84,6 +90,39 @@ export async function finishExam(at:any,now:number,answers=at.answers||{}){
  if(at.status==='done')return at.result;
  const result={score:at.questions.filter((q:any)=>answers[q.id]===q.correct).length,total:at.questions.length,late:now>at.deadline+examGraceMs,expired:now>=at.deadline,questions:at.questions.map((q:any)=>({...q,selected:answers[q.id]??null}))};
  await write('attempt',{...at,answers,status:'done',settledAt:now,result},at.id);
- await db().prepare('INSERT INTO activity(id,user_id,kind,target,data,updated) VALUES(?,?,?,?,?,?) ON CONFLICT(user_id,kind,target) DO NOTHING').bind(uuid(),at.userId,'exam',at.id,JSON.stringify({score:result.score,total:result.total,title:at.title||(await record(at.examId))?.title}),now).run();
+ await writeExamEvent(at, result, now);
  return result;
+}
+
+/** Disabled by default. Prepared schema is never installed automatically. */
+export function examStoreEnabled(){
+ const enabled=process.env.FARMAKON_EXAM_STORE_ENABLED==='true';
+ if(enabled&&process.env.VERCEL_ENV==='production')throw Error('EXAM_STORE_RELEASE_NOT_APPROVED');
+ return enabled;
+}
+export async function examStoreReady(){
+ const r=await db().prepare("SELECT ready FROM farmakon.exam_store_control WHERE id='exam-v1'").first<{ready:boolean}>();
+ if(r?.ready!==true)throw Error('EXAM_STORE_NOT_READY');
+}
+export async function examRows(userId:string,status?:string,limit?:number){
+ await examStoreReady();
+ const args:unknown[]=[userId];if(status)args.push(status);if(limit)args.push(limit);
+ const r=await db().prepare("SELECT id,kind,course_id,data,created FROM farmakon.exam_attempts WHERE user_id=?"+(status?" AND data::jsonb->>'status'=?":'')+' ORDER BY created DESC,id DESC'+(limit?' LIMIT ?':'')).bind(...args).all<any>();
+ return r.results.map(r=>({...JSON.parse(r.data),id:r.id,kind:r.kind,courseId:r.course_id,created:r.created}));
+}
+export async function attemptRecord(id:string,userId:string){
+ if(!examStoreEnabled())return record(id);
+ await examStoreReady();
+ const r=await db().prepare('SELECT id,kind,course_id,data,created FROM farmakon.exam_attempts WHERE user_id=? AND id=?').bind(userId,id).first<any>();
+ return r?{...JSON.parse(r.data),id:r.id,kind:r.kind,courseId:r.course_id,created:r.created}:null;
+}
+export async function writeExamEvent(at:any,result:any,now:number){
+ const table=examStoreEnabled()?'farmakon.exam_results':'activity';
+ if(examStoreEnabled())await examStoreReady();
+ await db().prepare('INSERT INTO '+table+'(id,user_id,kind,target,data,updated) VALUES(?,?,?,?,?,?) ON CONFLICT(user_id,kind,target) DO NOTHING').bind(uuid(),at.userId,'exam',at.id,JSON.stringify({score:result.score,total:result.total,title:at.title||(await record(at.examId))?.title}),now).run();
+}
+export async function studyActivity(userId:string){
+ if(!examStoreEnabled())return (await db().prepare('SELECT * FROM activity WHERE user_id=?').bind(userId).all<any>()).results;
+ await examStoreReady();
+ return (await db().prepare("SELECT id,user_id,kind,target,data,updated FROM activity WHERE user_id=? AND kind<>'exam' UNION ALL SELECT id,user_id,kind,target,data,updated FROM farmakon.exam_results WHERE user_id=?").bind(userId,userId).all<any>()).results;
 }

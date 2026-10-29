@@ -27,6 +27,14 @@ async function transaction<T>(work:()=>Promise<T>):Promise<T>{
   let discard=false;
   try{
    await client.query('BEGIN ISOLATION LEVEL SERIALIZABLE');
+   // Fail closed if an operator disables the flag before the prepared rollback.
+   // No schema is installed here; absent control table means legacy mode only.
+   const exists=await client.query("SELECT to_regclass('farmakon.exam_store_control') AS present");
+   const enabled=process.env.FARMAKON_EXAM_STORE_ENABLED==='true';
+   if(exists.rows[0]?.present){
+    const mode=await client.query("SELECT ready FROM farmakon.exam_store_control WHERE id='exam-v1'");
+    if(mode.rows.length!==1||mode.rows[0].ready!==enabled)throw Error('EXAM_STORE_MODE_MISMATCH');
+   }else if(enabled)throw Error('EXAM_STORE_NOT_READY');
    const result=await transactions.run(client,work);
    await client.query('COMMIT');return result;
   }catch(error){
