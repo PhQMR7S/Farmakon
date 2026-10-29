@@ -6,10 +6,11 @@ import {AsyncLocalStorage} from 'node:async_hooks';
 import {testDatabase} from './helpers/postgres.mjs';
 const scope=new AsyncLocalStorage(),checks=[],ev={scope:'P0.8 specialized runtime safety gates',checks,result:'FAIL',load:'NOT RUN: safety first',ssiGate:'OPEN'};
 const {db,close}=await testDatabase();const pool=new Pool({connectionString:process.env.FARMAKON_TEST_DATABASE_URL,ssl:false,max:2});
+const ok=name=>checks.push({name,status:'PASS'});
+try{
 await pool.query('CREATE TABLE farmakon.deletion_jobs(user_id text PRIMARY KEY,email text)');
 await pool.query(fs.readFileSync('tests/fixtures/exam-store-p08.sql','utf8'));
 globalThis.__p02={db,user:()=>scope.getStore()};
-const ok=name=>checks.push({name,status:'PASS'});
 process.env.FARMAKON_OWNER_EMAIL='owner@example.test';
 const compile=s=>'data:text/javascript;base64,'+Buffer.from(ts.transpileModule(s,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText).toString('base64');
 const server=compile(fs.readFileSync('app/lib/server.ts','utf8').replace(/^import .*;$/gm,'').replace('export const db=()=>database;','export const db=()=>globalThis.__p02.db;').replace('export const bucket=()=>storage;','export const bucket=()=>({});').replace(/export async function identity\(\)\{.*?\nexport async function owner/s,'export async function identity(){return globalThis.__p02.user();}\nexport async function owner'));
@@ -17,7 +18,6 @@ const route=await import(compile(fs.readFileSync('app/api/platform/route.ts','ut
 const owner={userId:'p02-owner',email:'owner@example.test',displayName:'Owner'},a={userId:'p02-a',email:'a@example.test',displayName:'A'},b={userId:'p02-b',email:'b@example.test',displayName:'B'};
 async function post(u,body,status=200){return scope.run(u,async()=>{const r=await route.POST(new Request('https://synthetic.test/api/platform',{method:'POST',headers:{origin:'https://synthetic.test','content-type':'application/json'},body:JSON.stringify(body)}));const d=await r.json();if(status!==null)assert.equal(r.status,status,JSON.stringify({action:body.action,status:r.status}));return status===null?{status:r.status,data:d}:d;});}
 async function get(u){return scope.run(u,async()=>{const r=await route.GET();assert.equal(r.status,200);return r.json();});}
-try{
  const course=await post(owner,{action:'save',kind:'course',data:{title:'Synthetic',description:'',stage:'3',category:'Pharmacy',price:1,days:30,status:'published',color:'teal'}});
  await post(owner,{action:'enroll',email:a.email,courseId:course.id,days:30});
  const qs=[];for(let i=0;i<2;i++)qs.push((await post(owner,{action:'save',kind:'question',data:{title:'Question '+i,courseId:course.id,topic:'',options:['a','b','c','d'],correct:i+1,explanation:'explanation',source:'source',status:'published',free:false}})).id);
