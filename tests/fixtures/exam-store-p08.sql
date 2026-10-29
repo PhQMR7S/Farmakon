@@ -46,7 +46,7 @@ ALTER TABLE farmakon.records ENABLE ALWAYS TRIGGER exam_legacy_fence;
 ALTER TABLE farmakon.activity ENABLE ALWAYS TRIGGER exam_event_legacy_fence;
 
 -- Reuse the existing deletion lock key and durable job as a tombstone.
-CREATE FUNCTION farmakon.exam_deletion_barrier() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog AS $
+CREATE FUNCTION farmakon.exam_deletion_barrier() RETURNS trigger LANGUAGE plpgsql SET search_path=pg_catalog AS $$
 BEGIN
  PERFORM pg_advisory_xact_lock(hashtextextended(NEW.user_id::text,0));
  IF TG_TABLE_NAME='deletion_jobs' THEN
@@ -57,7 +57,7 @@ BEGIN
   THEN RAISE EXCEPTION 'ACCOUNT_DELETING' USING ERRCODE='42501'; END IF;
  END IF;
  RETURN NEW;
-END $;
+END $$;
 REVOKE ALL ON FUNCTION farmakon.exam_deletion_barrier() FROM PUBLIC;
 CREATE TRIGGER exam_attempt_deletion BEFORE INSERT OR UPDATE ON farmakon.exam_attempts FOR EACH ROW EXECUTE FUNCTION farmakon.exam_deletion_barrier();
 CREATE TRIGGER exam_result_deletion BEFORE INSERT OR UPDATE ON farmakon.exam_results FOR EACH ROW EXECUTE FUNCTION farmakon.exam_deletion_barrier();
