@@ -79,6 +79,9 @@ async function get(u){return scope.run(u,async()=>{const r=await route.GET();ass
  assert.equal((await pool.query('SELECT count(*)::int n FROM farmakon.exam_attempts WHERE user_id=$1',[a.userId])).rows[0].n,0);
  assert.equal((await pool.query('SELECT count(*)::int n FROM farmakon.exam_results WHERE user_id=$1',[a.userId])).rows[0].n,0);
  ok('actual purge removes specialized attempts and results atomically');
+ // Make this synthetic exam/questions free so the stale request reaches the DB
+ // barrier instead of being rejected earlier by the deleted enrollment.
+ await pool.query("UPDATE farmakon.records SET data=jsonb_set(data::jsonb,'{free}','true'::jsonb)::text WHERE id=ANY($1::text[])",[[exam,...qs]]);
  await post(a,{action:'startExam',id:exam},500);
  assert.equal((await pool.query('SELECT count(*)::int n FROM farmakon.exam_attempts WHERE user_id=$1',[a.userId])).rows[0].n,0);
  ok('accepted deletion blocks stale authenticated writer from recreating attempts');
