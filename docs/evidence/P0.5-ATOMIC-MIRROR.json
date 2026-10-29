@@ -1,0 +1,152 @@
+{
+  "scope": "P0.5 isolated PostgreSQL trigger mirroring only",
+  "ssiGate": "FAILED/OPEN; no load run",
+  "checks": [
+    {
+      "name": "writer uses separate non-superuser login",
+      "status": "PASS"
+    },
+    {
+      "name": "writer cannot assume owners",
+      "status": "PASS"
+    },
+    {
+      "name": "legacy INSERT mirrors exact JSON and preserves duplicate attempts",
+      "status": "PASS"
+    },
+    {
+      "name": "legacy UPSERT UPDATE mirrors changed answers",
+      "status": "PASS"
+    },
+    {
+      "name": "exam event mirrored; progress stays legacy only",
+      "status": "PASS"
+    },
+    {
+      "name": "ownership and event UPDATE mirrored",
+      "status": "PASS"
+    },
+    {
+      "name": "primary key updates remove old shadow keys",
+      "status": "PASS"
+    },
+    {
+      "name": "kind exit removes shadow without deleting legacy",
+      "status": "PASS"
+    },
+    {
+      "name": "kind entry recreates shadow",
+      "status": "PASS"
+    },
+    {
+      "name": "legacy DELETE removes matching shadows",
+      "status": "PASS"
+    },
+    {
+      "name": "denied: shadow select",
+      "status": "PASS"
+    },
+    {
+      "name": "denied: shadow insert",
+      "status": "PASS"
+    },
+    {
+      "name": "denied: shadow update",
+      "status": "PASS"
+    },
+    {
+      "name": "denied: shadow delete",
+      "status": "PASS"
+    },
+    {
+      "name": "denied: event shadow insert",
+      "status": "PASS"
+    },
+    {
+      "name": "denied: event shadow update",
+      "status": "PASS"
+    },
+    {
+      "name": "denied: event shadow delete",
+      "status": "PASS"
+    },
+    {
+      "name": "denied: source truncate",
+      "status": "PASS"
+    },
+    {
+      "name": "denied: activity truncate",
+      "status": "PASS"
+    },
+    {
+      "name": "denied: disable trigger",
+      "status": "PASS"
+    },
+    {
+      "name": "denied: drop trigger",
+      "status": "PASS"
+    },
+    {
+      "name": "denied: replace function",
+      "status": "PASS"
+    },
+    {
+      "name": "denied: replication bypass",
+      "status": "PASS"
+    },
+    {
+      "name": "denied: RLS bypass",
+      "status": "PASS"
+    },
+    {
+      "name": "denied: assume mirror role",
+      "status": "PASS"
+    },
+    {
+      "name": "denied: assume owner role",
+      "status": "PASS"
+    },
+    {
+      "name": "denied operations leave data unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "shadow INSERT failure rolls back entire transaction and prior writes",
+      "status": "PASS"
+    },
+    {
+      "name": "shadow UPDATE failure restores deleted shadow and prior progress write",
+      "status": "PASS"
+    },
+    {
+      "name": "shadow DELETE failure restores source and all prior writes",
+      "status": "PASS"
+    },
+    {
+      "name": "event mirror failure rolls back attempt and event together",
+      "status": "PASS"
+    },
+    {
+      "name": "done result and question snapshot remain byte-for-byte unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "successful delete does not lose unrelated done result",
+      "status": "PASS"
+    },
+    {
+      "name": "cleanup schema and fixture roles",
+      "status": "PASS"
+    }
+  ],
+  "postgresVersion": "17.11 (Debian 17.11-1.pgdg13+2)",
+  "result": "PASS",
+  "provenance": {
+    "sourceCommit": "7bdf4217936188a5a5b27d946470528d70a35659",
+    "runId": 40844076703,
+    "jobId": 123347196140,
+    "url": "https://github.com/PhQMR7S/Farmakon/actions/runs/40844076703",
+    "extractedFrom": "completed successful job log",
+    "containerCleanup": true
+  }
+}
