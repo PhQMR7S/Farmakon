@@ -1,0 +1,66 @@
+import {createServer} from 'node:http';
+const specialized=process.argv.includes('--specialized');process.env.FARMAKON_EXAM_STORE_ENABLED='false';
+// Refuses remote/real databases via testDatabase. No Auth/Storage network calls.
+import fs from 'node:fs';import os from 'node:os';import ts from 'typescript';import assert from 'node:assert/strict';import {AsyncLocalStorage} from 'node:async_hooks';import {performance} from 'node:perf_hooks';import {Pool} from 'pg';import {testDatabase} from '../helpers/postgres.mjs';import {createTrace} from '../helpers/pg-trace.mjs';
+const scope=new AsyncLocalStorage(),trace=createTrace({context:()=>scope.getStore(),maxEvents:900});let requestNumber=0;
+const {db:base,close,stats:poolStats}=await testDatabase({instrument:(client,attempt)=>{const c=scope.getStore();if(c)c.txAttempts=(c.txAttempts||0)+1;return trace.instrument(client,attempt);}});const observer=new Pool({connectionString:process.env.FARMAKON_TEST_DATABASE_URL,max:1,ssl:false});
+const samples=[];let peakRSS=0,peakConnections=0,peakWaiting=0;
+const timer=setInterval(()=>{peakRSS=Math.max(peakRSS,process.memoryUsage().rss);const s=poolStats?.();peakConnections=Math.max(peakConnections,s?.total||0);peakWaiting=Math.max(peakWaiting,s?.waiting||0);},10);
+const db={transaction:async fn=>{try{return await base.transaction(fn);}catch(e){const c=scope.getStore();if(c)c.failureCode=['40001','40P01','57014','53300'].includes(e.code)?e.code:'OTHER';throw e;}},batch:s=>base.batch(s),prepare(sql){const s=base.prepare(sql),wrap={bind(...a){s.bind(...a);return wrap;}};for(const method of ['first','all','run'])wrap[method]=async()=>{const t=performance.now();try{return await s[method]();}finally{const c=scope.getStore();if(c){c.queries++;c.queryMs+=performance.now()-t;}}};return wrap;}};
+globalThis.__f007={db,user:()=>scope.getStore()?.user};process.env.FARMAKON_OWNER_EMAIL='owner@example.test';
+const compile=s=>'data:text/javascript;base64,'+Buffer.from(ts.transpileModule(s,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText).toString('base64');
+const server=compile(fs.readFileSync('app/lib/server.ts','utf8').replace(/^import .*;$/gm,'').replace('export const db=()=>database;','export const db=()=>globalThis.__f007.db;').replace('export const bucket=()=>storage;','export const bucket=()=>({get:async()=>({body:new TextEncoder().encode("%PDF-fixture"),size:12})});').replace(/export async function identity\(\)\{.*?\nexport async function owner/s,"export async function identity(){return globalThis.__f007.user();}\nexport async function owner"));
+const http=compile(fs.readFileSync('lib/http.ts','utf8')),rate=compile('export async function limitRequest(){return null;}');
+function route(file){return import(compile(fs.readFileSync(file,'utf8').replace("'../../lib/server'",JSON.stringify(server)).replace("'../../../lib/http'",JSON.stringify(http)).replace("'../../../lib/farmakon/rate-limit'",JSON.stringify(rate)).replace("'zod'",JSON.stringify(import.meta.resolve('zod')))));}
+const after=await route('app/api/platform/route.ts');const media=await route('app/api/media/route.ts');const mediaRequest={GET:()=>media.GET(new Request('https://synthetic.test/api/media?id=f007-course-0-pdf'))};
+const user=i=>({userId:'f007-user-'+i,email:`f007-${i}@example.test`,displayName:'Synthetic student'});
+const q=(id,course)=>({id,kind:'question',courseId:course,title:'Synthetic question '+id,options:['A','B','C','D'],correct:1,explanation:'Synthetic explanation',source:'Fixture',status:'published',free:false});
+const plans=[];const pct=(v,n)=>v.length?Number([...v].sort((a,b)=>a-b)[Math.ceil(v.length*n)-1].toFixed(2)):0;
+function summary(list){return {requests:list.length,retries:list.reduce((n,x)=>n+(x.retries||0),0),retryingRequests:list.filter(x=>x.retries>0).length,httpStatuses:Object.fromEntries([...new Set(list.map(x=>x.status))].map(status=>[status,list.filter(x=>x.status===status).length])),p50Ms:pct(list.map(x=>x.ms),.5),p95Ms:pct(list.map(x=>x.ms),.95),errorRate:list.filter(x=>x.status!==200).length/Math.max(list.length,1),failureCodes:Object.fromEntries([...new Set(list.filter(x=>x.failureCode).map(x=>x.failureCode))].map(k=>[k,list.filter(x=>x.failureCode===k).length])),queriesP50:pct(list.map(x=>x.queries),.5),queryRoundTripP95Ms:pct(list.map(x=>x.queryMs),.95),responseBytesP50:pct(list.map(x=>x.bytes),.5)};}
+
+const contexts=new Map();
+const httpServer=createServer(async(req,res)=>{
+ const c=contexts.get(req.headers['x-fixture-request']);if(!c){res.writeHead(403);res.end();return;}
+ try{const chunks=[];for await(const chunk of req)chunks.push(chunk);
+ const r=await scope.run(c,()=>req.method==='GET'?after.GET():after.POST(new Request('https://synthetic.test/api/platform',{method:'POST',headers:{origin:'https://synthetic.test','content-type':'application/json'},body:Buffer.concat(chunks).toString()})));
+ res.writeHead(r.status,Object.fromEntries(r.headers));res.end(await r.text());
+ }catch{res.writeHead(503,{'content-type':'application/json'});res.end('{"error":"fixture transport failure"}');}
+});
+await new Promise(resolve=>httpServer.listen(0,'127.0.0.1',resolve));
+const endpoint='http://127.0.0.1:'+httpServer.address().port+'/api/platform';
+async function call(mod,method,i,body,label){const c={requestId:'request-'+(++requestNumber),user:user(i),queries:0,queryMs:0,txAttempts:0};return scope.run(c,async()=>{const t=performance.now();contexts.set(c.requestId,c);const r=await fetch(endpoint,{method,headers:{'x-fixture-request':c.requestId,...(method==='POST'?{'content-type':'application/json'}:{})},...(method==='POST'?{body:JSON.stringify(body)}:{})});contexts.delete(c.requestId);const text=await r.text(),data=r.headers.get('content-type')?.includes('application/json')?JSON.parse(text):{};const sample={requestId:c.requestId,label,status:r.status,retries:Math.max(0,c.txAttempts-1),ms:performance.now()-t,bytes:Buffer.byteLength(text),queries:c.queries,queryMs:c.queryMs,...(c.failureCode?{failureCode:c.failureCode}:{})};samples.push(sample);if(r.status===200&&method==='GET'&&data.user){assert.equal(data.user.id,user(i).userId);assert.ok(data.attempts.every(a=>a.userId===user(i).userId));assert.ok(data.question.every(q=>q.correct===undefined&&q.explanation===undefined));assert.ok(data.activity.every(a=>a.user_id===user(i).userId));}return {sample,data};});}
+try{
+ const now=Date.now();const seed=[];for(let c=0;c<4;c++){const course='f007-course-'+c;seed.push([course,'course','',{title:'Synthetic course',status:'published',description:'Test',price:0,days:365}]);for(let j=0;j<20;j++){const id=course+'-q'+j;seed.push([id,'question',course,q(id,course)]);}for(let j=0;j<12;j++)seed.push([course+'-l'+j,'lesson',course,{title:'Synthetic lesson',module:'Unit',status:'published',courseId:course,free:false}]);seed.push([course+'-pdf','asset',course,{title:'synthetic.pdf',mime:'application/pdf',size:12,courseId:course}]);for(let j=0;j<12;j++)seed.push([course+'-f'+j,'file',course,{title:'Synthetic library file',assetId:course+'-pdf',description:'x'.repeat(300),status:'published',courseId:course,free:false}]);seed.push([course+'-exam','exam',course,{title:'Synthetic exam',status:'published',courseId:course,minutes:20,questionIds:[0,1,2,3].map(j=>course+'-q'+j),free:false}]);}
+ await observer.query('BEGIN');for(const [id,kind,course,data] of seed)await observer.query('INSERT INTO farmakon.records VALUES($1,$2,$3,$4,$5)',[id,kind,course,JSON.stringify(data),now]);
+ for(let i=0;i<750;i++){const u=user(i);await observer.query('INSERT INTO farmakon.members VALUES($1,$2,$3,$4)',[u.userId,u.email,u.displayName,now]);for(let c=0;c<4;c++)await observer.query('INSERT INTO farmakon.enrollments VALUES($1,$2,$3,$4,$5)',[u.userId+'-en'+c,u.email,'f007-course-'+c,now+86400000,'synthetic']);await observer.query('INSERT INTO farmakon.activity VALUES($1,$2,$3,$4,$5,$6)',[u.userId+'-progress',u.userId,'progress','f007-course-0-l0',JSON.stringify({seconds:10,note:'Private synthetic note '+i}),now]);for(let a=0;a<2;a++)await observer.query('INSERT INTO farmakon.records VALUES($1,$2,$3,$4,$5)',[u.userId+'-old'+a,'attempt','f007-course-0',JSON.stringify({userId:u.userId,examId:'f007-course-0-exam',courseId:'f007-course-0',questions:[0,1,2,3].map(j=>q('f007-course-0-q'+j,'f007-course-0')),status:'done',deadline:now-60000,result:{score:0,total:4,questions:[]}}),now-a]);}
+ await observer.query('COMMIT');await observer.query('ANALYZE farmakon.records');
+
+ if(specialized){
+  await observer.query('CREATE TABLE farmakon.deletion_jobs(user_id text PRIMARY KEY,email text)');
+  await observer.query(fs.readFileSync('tests/fixtures/exam-store-p08.sql','utf8'));
+  await observer.query('BEGIN; LOCK TABLE farmakon.records,farmakon.activity IN ACCESS EXCLUSIVE MODE');
+  await observer.query("INSERT INTO farmakon.exam_attempts SELECT data::jsonb->>'userId',id,kind,course_id,data,created FROM farmakon.records WHERE kind='attempt'");
+  await observer.query("INSERT INTO farmakon.exam_results SELECT * FROM farmakon.activity WHERE kind='exam'");
+  await observer.query("DELETE FROM farmakon.records WHERE kind='attempt'; DELETE FROM farmakon.activity WHERE kind='exam'; UPDATE farmakon.exam_store_control SET ready=true; COMMIT");
+  process.env.FARMAKON_EXAM_STORE_ENABLED='true';
+  await observer.query('ANALYZE farmakon.exam_attempts; ANALYZE farmakon.exam_results; ANALYZE farmakon.records');
+ }
+ const loads=[];let aborted=false;for(const vus of [1,5,10,25]){const start=samples.length,cpu=process.cpuUsage(),t=performance.now();await Promise.all(Array.from({length:vus},(_,i)=>(async()=>{for(let round=0;round<2;round++){
+  const initial=await call(after,'GET',i,null,'dashboard/catalogue/library/questions/resume');if(initial.sample.status!==200)return;
+  const started=await call(after,'POST',i,{action:'startExam',id:'f007-course-0-exam'},'startExam');if(started.sample.status!==200)return;const id=started.data.id;
+  const saved=await call(after,'POST',i,{action:'saveExam',id,answers:{'f007-course-0-q0':1}},'saveExam');if(saved.sample.status!==200)return;const submitted=await call(after,'POST',i,{action:'submitExam',id,answers:{}},'submitExam');if(submitted.sample.status===200)assert.equal(submitted.data.score,1);
+  await call(after,'GET',i,null,'results/reload');if(process.memoryUsage().rss>768*1024*1024)return;
+ }} )()));const list=samples.slice(start),elapsed=performance.now()-t,usage=process.cpuUsage(cpu),result={virtualUsers:vus,rounds:2,...summary(list),elapsedMs:Number(elapsed.toFixed(2)),requestsPerSecond:Number((list.length/(elapsed/1000)).toFixed(2)),nodeCpuMs:(usage.user+usage.system)/1000,operations:Object.fromEntries([...new Set(list.map(x=>x.label))].map(k=>[k,summary(list.filter(x=>x.label===k))]))};loads.push(result);
+ if(result.errorRate>0||result.p95Ms>5000||process.memoryUsage().rss>768*1024*1024){aborted=true;break;}}
+ 
+
+ const table=specialized?'farmakon.exam_attempts':'farmakon.records';
+ const duplicateAttempts=await observer.query("SELECT data::jsonb->>'userId',data::jsonb->>'examId',count(*) FROM "+table+" WHERE kind='attempt' AND data::jsonb->>'status'='active' GROUP BY 1,2 HAVING count(*)>1");
+ assert.equal(duplicateAttempts.rowCount,0);
+ const resultsTable=specialized?'farmakon.exam_results':'farmakon.activity';
+ assert.equal((await observer.query("SELECT user_id,kind,target,count(*) FROM "+resultsTable+" WHERE kind='exam' GROUP BY 1,2,3 HAVING count(*)>1")).rowCount,0);
+ const measurements={},diagnostic=[];
+ const connections=(await observer.query("SELECT count(*)::int n FROM pg_stat_activity WHERE datname=current_database() AND backend_type='client backend'" )).rows[0].n;
+ const evidence={scope:'P0.8 real loopback HTTP + original handlers + production SQL adapter; synthetic Auth/rate transport',mode:specialized?'specialized':'legacy',environment:{node:process.version,postgres:(await observer.query('SHOW server_version')).rows[0].server_version,platform:os.platform(),architecture:os.arch(),cpuCount:os.availableParallelism(),memoryLimitStopMiB:768},fixture:{registeredStudents:750,courses:4,lessons:48,files:48,questions:80,exams:4,oldAttempts:1500},comparison:measurements,unindexedDiagnostic:diagnostic,loads,resource:{peakNodeRSSMiB:Number((peakRSS/1024/1024).toFixed(2)),appPoolConnectionsPeak:peakConnections,appPoolWaitingPeak:peakWaiting,observedTestDatabaseClientConnections:connections},plans,transactionTrace:trace.summary(),failedRequestTraces:samples.filter(x=>x.status!==200).map(x=>({requestId:x.requestId,operation:x.label,httpStatus:x.status,events:trace.requestTrace(x.requestId)})),requestOutcomes:samples.filter(x=>x.retries>0||x.status!==200).map(({requestId,label,status,retries,failureCode})=>({requestId,label,status,retries,...(failureCode?{sqlstate:failureCode}:{})})),stopped:aborted};
+ fs.mkdirSync('docs/evidence',{recursive:true});fs.writeFileSync('docs/evidence/P0.8-HTTP-'+(specialized?'SPECIALIZED':'LEGACY')+'.json',JSON.stringify(evidence,null,2));console.log(JSON.stringify(evidence));if(specialized)assert.ok(!aborted,'Safety stop: specialized load failed; no escalation');
+}finally{await new Promise(resolve=>httpServer.close(resolve));clearInterval(timer);await observer.query('ROLLBACK').catch(()=>{});await observer.end();await close();}

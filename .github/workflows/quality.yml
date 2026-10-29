@@ -47,6 +47,12 @@ jobs:
           p03_delta=subprocess.check_output(['git','diff','--name-only','f9f8d1c848fc1a95c07cfe9d7e541596c72aae58','HEAD'],text=True).splitlines()
           p03_paths={'tests/exam-mirror-p06.mjs','.github/workflows/exam-mirror-p06.yml','docs/evidence/P0.6-EXAM-MIRROR.json','docs/FARMAKON-P0-EXAM-MIRROR-RESULTS.md','tests/atomic-mirror-p05.py','tests/fixtures/atomic-mirror-p05.sql','.github/workflows/atomic-mirror-p05.yml','docs/evidence/P0.5-ATOMIC-MIRROR.json','docs/FARMAKON-P0-ATOMIC-MIRROR-RESULTS.md','docs/FARMAKON-P0-SSI-WRITER-COVERAGE-REVIEW.md','tests/ssi-migration-p03.mjs','tests/ssi-runtime-p03.mjs','tests/ssi-privacy-p03.mjs','tests/ssi-backup-p03.mjs','docs/evidence/P0.3-SSI-MIGRATION.json','docs/FARMAKON-P0-SSI-MIGRATION-SAFETY-REPORT.md','.github/workflows/ssi-p03.yml','.github/workflows/quality.yml'}
           p03=os.environ.get('P02_MODE')=='true' and bool(p03_delta) and all(p in p03_paths for p in p03_delta)
+          # P0.8 runtime checkpoint is validated separately. Only exact tooling/docs
+          # deltas may skip its unchanged regression; never clear the old load failure.
+          p08_delta=subprocess.check_output(['git','diff','--name-only','40b69a00c6b1f2df329badcb944bfc94e9dac278','HEAD'],text=True).splitlines()
+          p08_paths={'tests/exam-store-load-p08.mjs','.github/workflows/exam-store-load-p08.yml','.github/workflows/quality.yml','docs/evidence/P0.8-EXAM-STORE.json','docs/evidence/P0.8-HTTP-LEGACY.json','docs/evidence/P0.8-HTTP-SPECIALIZED.json','docs/FARMAKON-P0-SPECIALIZED-EXAMS-RESULTS.md'}
+          p08=os.environ.get('P02_MODE')=='true' and bool(p08_delta) and all(p in p08_paths for p in p08_delta)
+          p03=p03 or p08
           isolated=isolated or p02 or p03
           with open(os.environ['GITHUB_OUTPUT'],'a') as f: f.write('local_only='+str(isolated).lower()+'\np02_only='+str(p02).lower()+'\np03_only='+str(p03).lower()+'\n')
           print('Only reviewed isolated tooling changes may skip unchanged regression. F00.10.2 load failure remains OPEN; follow-up does not rerun or clear it.')
