@@ -45,7 +45,7 @@ jobs:
           p02_paths={'tests/ssi-architecture-p02.mjs','tests/ssi-legacy-p02.mjs','tests/ssi-runtime-p02.mjs','tests/ssi-roles-p02.mjs','docs/evidence/P0.2-SSI-ARCHITECTURE.json','docs/evidence/P0.2-SSI-LEGACY.json','docs/FARMAKON-P0-SSI-ARCHITECTURE-VALIDATION-REPORT.md','.github/workflows/ssi-p02.yml','.github/workflows/quality.yml'}
           p02=os.environ.get('P02_MODE')=='true' and bool(p02_delta) and all(p in p02_paths for p in p02_delta)
           p03_delta=subprocess.check_output(['git','diff','--name-only','f9f8d1c848fc1a95c07cfe9d7e541596c72aae58','HEAD'],text=True).splitlines()
-          p03_paths={'tests/ssi-migration-p03.mjs','tests/ssi-runtime-p03.mjs','tests/ssi-privacy-p03.mjs','tests/ssi-backup-p03.mjs','docs/evidence/P0.3-SSI-MIGRATION.json','docs/FARMAKON-P0-SSI-MIGRATION-SAFETY-REPORT.md','.github/workflows/ssi-p03.yml','.github/workflows/quality.yml'}
+          p03_paths={'tests/atomic-mirror-p05.py','tests/fixtures/atomic-mirror-p05.sql','.github/workflows/atomic-mirror-p05.yml','docs/evidence/P0.5-ATOMIC-MIRROR.json','docs/FARMAKON-P0-ATOMIC-MIRROR-RESULTS.md','docs/FARMAKON-P0-SSI-WRITER-COVERAGE-REVIEW.md','tests/ssi-migration-p03.mjs','tests/ssi-runtime-p03.mjs','tests/ssi-privacy-p03.mjs','tests/ssi-backup-p03.mjs','docs/evidence/P0.3-SSI-MIGRATION.json','docs/FARMAKON-P0-SSI-MIGRATION-SAFETY-REPORT.md','.github/workflows/ssi-p03.yml','.github/workflows/quality.yml'}
           p03=os.environ.get('P02_MODE')=='true' and bool(p03_delta) and all(p in p03_paths for p in p03_delta)
           isolated=isolated or p02 or p03
           with open(os.environ['GITHUB_OUTPUT'],'a') as f: f.write('local_only='+str(isolated).lower()+'\np02_only='+str(p02).lower()+'\np03_only='+str(p03).lower()+'\n')
@@ -192,3 +192,4 @@ jobs:
         run: node tests/performance/web-timings.mjs
       - name: Synthetic deletion browser lifecycle (mock transport)
         run: node tests/privacy-browser.mjs
+
