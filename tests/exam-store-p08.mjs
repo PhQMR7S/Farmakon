@@ -5,11 +5,21 @@ import {Pool} from 'pg';
 import {AsyncLocalStorage} from 'node:async_hooks';
 import {testDatabase} from './helpers/postgres.mjs';
 const scope=new AsyncLocalStorage(),checks=[],ev={scope:'P0.8 specialized runtime safety gates',checks,result:'FAIL',load:'NOT RUN: safety first',ssiGate:'OPEN'};
+const adminURL=process.env.FARMAKON_TEST_DATABASE_URL;
 const {db,close}=await testDatabase();const pool=new Pool({connectionString:process.env.FARMAKON_TEST_DATABASE_URL,ssl:false,max:2});
 const ok=name=>checks.push({name,status:'PASS'});
 try{
 await pool.query('CREATE TABLE farmakon.deletion_jobs(user_id text PRIMARY KEY,email text)');
 await pool.query(fs.readFileSync('tests/fixtures/exam-store-p08.sql','utf8'));
+
+await pool.query("CREATE ROLE p08_writer LOGIN PASSWORD 'p08-fixture-only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS");
+await pool.query("GRANT USAGE ON SCHEMA farmakon TO p08_writer");
+for(const table of ['records','activity','members','enrollments','codes','settings','deletion_jobs','exam_attempts','exam_results']){
+ await pool.query('GRANT SELECT,INSERT,UPDATE,DELETE ON farmakon.'+table+' TO p08_writer');
+ await pool.query('ALTER TABLE farmakon.'+table+' ENABLE ROW LEVEL SECURITY; CREATE POLICY p08_backend ON farmakon.'+table+' TO p08_writer USING(true) WITH CHECK(true)');
+}
+await pool.query("GRANT SELECT ON farmakon.exam_store_control TO p08_writer; CREATE POLICY p08_control ON farmakon.exam_store_control TO p08_writer USING(true)");
+const writerURL=new URL(adminURL);writerURL.username='p08_writer';writerURL.password='p08-fixture-only';process.env.FARMAKON_TEST_DATABASE_URL=writerURL.href;
 globalThis.__p02={db,user:()=>scope.getStore()};
 process.env.FARMAKON_OWNER_EMAIL='owner@example.test';
 const compile=s=>'data:text/javascript;base64,'+Buffer.from(ts.transpileModule(s,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText).toString('base64');
@@ -18,6 +28,7 @@ const route=await import(compile(fs.readFileSync('app/api/platform/route.ts','ut
 const owner={userId:'p02-owner',email:'owner@example.test',displayName:'Owner'},a={userId:'p02-a',email:'a@example.test',displayName:'A'},b={userId:'p02-b',email:'b@example.test',displayName:'B'};
 async function post(u,body,status=200){return scope.run(u,async()=>{const r=await route.POST(new Request('https://synthetic.test/api/platform',{method:'POST',headers:{origin:'https://synthetic.test','content-type':'application/json'},body:JSON.stringify(body)}));const d=await r.json();if(status!==null)assert.equal(r.status,status,JSON.stringify({action:body.action,status:r.status}));return status===null?{status:r.status,data:d}:d;});}
 async function get(u){return scope.run(u,async()=>{const r=await route.GET();assert.equal(r.status,200);return r.json();});}
+ assert.equal((await db.prepare('SELECT current_user u').first()).u,'p08_writer');ok('actual application adapter uses limited login under RLS');
  const course=await post(owner,{action:'save',kind:'course',data:{title:'Synthetic',description:'',stage:'3',category:'Pharmacy',price:1,days:30,status:'published',color:'teal'}});
  await post(owner,{action:'enroll',email:a.email,courseId:course.id,days:30});
  const qs=[];for(let i=0;i<2;i++)qs.push((await post(owner,{action:'save',kind:'question',data:{title:'Question '+i,courseId:course.id,topic:'',options:['a','b','c','d'],correct:i+1,explanation:'explanation',source:'source',status:'published',free:false}})).id);
@@ -48,6 +59,18 @@ async function get(u){return scope.run(u,async()=>{const r=await route.GET();ass
  assert.equal(grade.score,1);assert.deepEqual(await post(a,{action:'submitExam',id:modern.id,answers:{[qs[0]]:0}}),grade);
  assert.equal((await pool.query("SELECT count(*)::int n FROM farmakon.records WHERE kind='attempt'")).rows[0].n,0);
  ok('specialized runtime writes attempts and results outside generic tables');
+
+ const failed=await post(a,{action:'startExam',id:exam});
+ await post(a,{action:'saveExam',id:failed.id,answers:{[qs[0]]:1}});
+ const preFault=(await pool.query('SELECT id,data FROM farmakon.exam_attempts ORDER BY id')).rows;
+ const eventCount=(await pool.query('SELECT count(*)::int n FROM farmakon.exam_results')).rows[0].n;
+ await pool.query('ALTER TABLE farmakon.exam_results ADD CONSTRAINT p08_fault CHECK(false) NOT VALID');
+ await post(a,{action:'submitExam',id:failed.id,answers:{}},500);
+ assert.deepEqual((await pool.query('SELECT id,data FROM farmakon.exam_attempts ORDER BY id')).rows,preFault);
+ assert.equal((await pool.query('SELECT count(*)::int n FROM farmakon.exam_results')).rows[0].n,eventCount);
+ await pool.query('ALTER TABLE farmakon.exam_results DROP CONSTRAINT p08_fault');
+ assert.equal((await post(a,{action:'submitExam',id:failed.id,answers:{}})).score,1);
+ ok('specialized result failure rolls back grade and answers; retry commits once');
  const twins=await Promise.all([post(a,{action:'startExam',id:exam}),post(a,{action:'startExam',id:exam})]);assert.equal(twins[0].id,twins[1].id);
  await Promise.all([post(a,{action:'saveExam',id:twins[0].id,answers:{[qs[0]]:1}}),post(a,{action:'saveExam',id:twins[0].id,answers:{[qs[1]]:2}})]);
  const resume=await post(a,{action:'startExam',id:exam});assert.deepEqual(resume.answers,{[qs[0]]:1,[qs[1]]:2});
@@ -95,4 +118,4 @@ async function get(u){return scope.run(u,async()=>{const r=await route.GET();ass
  await db.transaction(()=>db.prepare('SELECT 1').first());assert.equal((await pool.query('SELECT data FROM farmakon.records WHERE id=$1',[retained.id])).rows[0].data,retainedJSON);ok('prepared fixture rollback restores legacy JSON and mode');
  ev.result='PASS';ev.postgresVersion=(await pool.query('SHOW server_version')).rows[0].server_version;
 
-}finally{try{await close();ok('cleanup isolated schema');}catch(e){ev.result='FAIL';throw e;}finally{await pool.end();delete globalThis.__p02;delete process.env.FARMAKON_EXAM_STORE_ENABLED;fs.mkdirSync('docs/evidence',{recursive:true});fs.writeFileSync('docs/evidence/P0.8-EXAM-STORE.json',JSON.stringify(ev,null,2)+'\n');console.log(JSON.stringify(ev));}}
+}finally{try{await close();await pool.query('DROP ROLE p08_writer');ok('cleanup isolated schema and role');}catch(e){ev.result='FAIL';throw e;}finally{await pool.end();delete globalThis.__p02;delete process.env.FARMAKON_EXAM_STORE_ENABLED;process.env.FARMAKON_TEST_DATABASE_URL=adminURL;fs.mkdirSync('docs/evidence',{recursive:true});fs.writeFileSync('docs/evidence/P0.8-EXAM-STORE.json',JSON.stringify(ev,null,2)+'\n');console.log(JSON.stringify(ev));}}
