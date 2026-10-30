@@ -35,7 +35,7 @@
     },
     {
       "id": "RECOVERY",
-      "detail": "No current live backup/restore proof available. Connected Supabase tools expose no database backup export/list operation; local psql/pg_dump/docker/supabase/vercel CLIs are absent. Existing DR report explicitly says live provider restore was not performed. This is not proof that the provider has no backups."
+      "detail": "Authenticated Staging Backups page confirms FREE has no project backups. Manual CLI backup remains possible in principle, but current executor has no psql/pg_dump/Docker/Supabase CLI and package setup fails on executor privileges. No backup created and no restore performed; never substitute an in-database copy for an off-site recoverable backup."
     },
     {
       "id": "WRITER_DRAIN",
@@ -61,5 +61,25 @@
     "acceptedPackageRun": "https://github.com/PhQMR7S/Farmakon/actions/runs/41111518596",
     "acceptedPackageChecks": 20
   },
-  "nextRequiredAction": "Establish a securely bound isolated runtime and a verified recoverable Staging backup/restore path, then drain all writers before invoking the already tested package. No additional consent to the same Staging-only scope is needed."
+  "nextRequiredAction": "Provide a managed executor with PostgreSQL 17 client, an isolated restore database, permitted Staging database connectivity, and a securely bound Staging-only credential; then perform encrypted off-site backup and restore verification before activation. Existing Staging authorization remains valid.",
+  "browserFollowup": {
+    "checkedAt": "2026-10-30T19:25:16.639Z",
+    "authenticatedStagingDashboard": true,
+    "verifiedPage": "https://supabase.com/dashboard/project/qfzharpouemueipsrduv/database/backups/scheduled",
+    "plan": "FREE",
+    "visibleBackupNotice": "Free Plan does not include project backups.",
+    "manualBackupRoute": "Official Supabase documentation recommends CLI db dump and off-site backups for Free projects.",
+    "source": "https://supabase.com/docs/guides/platform/backups",
+    "localTools": {
+      "psql": false,
+      "pg_dump": false,
+      "docker": false,
+      "supabase": false,
+      "postgresqlClient17Install": "FAIL: Unable to locate package",
+      "aptIndexRefresh": "FAIL: executor setgroups/setegid/seteuid restrictions; no packages installed"
+    },
+    "backupCreated": false,
+    "restoreVerified": false,
+    "serviceChanges": false
+  }
 }
