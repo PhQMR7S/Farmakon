@@ -1,0 +1,65 @@
+{
+  "checkedAt": "2026-10-30T19:13:58.305Z",
+  "authorization": "User approved Staging-only installation, migration and activation; Production remains excluded.",
+  "sourceCommit": "4cead4457571dc9b72856a43085890429a61f6f2",
+  "status": "BLOCKED_BEFORE_MUTATION",
+  "staging": {
+    "project": "qfzharpouemueipsrduv",
+    "name": "Farmakon-Staging",
+    "health": "ACTIVE_HEALTHY",
+    "postgres": "17.11.0.003",
+    "deletionLedgerPresent": true,
+    "specializedControlPresent": false,
+    "legacyAttempts": 3,
+    "legacyExamEvents": 1,
+    "otherOpenClientTransactionsAtObservation": 0
+  },
+  "vercel": {
+    "project": "prj_7aDZWJnTGVkQeVGnSurul4ExaEXt",
+    "protectedPreviews": true,
+    "observedLatestPreviewCommit": "a02718e8696ffbbcbb35bbb56a378980773afec3",
+    "observedLatestPreviewBranch": "audit/f00-regression-2026-10-26",
+    "isolatedConnectionOverrideBranches": [
+      "audit/f00-regression-2026-10-26",
+      "feat/farmakon-v2-p0-hardening"
+    ],
+    "pr19Branch": "codex/farmakon-p0-critical-fixes-2026-10-28",
+    "pr19BranchConnectionOverridesFound": false,
+    "genericPreviewAndProductionConnectionVariablesPresent": true,
+    "secretValuesDecrypted": false
+  },
+  "blockers": [
+    {
+      "id": "TARGET_BINDING",
+      "detail": "PR19 branch has no observed branch-scoped isolated DATABASE_URL/Auth settings. Generic preview+production settings exist. Do not deploy that branch until isolation is established and verified."
+    },
+    {
+      "id": "RECOVERY",
+      "detail": "No current live backup/restore proof available. Connected Supabase tools expose no database backup export/list operation; local psql/pg_dump/docker/supabase/vercel CLIs are absent. Existing DR report explicitly says live provider restore was not performed. This is not proof that the provider has no backups."
+    },
+    {
+      "id": "WRITER_DRAIN",
+      "detail": "Zero observed open transactions is a point-in-time measurement, not proof every old preview/Edge/worker writer is stopped. Drain was not attested."
+    }
+  ],
+  "advisory": {
+    "name": "auth_leaked_password_protection",
+    "level": "WARN",
+    "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection"
+  },
+  "mutations": {
+    "serviceSchema": false,
+    "studentData": false,
+    "environmentVariables": false,
+    "deployment": false,
+    "featureFlag": false,
+    "production": false
+  },
+  "tests": {
+    "newAutomatedRuns": 0,
+    "reason": "Preconditions failed before service mutation; no code changes justify rerunning accepted isolated suites.",
+    "acceptedPackageRun": "https://github.com/PhQMR7S/Farmakon/actions/runs/41111518596",
+    "acceptedPackageChecks": 20
+  },
+  "nextRequiredAction": "Establish a securely bound isolated runtime and a verified recoverable Staging backup/restore path, then drain all writers before invoking the already tested package. No additional consent to the same Staging-only scope is needed."
+}
