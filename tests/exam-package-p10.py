@@ -48,11 +48,19 @@ try:
  assert sql("SELECT to_regclass('farmakon.exam_store_control') IS NULL")=='t'
  sql('ALTER ROLE p10_backend NOBYPASSRLS')
  ok('unsafe backend rejected atomically')
+ sql('GRANT CREATE ON SCHEMA farmakon TO p10_backend')
+ package('install',fail='22012')
+ assert sql("SELECT to_regclass('farmakon.exam_store_control') IS NULL")=='t'
+ sql('REVOKE CREATE ON SCHEMA farmakon FROM p10_backend')
+ ok('backend schema-creation privilege is rejected before installation')
  source_acl=sql("SELECT jsonb_agg(jsonb_build_array(relname,relacl::text) ORDER BY relname) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='farmakon'")
  package('install')
  assert sql("SELECT ready FROM farmakon.exam_store_control")=='f'
  assert sql("SELECT count(*) FROM pg_inherits i JOIN pg_class c ON c.oid=i.inhparent JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='farmakon' AND c.relname IN ('exam_attempts','exam_results')")=='64'
  ok('atomic inactive install creates 32 attempt and 32 result partitions')
+ package('install',fail='22012')
+ assert sql("SELECT ready FROM farmakon.exam_store_control")=='f'
+ ok('repeat installation refuses rather than overwriting objects')
  assert sql("SELECT current_user",True)=='p10_backend'
  assert sql("SELECT ready FROM farmakon.exam_store_control",True)=='f'
  sql("UPDATE farmakon.exam_store_control SET ready=true",True,fail='42501')

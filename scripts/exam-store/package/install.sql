@@ -25,6 +25,10 @@ SELECT EXISTS(SELECT 1 FROM pg_roles WHERE rolname=:'app_role' AND NOT (rolsuper
  WHERE n.nspname='farmakon' AND c.relname IN ('records','activity','deletion_jobs')
  AND pg_has_role(:'app_role',c.relowner,'MEMBER'))
  AND NOT EXISTS(SELECT 1 FROM pg_roles r WHERE (r.rolsuper OR r.rolbypassrls OR r.rolcreaterole OR r.rolcreatedb) AND pg_has_role(:'app_role',r.oid,'MEMBER'))
+ AND NOT pg_has_role(:'app_role',current_user,'MEMBER')
+ AND NOT has_schema_privilege(:'app_role','farmakon','CREATE')
+ AND NOT has_table_privilege(:'app_role','farmakon.records','TRUNCATE')
+ AND NOT has_table_privilege(:'app_role','farmakon.activity','TRUNCATE')
  AND to_regclass('farmakon.exam_store_control') IS NULL AS role_safe
 \gset
 \if :role_safe
