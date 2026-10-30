@@ -1,0 +1,70 @@
+{
+  "scope": "P0.9 isolated preflight; no service or real data read",
+  "checks": [
+    {
+      "name": "valid legacy data passes without mutation",
+      "status": "PASS"
+    },
+    {
+      "name": "aggregate output excludes identity and answer data",
+      "status": "PASS"
+    },
+    {
+      "name": "malformed JSON blocks without query crash",
+      "status": "PASS"
+    },
+    {
+      "name": "duplicate active group blocks and preserves both attempts",
+      "status": "PASS"
+    },
+    {
+      "name": "invalid snapshot, identity, answers and result are counted",
+      "status": "PASS"
+    },
+    {
+      "name": "durable deletion job blocks restored legacy identity",
+      "status": "PASS"
+    },
+    {
+      "name": "cross-user result link blocks",
+      "status": "PASS"
+    },
+    {
+      "name": "missing backend role blocks",
+      "status": "PASS"
+    },
+    {
+      "name": "BYPASSRLS backend blocks",
+      "status": "PASS"
+    },
+    {
+      "name": "source ownership escalation blocks",
+      "status": "PASS"
+    },
+    {
+      "name": "public source write privilege blocks",
+      "status": "PASS"
+    },
+    {
+      "name": "clean state restored without data repair by preflight",
+      "status": "PASS"
+    },
+    {
+      "name": "database enforces read-only transaction",
+      "status": "PASS"
+    },
+    {
+      "name": "fixture schema and role cleanup",
+      "status": "PASS"
+    }
+  ],
+  "result": "PASS",
+  "provenance": {
+    "sourceCommit": "f69fe6c5d861328b53ad8de22068aeb979407978",
+    "runId": 41088572166,
+    "jobId": 124176109092,
+    "url": "https://github.com/PhQMR7S/Farmakon/actions/runs/41088572166",
+    "source": "successful completed job log",
+    "cleanupContainerAndNetwork": true
+  }
+}

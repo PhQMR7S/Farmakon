@@ -1,0 +1,110 @@
+{
+  "scope": "P0.10 isolated operational package; not service approval",
+  "checks": [
+    {
+      "name": "unapproved invocation refuses before schema creation",
+      "status": "PASS"
+    },
+    {
+      "name": "missing deletion ledger refuses without partial installation",
+      "status": "PASS"
+    },
+    {
+      "name": "unsafe backend rejected atomically",
+      "status": "PASS"
+    },
+    {
+      "name": "backend schema-creation privilege is rejected before installation",
+      "status": "PASS"
+    },
+    {
+      "name": "atomic inactive install creates 32 attempt and 32 result partitions",
+      "status": "PASS"
+    },
+    {
+      "name": "repeat installation refuses rather than overwriting objects",
+      "status": "PASS"
+    },
+    {
+      "name": "limited login cannot change mode, disable triggers, bypass replica or read child; browser roles denied",
+      "status": "PASS"
+    },
+    {
+      "name": "backend cannot write specialized store while inactive",
+      "status": "PASS"
+    },
+    {
+      "name": "activation requires maintenance attestation and preserves state on refusal",
+      "status": "PASS"
+    },
+    {
+      "name": "activation refuses a real in-flight backend transaction",
+      "status": "PASS"
+    },
+    {
+      "name": "duplicate active legacy data blocks without choosing or deleting a winner",
+      "status": "PASS"
+    },
+    {
+      "name": "copy failure rolls back copied rows, source removal and readiness",
+      "status": "PASS"
+    },
+    {
+      "name": "activation copies exact JSON and results while preserving catalogue/progress",
+      "status": "PASS"
+    },
+    {
+      "name": "unmodified old writer is rejected after activation",
+      "status": "PASS"
+    },
+    {
+      "name": "uninstall refuses an active store without deleting data",
+      "status": "PASS"
+    },
+    {
+      "name": "rollback refuses to resurrect deletion-ledger identities",
+      "status": "PASS"
+    },
+    {
+      "name": "rollback failure restores active marker and all specialized data",
+      "status": "PASS"
+    },
+    {
+      "name": "successful rollback preserves new answers, new events and old awarded result",
+      "status": "PASS"
+    },
+    {
+      "name": "safe uninstall removes only package objects, retaining ledger and legacy data",
+      "status": "PASS"
+    },
+    {
+      "name": "isolated schema and fixture roles cleaned up",
+      "status": "PASS"
+    }
+  ],
+  "result": "PASS",
+  "postgres": "17.11 (Debian 17.11-1.pgdg13+2)",
+  "provenance": {
+    "sourceCommit": "9f84f1a2d45059c132fb061adf8c4306fd8421be",
+    "runId": 41111518596,
+    "jobId": 124254577932,
+    "url": "https://github.com/PhQMR7S/Farmakon/actions/runs/41111518596",
+    "extractedFrom": "completed successful job log",
+    "containerAndNetworkCleanup": true
+  },
+  "stagingReadOnlyRoleReview": {
+    "date": "2026-10-30",
+    "role": "farmakon_app",
+    "result": {
+      "ledger_present": true,
+      "backend_present": true,
+      "backend_elevated": false,
+      "specialized_absent": true,
+      "backend_owns_source": false,
+      "backend_schema_create": false,
+      "backend_source_truncate": false,
+      "backend_can_assume_privileged_role": false
+    },
+    "scope": "read-only candidate checks only; no actual installation or all-worker mapping certification"
+  }
+}

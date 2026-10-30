@@ -1,0 +1,97 @@
+{
+  "scope": "P0.6 original handlers with PostgreSQL atomic triggers",
+  "checks": [
+    {
+      "name": "production SQL adapter uses restricted LOGIN",
+      "status": "PASS"
+    },
+    {
+      "name": "concurrent original startExam creates one attempt",
+      "status": "PASS"
+    },
+    {
+      "name": "concurrent save patches survive and resume unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "cross-user save and submit denied",
+      "status": "PASS"
+    },
+    {
+      "name": "concurrent submit returns identical grade",
+      "status": "PASS"
+    },
+    {
+      "name": "done rejects save and has one result event",
+      "status": "PASS"
+    },
+    {
+      "name": "save versus submit preserves accepted answers and final state",
+      "status": "PASS"
+    },
+    {
+      "name": "legacy grace unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "v2 deadline rejects late answers",
+      "status": "PASS"
+    },
+    {
+      "name": "expired and revoked subscription deny original handlers",
+      "status": "PASS"
+    },
+    {
+      "name": "start mirror failure rolls back whole route transaction",
+      "status": "PASS"
+    },
+    {
+      "name": "save mirror failure preserves answers and both copies",
+      "status": "PASS"
+    },
+    {
+      "name": "submit event mirror failure rolls back attempt grade and event",
+      "status": "PASS"
+    },
+    {
+      "name": "retry after rollback commits once and done result stays immutable",
+      "status": "PASS"
+    },
+    {
+      "name": "GET settlement mirror failure rolls back grade and event",
+      "status": "PASS"
+    },
+    {
+      "name": "GET settles saved answers with one immutable result event",
+      "status": "PASS"
+    },
+    {
+      "name": "authorization failures do not alter source or shadow; answer key hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "no duplicate active attempts or result events after all handler cases",
+      "status": "PASS"
+    },
+    {
+      "name": "cleanup schema and fixture roles",
+      "status": "PASS"
+    }
+  ],
+  "ssiGate": "FAILED/OPEN; no HTTP load",
+  "result": "PASS",
+  "postgresVersion": "17.11 (Debian 17.11-1.pgdg13+2)",
+  "provenance": {
+    "sourceCommit": "e9dec26fe00619da6cad47390408392019d3d11d",
+    "runId": 40846974880,
+    "jobId": 123356745009,
+    "url": "https://github.com/PhQMR7S/Farmakon/actions/runs/40846974880",
+    "extractedFrom": "completed successful job log",
+    "containerAndNetworkRemoved": true
+  },
+  "limitations": [
+    "Auth identity and rate-limit transport are fixtures; no live Supabase Auth/Storage",
+    "Known pg concurrent client.query deprecation remains visible in original GET; no test-only serialization workaround",
+    "No migration, backfill, cutover, HTTP load, or SSI closure"
+  ]
+}

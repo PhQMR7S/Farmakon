@@ -24,16 +24,28 @@ async function transaction<T>(work:()=>Promise<T>):Promise<T>{
  if(transactions.getStore())return work();
  for(let attempt=0;;attempt++){
   const client=await connection().connect();let retry=false;
+  let discard=false;
   try{
    await client.query('BEGIN ISOLATION LEVEL SERIALIZABLE');
+   // Fail closed if an operator disables the flag before the prepared rollback.
+   // No schema is installed here; absent control table means legacy mode only.
+   const exists=await client.query("SELECT to_regclass('farmakon.exam_store_control') AS present");
+   const enabled=process.env.FARMAKON_EXAM_STORE_ENABLED==='true';
+   if(exists.rows[0]?.present){
+    const mode=await client.query("SELECT ready FROM farmakon.exam_store_control WHERE id='exam-v1'");
+    if(mode.rows.length!==1||mode.rows[0].ready!==enabled)throw Error('EXAM_STORE_MODE_MISMATCH');
+   }else if(enabled)throw Error('EXAM_STORE_NOT_READY');
    const result=await transactions.run(client,work);
    await client.query('COMMIT');return result;
   }catch(error){
-   try{await client.query('ROLLBACK');}catch{/* Preserve the original failure. */}
    const code=(error as {code?:string}).code;
+   // A failed rollback leaves connection/transaction state untrusted. Never
+   // return that client (or a connection-class failure) to another request.
+   discard=!!code?.startsWith('08');
+   try{await client.query('ROLLBACK');}catch{discard=true;/* Preserve the original failure. */}
    // PostgreSQL guarantees these errors abort the transaction, including at COMMIT.
    if((code==='40001'||code==='40P01')&&attempt<4)retry=true;else throw error;
-  }finally{client.release();}
+  }finally{client.release(discard);}
   // Break lockstep retries; release the scarce connection BEFORE backing off.
   // Same five-attempt budget; never retry an uncertain COMMIT/network error.
   if(retry)await new Promise(resolve=>setTimeout(resolve,Math.floor(Math.random()*Math.min(640,80*2**attempt))));

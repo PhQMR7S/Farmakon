@@ -1,7 +1,7 @@
 name: Farmakon quality checks
 on:
   pull_request:
-    branches: [main, feat/farmakon-v2-p0-privacy]
+    branches: [main, feat/farmakon-v2-p0-privacy, audit/f00-regression-2026-10-26]
   workflow_dispatch:
 
 permissions:
@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       local_only: ${{ steps.scope.outputs.local_only }}
+      p02_only: ${{ steps.scope.outputs.p02_only }}
+      p03_only: ${{ steps.scope.outputs.p03_only }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -25,6 +27,7 @@ jobs:
       - id: scope
         env:
           LOCAL_MODE: ${{ github.repository == 'PhQMR7S/Farmakon' && github.event.pull_request.head.ref == 'audit/f00-regression-2026-10-26' }}
+          P02_MODE: ${{ github.repository == 'PhQMR7S/Farmakon' && github.event.pull_request.head.ref == 'codex/farmakon-p0-critical-fixes-2026-10-28' }}
         run: |
           python3 - <<'PY'
           import os, subprocess
@@ -38,9 +41,32 @@ jobs:
           followup_paths={'tests/performance/postgres-load.mjs','tests/serialization-root-cause.mjs','tests/helpers/pg-trace.mjs','tests/helpers/postgres.mjs','.github/workflows/serialization-trace.yml','docs/FARMAKON-F00-POSTGRES-SERIALIZATION-ROOT-CAUSE-REPORT.md','docs/evidence/F00.10.3-COMPONENT-TRACE.json','docs/evidence/F00.10.3-RESULTS.json','tests/exam-concurrency.mjs','.github/workflows/exam-concurrency.yml','.github/workflows/quality.yml','docs/FARMAKON-F00-EXAM-CONCURRENCY-RELIABILITY-REPORT.md','docs/evidence/F00.10.2-EXAM-CONCURRENCY.json'}
           followup=os.environ.get('LOCAL_MODE')=='true' and bool(delta) and all(p in followup_paths for p in delta)
           isolated=isolated or followup
-          with open(os.environ['GITHUB_OUTPUT'],'a') as f: f.write('local_only='+str(isolated).lower()+'\n')
+          p02_delta=subprocess.check_output(['git','diff','--name-only','00e7cbaef57631d2fc551d24fdd40c635d901a2d','HEAD'],text=True).splitlines()
+          p02_paths={'tests/ssi-architecture-p02.mjs','tests/ssi-legacy-p02.mjs','tests/ssi-runtime-p02.mjs','tests/ssi-roles-p02.mjs','docs/evidence/P0.2-SSI-ARCHITECTURE.json','docs/evidence/P0.2-SSI-LEGACY.json','docs/FARMAKON-P0-SSI-ARCHITECTURE-VALIDATION-REPORT.md','.github/workflows/ssi-p02.yml','.github/workflows/quality.yml'}
+          p02=os.environ.get('P02_MODE')=='true' and bool(p02_delta) and all(p in p02_paths for p in p02_delta)
+          p03_delta=subprocess.check_output(['git','diff','--name-only','f9f8d1c848fc1a95c07cfe9d7e541596c72aae58','HEAD'],text=True).splitlines()
+          p03_paths={'tests/exam-mirror-p06.mjs','.github/workflows/exam-mirror-p06.yml','docs/evidence/P0.6-EXAM-MIRROR.json','docs/FARMAKON-P0-EXAM-MIRROR-RESULTS.md','tests/atomic-mirror-p05.py','tests/fixtures/atomic-mirror-p05.sql','.github/workflows/atomic-mirror-p05.yml','docs/evidence/P0.5-ATOMIC-MIRROR.json','docs/FARMAKON-P0-ATOMIC-MIRROR-RESULTS.md','docs/FARMAKON-P0-SSI-WRITER-COVERAGE-REVIEW.md','tests/ssi-migration-p03.mjs','tests/ssi-runtime-p03.mjs','tests/ssi-privacy-p03.mjs','tests/ssi-backup-p03.mjs','docs/evidence/P0.3-SSI-MIGRATION.json','docs/FARMAKON-P0-SSI-MIGRATION-SAFETY-REPORT.md','.github/workflows/ssi-p03.yml','.github/workflows/quality.yml'}
+          p03=os.environ.get('P02_MODE')=='true' and bool(p03_delta) and all(p in p03_paths for p in p03_delta)
+          # P0.8 runtime checkpoint is validated separately. Only exact tooling/docs
+          # deltas may skip its unchanged regression; never clear the old load failure.
+          p08_delta=subprocess.check_output(['git','diff','--name-only','40b69a00c6b1f2df329badcb944bfc94e9dac278','HEAD'],text=True).splitlines()
+          p08_paths={'docs/FARMAKON-LIVE-LEGACY-INVENTORY-2026-10-30.md','docs/evidence/LIVE-LEGACY-INVENTORY-2026-10-30.json','scripts/exam-store/package/install.sql','scripts/exam-store/package/schema.sql','scripts/exam-store/package/legacy-select.sql','scripts/exam-store/package/activate.sql','scripts/exam-store/package/rollback.sql','scripts/exam-store/package/uninstall.sql','scripts/exam-store/package/README.md','tests/exam-package-p10.py','.github/workflows/exam-package-p10.yml','docs/evidence/P0.10-OPERATIONAL-PACKAGE.json','docs/FARMAKON-P0-OPERATIONAL-PACKAGE-RESULTS.md','scripts/exam-store/legacy-preflight.sql','tests/legacy-preflight-p09.py','.github/workflows/legacy-preflight-p09.yml','docs/evidence/P0.9-LEGACY-PREFLIGHT.json','docs/FARMAKON-P0-LEGACY-PREFLIGHT-RESULTS.md','tests/exam-store-load-p08.mjs','.github/workflows/exam-store-load-p08.yml','.github/workflows/quality.yml','docs/evidence/P0.8-EXAM-STORE.json','docs/evidence/P0.8-HTTP-LEGACY.json','docs/evidence/P0.8-HTTP-SPECIALIZED.json','docs/FARMAKON-P0-SPECIALIZED-EXAMS-RESULTS.md'}
+          p08=os.environ.get('P02_MODE')=='true' and bool(p08_delta) and all(p in p08_paths for p in p08_delta)
+          p03=p03 or p08
+          isolated=isolated or p02 or p03
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f: f.write('local_only='+str(isolated).lower()+'\np02_only='+str(p02).lower()+'\np03_only='+str(p03).lower()+'\n')
           print('Only reviewed isolated tooling changes may skip unchanged regression. F00.10.2 load failure remains OPEN; follow-up does not rerun or clear it.')
           PY
+
+  p02_existing_load_gate:
+    needs: scope
+    if: needs.scope.outputs.p02_only == 'true' || needs.scope.outputs.p03_only == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Keep previously failed SSI load gate visible
+        run: |
+          echo 'FAILED: prior 10 VU load produced startExam HTTP 503 / SQLSTATE 40001; P0.2 is a test-only prototype and does not repair runtime.'
+          exit 1
 
   baseline:
     needs: scope
@@ -62,7 +88,10 @@ jobs:
       - name: TypeScript check
         run: npm run typecheck
       - name: Backend regression smoke (SQLite test adapter)
-        run: node tests/backend-smoke.mjs
+        run: |
+          node tests/backend-smoke.mjs
+          node tests/subscriptions.mjs
+          node tests/validation-contract.mjs
       - name: Auth contract smoke (no live provider)
         run: |
           node tests/auth-smoke.mjs
@@ -73,6 +102,7 @@ jobs:
         run: |
           node tests/http-smoke.mjs
           node tests/database-reliability.mjs
+          node tests/database-rollback.mjs
       - name: Preview isolation fail-closed checks
         run: |
           node tests/preview-isolation-smoke.mjs
@@ -118,8 +148,8 @@ jobs:
         run: node tests/exam-concurrency.mjs
         env:
           FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
-      - name: Isolated performance baseline and bounded 1-5-10-25 VU load
-        run: node tests/performance/postgres-load.mjs
+      - name: Atomic subscription renewal and coordinated code claims
+        run: node tests/subscriptions.mjs
         env:
           FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
       - name: Synthetic account deletion PostgreSQL lifecycle
@@ -136,6 +166,16 @@ jobs:
           node tests/recovery-dr.mjs
         env:
           FARMAKON_TEST_CONTAINER: ${{ job.services.postgres.id }}
+      - name: Isolated performance baseline and bounded 1-5-10-25 VU load
+        if: github.event.pull_request.head.ref != 'codex/farmakon-p0-critical-fixes-2026-10-28'
+        run: node tests/performance/postgres-load.mjs
+        env:
+          FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
+      - name: Existing load gate remains failed pending SSI fix
+        if: github.event.pull_request.head.ref == 'codex/farmakon-p0-critical-fixes-2026-10-28'
+        run: |
+          echo 'BLOCKED: isolated load failed at 10 VU (startExam 503 / SQLSTATE 40001); no unchanged rerun or acceptance threshold change.'
+          exit 1
 
   browser:
     needs: scope
@@ -158,3 +198,4 @@ jobs:
         run: node tests/performance/web-timings.mjs
       - name: Synthetic deletion browser lifecycle (mock transport)
         run: node tests/privacy-browser.mjs
+

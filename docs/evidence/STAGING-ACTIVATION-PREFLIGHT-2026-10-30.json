@@ -1,0 +1,85 @@
+{
+  "checkedAt": "2026-10-30T19:13:58.305Z",
+  "authorization": "User approved Staging-only installation, migration and activation; Production remains excluded.",
+  "sourceCommit": "4cead4457571dc9b72856a43085890429a61f6f2",
+  "status": "BLOCKED_BEFORE_MUTATION",
+  "staging": {
+    "project": "qfzharpouemueipsrduv",
+    "name": "Farmakon-Staging",
+    "health": "ACTIVE_HEALTHY",
+    "postgres": "17.11.0.003",
+    "deletionLedgerPresent": true,
+    "specializedControlPresent": false,
+    "legacyAttempts": 3,
+    "legacyExamEvents": 1,
+    "otherOpenClientTransactionsAtObservation": 0
+  },
+  "vercel": {
+    "project": "prj_7aDZWJnTGVkQeVGnSurul4ExaEXt",
+    "protectedPreviews": true,
+    "observedLatestPreviewCommit": "a02718e8696ffbbcbb35bbb56a378980773afec3",
+    "observedLatestPreviewBranch": "audit/f00-regression-2026-10-26",
+    "isolatedConnectionOverrideBranches": [
+      "audit/f00-regression-2026-10-26",
+      "feat/farmakon-v2-p0-hardening"
+    ],
+    "pr19Branch": "codex/farmakon-p0-critical-fixes-2026-10-28",
+    "pr19BranchConnectionOverridesFound": false,
+    "genericPreviewAndProductionConnectionVariablesPresent": true,
+    "secretValuesDecrypted": false
+  },
+  "blockers": [
+    {
+      "id": "TARGET_BINDING",
+      "detail": "PR19 branch has no observed branch-scoped isolated DATABASE_URL/Auth settings. Generic preview+production settings exist. Do not deploy that branch until isolation is established and verified."
+    },
+    {
+      "id": "RECOVERY",
+      "detail": "Authenticated Staging Backups page confirms FREE has no project backups. Manual CLI backup remains possible in principle, but current executor has no psql/pg_dump/Docker/Supabase CLI and package setup fails on executor privileges. No backup created and no restore performed; never substitute an in-database copy for an off-site recoverable backup."
+    },
+    {
+      "id": "WRITER_DRAIN",
+      "detail": "Zero observed open transactions is a point-in-time measurement, not proof every old preview/Edge/worker writer is stopped. Drain was not attested."
+    }
+  ],
+  "advisory": {
+    "name": "auth_leaked_password_protection",
+    "level": "WARN",
+    "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection"
+  },
+  "mutations": {
+    "serviceSchema": false,
+    "studentData": false,
+    "environmentVariables": false,
+    "deployment": false,
+    "featureFlag": false,
+    "production": false
+  },
+  "tests": {
+    "newAutomatedRuns": 0,
+    "reason": "Preconditions failed before service mutation; no code changes justify rerunning accepted isolated suites.",
+    "acceptedPackageRun": "https://github.com/PhQMR7S/Farmakon/actions/runs/41111518596",
+    "acceptedPackageChecks": 20
+  },
+  "nextRequiredAction": "Provide a managed executor with PostgreSQL 17 client, an isolated restore database, permitted Staging database connectivity, and a securely bound Staging-only credential; then perform encrypted off-site backup and restore verification before activation. Existing Staging authorization remains valid.",
+  "browserFollowup": {
+    "checkedAt": "2026-10-30T19:25:16.639Z",
+    "authenticatedStagingDashboard": true,
+    "verifiedPage": "https://supabase.com/dashboard/project/qfzharpouemueipsrduv/database/backups/scheduled",
+    "plan": "FREE",
+    "visibleBackupNotice": "Free Plan does not include project backups.",
+    "manualBackupRoute": "Official Supabase documentation recommends CLI db dump and off-site backups for Free projects.",
+    "source": "https://supabase.com/docs/guides/platform/backups",
+    "localTools": {
+      "psql": false,
+      "pg_dump": false,
+      "docker": false,
+      "supabase": false,
+      "postgresqlClient17Install": "FAIL: Unable to locate package",
+      "aptIndexRefresh": "FAIL: executor setgroups/setegid/seteuid restrictions; no packages installed"
+    },
+    "backupCreated": false,
+    "restoreVerified": false,
+    "serviceChanges": false
+  }
+}

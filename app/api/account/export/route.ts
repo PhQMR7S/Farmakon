@@ -1,4 +1,4 @@
-import {db,identity} from '../../../lib/server';
+import {db,identity,examStoreEnabled,examStoreReady} from '../../../lib/server';
 import {readJson,RequestError} from '../../../../lib/http';
 import {limitRequest} from '../../../../lib/farmakon/rate-limit';
 export const dynamic='force-dynamic';
@@ -17,16 +17,19 @@ export async function POST(req:Request){
   const body=await readJson(req,1024);if(Object.keys(body).length)return fail('طلب غير صالح',400);
   const limited=await limitRequest('study-export',u.userId,5,15*60000);if(limited)return limited;
   return await db().transaction(async()=>{
+   const specialized=examStoreEnabled();if(specialized)await examStoreReady();
+   const recordSource=specialized?"(SELECT id,kind,course_id,data,created FROM records WHERE kind<>'attempt' UNION ALL SELECT id,kind,course_id,data,created FROM farmakon.exam_attempts)":"records";
+   const activitySource=specialized?"(SELECT id,user_id,kind,target,data,updated FROM activity WHERE kind<>'exam' UNION ALL SELECT id,user_id,kind,target,data,updated FROM farmakon.exam_results)":"activity";
    const recordWhere="kind IN ('attempt','order','ticket') AND json_extract(data,'$.userId')=?";
    // Conservative UTF-8 upper bound checked in SQL before loading JSON snapshots.
    const summaries=await Promise.all([
-    db().prepare(`SELECT COUNT(*) AS n,COALESCE(SUM(length(data)*4),0) AS bytes FROM records WHERE ${recordWhere}`).bind(u.userId).first<{n:number,bytes:number}>(),
-    db().prepare('SELECT COUNT(*) AS n,COALESCE(SUM(length(data)*4),0) AS bytes FROM activity WHERE user_id=?').bind(u.userId).first<{n:number,bytes:number}>(),
+    db().prepare(`SELECT COUNT(*) AS n,COALESCE(SUM(length(data)*4),0) AS bytes FROM ${recordSource} AS export_records WHERE ${recordWhere}`).bind(u.userId).first<{n:number,bytes:number}>(),
+    db().prepare(`SELECT COUNT(*) AS n,COALESCE(SUM(length(data)*4),0) AS bytes FROM ${activitySource} AS export_activity WHERE user_id=?`).bind(u.userId).first<{n:number,bytes:number}>(),
     db().prepare('SELECT COUNT(*) AS n FROM enrollments WHERE email=?').bind(u.email).first<{n:number}>()
    ]);
    if(summaries.some(s=>!s||s.n>1000)||(summaries[0]?.bytes||0)+(summaries[1]?.bytes||0)>maxBytes)return fail('حجم بياناتك يتجاوز التنزيل المباشر. تواصل مع الدعم للحصول على نسخة كاملة.',413);
-   const records=(await db().prepare(`SELECT id,kind,data,created FROM records WHERE ${recordWhere} ORDER BY created,id LIMIT 1001`).bind(u.userId).all<Row>()).results;
-   const activity=(await db().prepare('SELECT id,kind,target,data,updated FROM activity WHERE user_id=? ORDER BY updated,id LIMIT 1001').bind(u.userId).all<{id:string,kind:string,target:string,data:string,updated:number}>()).results;
+   const records=(await db().prepare(`SELECT id,kind,data,created FROM ${recordSource} AS export_records WHERE ${recordWhere} ORDER BY created,id LIMIT 1001`).bind(u.userId).all<Row>()).results;
+   const activity=(await db().prepare(`SELECT id,kind,target,data,updated FROM ${activitySource} AS export_activity WHERE user_id=? ORDER BY updated,id LIMIT 1001`).bind(u.userId).all<{id:string,kind:string,target:string,data:string,updated:number}>()).results;
    const enrollments=(await db().prepare('SELECT id,course_id,expires,source FROM enrollments WHERE email=? ORDER BY id LIMIT 1001').bind(u.email).all()).results;
    if(records.length>1000||activity.length>1000||enrollments.length>1000)return fail('حجم البيانات كبير. تواصل مع الدعم.',413);
    const attempts=[],orders=[],tickets=[];

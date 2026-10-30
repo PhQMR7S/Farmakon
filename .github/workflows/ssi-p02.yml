@@ -1,0 +1,49 @@
+name: Farmakon P0.2 isolated architecture validation
+on:
+  push:
+    branches: [codex/farmakon-p0-critical-fixes-2026-10-28]
+    paths: [tests/ssi-architecture-p02.mjs, tests/ssi-legacy-p02.mjs, tests/ssi-runtime-p02.mjs, tests/ssi-roles-p02.mjs, .github/workflows/ssi-p02.yml]
+permissions:
+  contents: read
+jobs:
+  experiment:
+    if: github.repository == 'PhQMR7S/Farmakon'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: farmakon_v2_test
+          POSTGRES_USER: farmakon_test
+          POSTGRES_PASSWORD: fixture-only-password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U farmakon_test -d farmakon_v2_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: SQL layout A/B1/B2/B3/B4 (two coordinated clients)
+        run: node tests/ssi-architecture-p02.mjs
+        env:
+          FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
+      - name: Synthetic legacy backfill and rollback probes
+        run: node tests/ssi-legacy-p02.mjs
+        env:
+          FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
+      - name: Actual exam handlers with test-only typed adapter
+        run: node tests/ssi-runtime-p02.mjs
+        env:
+          FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
+      - name: Typed-table PostgreSQL fixture role boundaries
+        run: node tests/ssi-roles-p02.mjs
+        env:
+          FARMAKON_TEST_DATABASE_URL: postgresql://farmakon_test:fixture-only-password@127.0.0.1:5432/farmakon_v2_test
+
