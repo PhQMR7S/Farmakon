@@ -1,0 +1,33 @@
+name: Farmakon P0.9 read-only legacy preflight
+on:
+  push:
+    branches: [codex/farmakon-p0-critical-fixes-2026-10-28]
+    paths: [scripts/exam-store/legacy-preflight.sql, tests/legacy-preflight-p09.py, .github/workflows/legacy-preflight-p09.yml]
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: farmakon_v2_test
+          POSTGRES_USER: farmakon_test
+          POSTGRES_PASSWORD: fixture-only-password
+        options: >-
+          --health-cmd "pg_isready -U farmakon_test -d farmakon_v2_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Test preflight on healthy and anomalous synthetic legacy data
+        run: python3 tests/legacy-preflight-p09.py
+        env:
+          FARMAKON_P09_DISPOSABLE: 'true'
+          FARMAKON_P09_CONTAINER: ${{ job.services.postgres.id }}
+      - name: Evidence
+        if: always()
+        run: cat docs/evidence/P0.9-LEGACY-PREFLIGHT.json
