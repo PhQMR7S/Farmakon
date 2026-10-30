@@ -1,0 +1,33 @@
+name: Farmakon P0.10 operational package safety
+on:
+  push:
+    branches: [codex/farmakon-p0-critical-fixes-2026-10-28]
+    paths: [scripts/exam-store/package/**, tests/exam-package-p10.py, .github/workflows/exam-package-p10.yml]
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: farmakon_v2_test
+          POSTGRES_USER: farmakon_test
+          POSTGRES_PASSWORD: fixture-only-password
+        options: >-
+          --health-cmd "pg_isready -U farmakon_test -d farmakon_v2_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Execute install, activation, permissions, failures, rollback and uninstall in disposable PostgreSQL
+        run: python3 tests/exam-package-p10.py
+        env:
+          FARMAKON_P10_DISPOSABLE: 'true'
+          FARMAKON_P10_CONTAINER: ${{ job.services.postgres.id }}
+      - name: Evidence
+        if: always()
+        run: cat docs/evidence/P0.10-OPERATIONAL-PACKAGE.json
