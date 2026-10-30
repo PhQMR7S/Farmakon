@@ -1,0 +1,146 @@
+{
+  "date": "2026-10-30",
+  "scope": "Actual bounded READ ONLY aggregate preflight; no mutations",
+  "baseline": "ccf097af641ca9b4f42da20dcdc4599f4a5d8e26",
+  "production": {
+    "inventory": {
+      "tables": [
+        {
+          "rls": true,
+          "name": "activity",
+          "owner": "postgres"
+        },
+        {
+          "rls": true,
+          "name": "codes",
+          "owner": "postgres"
+        },
+        {
+          "rls": true,
+          "name": "enrollments",
+          "owner": "postgres"
+        },
+        {
+          "rls": true,
+          "name": "members",
+          "owner": "postgres"
+        },
+        {
+          "rls": true,
+          "name": "records",
+          "owner": "postgres"
+        },
+        {
+          "rls": true,
+          "name": "settings",
+          "owner": "postgres"
+        }
+      ],
+      "backend_owns_source": false,
+      "deletion_ledger_present": false,
+      "specialized_store_present": false
+    },
+    "preflight": {
+      "scope": "legacy preflight aggregates only; not migration approval",
+      "issues": {
+        "invalid_answers": 0,
+        "invalid_event_json": 0,
+        "backend_owns_source": 0,
+        "invalid_done_result": 0,
+        "invalid_attempt_json": 0,
+        "missing_backend_role": 0,
+        "invalid_attempt_status": 0,
+        "duplicate_active_groups": 0,
+        "missing_deletion_ledger": 1,
+        "privileged_backend_role": 0,
+        "missing_attempt_identity": 0,
+        "deleted_identity_attempts": null,
+        "missing_questions_snapshot": 0,
+        "public_source_write_grants": 0,
+        "orphan_or_foreign_result_events": 0
+      },
+      "status": "BLOCKED",
+      "attempt_count": 0,
+      "exam_event_count": 0
+    },
+    "adaptation": "Absent ledger: dependent check left NULL/not assessed; explicit missing_deletion_ledger=1. No ledger created."
+  },
+  "staging": {
+    "inventory": {
+      "tables": [
+        {
+          "rls": true,
+          "name": "activity",
+          "owner": "postgres"
+        },
+        {
+          "rls": true,
+          "name": "codes",
+          "owner": "postgres"
+        },
+        {
+          "rls": true,
+          "name": "deletion_jobs",
+          "owner": "postgres"
+        },
+        {
+          "rls": true,
+          "name": "enrollments",
+          "owner": "postgres"
+        },
+        {
+          "rls": true,
+          "name": "members",
+          "owner": "postgres"
+        },
+        {
+          "rls": true,
+          "name": "rate_limits",
+          "owner": "postgres"
+        },
+        {
+          "rls": true,
+          "name": "records",
+          "owner": "postgres"
+        },
+        {
+          "rls": true,
+          "name": "settings",
+          "owner": "postgres"
+        }
+      ],
+      "backend_owns_source": false,
+      "deletion_ledger_present": true,
+      "specialized_store_present": false
+    },
+    "preflight": {
+      "scope": "legacy preflight aggregates only; not migration approval",
+      "issues": {
+        "invalid_answers": 0,
+        "invalid_event_json": 0,
+        "backend_owns_source": 0,
+        "invalid_done_result": 0,
+        "invalid_attempt_json": 0,
+        "missing_backend_role": 0,
+        "invalid_attempt_status": 0,
+        "duplicate_active_groups": 0,
+        "privileged_backend_role": 0,
+        "missing_attempt_identity": 0,
+        "deleted_identity_attempts": 0,
+        "missing_questions_snapshot": 0,
+        "public_source_write_grants": 0,
+        "orphan_or_foreign_result_events": 0
+      },
+      "status": "PASS",
+      "attempt_count": 3,
+      "exam_event_count": 1
+    }
+  },
+  "securityAdvisor": {
+    "name": "auth_leaked_password_protection",
+    "status": "disabled",
+    "level": "WARN",
+    "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection"
+  },
+  "result": "Production activation/F00 BLOCKED; Staging preflight PASS within limited scope"
+}
