@@ -100,7 +100,7 @@ try:
  sql("INSERT INTO farmakon.records VALUES('old-write','attempt','course','{}',1)",True,fail='55000')
  sql("INSERT INTO farmakon.activity VALUES('old-event','u','exam','done','{}',1)",True,fail='55000')
  ok('unmodified old writer is rejected after activation')
- sql("BEGIN ISOLATION LEVEL SERIALIZABLE; UPDATE farmakon.exam_attempts SET data=jsonb_set(jsonb_set(data::jsonb,'{status}','\"done\"'),'{answers}','{\"q\":1}')::text WHERE user_id='u' AND id='active'; INSERT INTO farmakon.exam_results VALUES('new-result','u','exam','active','{\"score\":1,\"total\":1}',456); COMMIT",True)
+ sql("BEGIN ISOLATION LEVEL SERIALIZABLE; UPDATE farmakon.exam_attempts SET data=jsonb_set(jsonb_set(jsonb_set(data::jsonb,'{status}','\"done\"'),'{answers}','{\"q\":1}'),'{result}','{\"score\":1,\"total\":1}')::text WHERE user_id='u' AND id='active'; INSERT INTO farmakon.exam_results VALUES('new-result','u','exam','active','{\"score\":1,\"total\":1}',456); COMMIT",True)
  changed=state()
  package('uninstall',fail='P0001');assert state()==changed
  ok('uninstall refuses an active store without deleting data')
