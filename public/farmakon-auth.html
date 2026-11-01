@@ -433,7 +433,7 @@ body{width:100%;min-width:0;overflow-x:clip}
         <h2 data-i="rst"></h2><p class="sub" data-i="rstp"></p>
         <div class="f" id="w-remail"><svg class="i"><use href="#mail"/></svg><input class="ltr" id="remail" data-v type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder=" "><label for="remail" data-i="email"></label></div><div class="fe" id="e-remail" role="alert"></div>
         <button class="btn" type="submit"><span data-i="send"></span><svg class="i go"><use href="#arrow"/></svg></button>
-        <div class="alt"><button type="button" class="lnk" id="backReset" data-i="back"></button></div>
+        <div class="alt"><button type="button" class="lnk" id="backReset" data-i="back"></button><span class="reset-sep"> · </span><button type="button" class="lnk" id="reset-register" data-i="recoveryCreateAccount"></button></div>
       </form>
 
       <form id="vRecovery" novalidate hidden>
@@ -448,7 +448,7 @@ body{width:100%;min-width:0;overflow-x:clip}
         <div class="otp-helper"><svg class="i"><use href="#cal"/></svg><span id="recovery-countdown" role="timer"></span></div>
         <button class="btn" type="submit" id="recovery-submit"><span data-i="recoveryConfirm"></span><svg class="i go"><use href="#arrow"/></svg></button>
         <div class="otp-actions"><button class="lnk" type="button" id="recovery-resend" data-i="otpResend"></button><button class="lnk" type="button" id="recovery-change" data-i="otpChange"></button></div>
-        <div class="alt"><button class="lnk" type="button" id="recovery-login" data-i="back"></button></div>
+        <div class="alt"><button class="lnk" type="button" id="recovery-login" data-i="back"></button><span class="reset-sep"> · </span><button class="lnk" type="button" id="recovery-register" data-i="recoveryCreateAccount"></button></div>
       </form>
 
       <form id="vNewPass" novalidate hidden>
@@ -486,8 +486,9 @@ T.en.signupComplete='Check your inbox for the verification code. If this email a
 T.ar.requestError='تعذر الاتصال بالمنصة، حاول مرة أخرى.';
 T.en.requestError='Could not connect to Farmakon. Please try again.';
 
-T.ar.recoveryAddressHelp='راجع البريد المكتوب أعلاه بدقة؛ إذا كان خطأ اضغط تغيير البريد.';
-T.en.recoveryAddressHelp='Check the exact address above. If it is wrong, choose Change email.';
+T.ar.recoveryCreateAccount='ما عندك حساب؟ أنشئ حساباً';T.en.recoveryCreateAccount='New here? Create an account';
+T.ar.recoveryAddressHelp='رمز الاستعادة يصل فقط لبريد مسجل في Farmakon. راجع العنوان أعلاه، أو أنشئ حساباً إذا كانت أول مرة.';
+T.en.recoveryAddressHelp='Recovery codes are only delivered to addresses registered with Farmakon. Check the address or create an account if new.';
 T.ar.recoveryTitle='رمز استعادة كلمة المرور';
 T.en.recoveryTitle='Password recovery code';
 T.ar.recoveryDesc='إذا كان البريد مسجلاً، سيصل رمز من 6 أرقام إلى نفس العنوان الذي كتبته. أدخله لتغيير كلمة المرور.';
@@ -504,8 +505,8 @@ T.ar.saveNewPass='حفظ كلمة المرور';T.en.saveNewPass='Save new passw
 T.ar.passMismatch='كلمتا المرور غير متطابقتين.';T.en.passMismatch='Passwords do not match.';
 T.ar.recoveryDone='تم تغيير كلمة المرور. سجّل الدخول باستخدام الكلمة الجديدة.';
 T.en.recoveryDone='Your password was updated. Sign in with your new password.';
-T.ar.recoverySent='إذا كان البريد مسجلاً وصحيحاً، ستصلك رسالة استعادة فيه. تأكد من عنوان المستلم وليس بريد Farmakon المرسل.';
-T.en.recoverySent='If the address exists and is registered, check that recipient inbox. The Farmakon sender inbox only receives delivery failures.';
+T.ar.recoverySent='إذا كان البريد مسجلاً داخل Farmakon-Staging، ستصل رسالة الاستعادة. إذا لم يسبق لك إنشاء حساب بهذا البريد، اختر إنشاء حساب أولاً.';
+T.en.recoverySent='Only registered addresses receive recovery codes. If you have not created an account with this email, choose Create an account first.';
 T.ar.recoveryError='رمز الاستعادة غير صحيح أو منتهي الصلاحية. تحقّق منه أو اطلب رمزاً جديداً.';
 T.en.recoveryError='The recovery code is invalid or expired. Check the code or request another.';
 T.ar.duplicateSignup='هذا البريد مسجل مسبقاً في Farmakon. استخدم تسجيل الدخول أو نسيت كلمة المرور.';
@@ -901,6 +902,9 @@ $('#recovery-resend').addEventListener('click',async()=>{
  }catch(err){feedback(err.message||T[L].requestError,true)}finally{recoveryTick()}
 });
 $('#recovery-change').onclick=()=>{location.hash='reset';$('#remail').value=recoveryEmail};
+const recoveryGoSignup=()=>{const email=cur==='reset'?$('#remail').value.trim().toLowerCase():recoveryEmail;if(email)$('#email').value=email;location.hash='register';goStep(1)};
+$('#reset-register').onclick=recoveryGoSignup;
+$('#recovery-register').onclick=recoveryGoSignup;
 $('#recovery-login').onclick=()=>location.hash='login';
 $('#newpass-back-login').onclick=()=>location.hash='login';
 $('#vNewPass').addEventListener('submit',async e=>{
