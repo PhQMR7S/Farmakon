@@ -631,7 +631,7 @@ const savedTheme=st('farmakon-auth-preview-theme');if(['light','dark'].includes(
 
 /* ---------- validation ---------- */
 const rules={lemail:v=>!v.trim()?'eReq':em(v)?'':'eBad',remail:v=>!v.trim()?'eReq':em(v)?'':'eBad',email:v=>!v.trim()?'eReq':em(v)?'':'eBad',
- rpass:v=>!v?'pReq':v.length<10?'pShort':!(/\\p{L}/u.test(v)&&/\\d/.test(v))?'pWeak':'',rpass2:v=>!v?'pReq':v!==$('#rpass').value?'passMismatch':'',
+ rpass:v=>!v?'pReq':v.length<10?'pShort':!(/\p{L}/u.test(v)&&/\d/.test(v))?'pWeak':'',rpass2:v=>!v?'pReq':v!==$('#rpass').value?'passMismatch':'',
  lpass:v=>v?'':'pReq',pass:v=>!v?'pReq':v.length<10?'pShort':!(/\p{L}/u.test(v)&&/\d/.test(v))?'pWeak':'',
  name:v=>v.trim().length<2?'nReq':'',stage:v=>v?'':'sReq',uni:v=>v?'':'uReq',gov:v=>v?'':'gReq'};
 const val=n=>DD[n]?DD[n].val():$('#'+n).value;
