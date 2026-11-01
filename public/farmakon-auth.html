@@ -422,6 +422,7 @@ body{width:100%;min-width:0;overflow-x:clip}
         <div class="otp-helper"><svg class="i"><use href="#cal"/></svg><span id="otp-countdown" role="timer"></span></div>
         <button class="btn" type="submit" id="otp-submit"><span data-i="otpConfirm"></span><svg class="i go"><use href="#arrow"/></svg></button>
         <div class="otp-actions"><button class="lnk" type="button" id="otp-resend" data-i="otpResend"></button><button class="lnk" type="button" id="otp-change" data-i="otpChange"></button></div>
+        <div class="alt"><button class="lnk" type="button" id="otp-login" data-i="otpExisting"></button></div>
       </form>
 
       <form id="vReset" novalidate hidden>
@@ -452,8 +453,8 @@ T.ar.otherHint='إذا لم تجد الاسم، اكتبه في البحث ثم 
 T.en.otherHint='Not listed? Type its name, then select Use this name';
 T.ar.pharmacyHint='مخصص لطلبة الصيدلة فقط';
 T.en.pharmacyHint='For pharmacy students only';
-T.ar.signupComplete='تم إنشاء طلب الحساب. تحقق من بريدك الإلكتروني واضغط رابط التأكيد، ثم سجّل الدخول لتظهر منصة Farmakon الحالية.';
-T.en.signupComplete='Check your email and confirm your account, then sign in to access the current Farmakon platform.';
+T.ar.signupComplete='تحقق من بريدك للحصول على رمز التأكيد. إذا كان لديك حساب مؤكد مسبقاً فلن يصلك رمز تسجيل جديد؛ استخدم تسجيل الدخول.';
+T.en.signupComplete='Check your inbox for the verification code. If this email already has a confirmed account, use Sign in instead.';
 T.ar.requestError='تعذر الاتصال بالمنصة، حاول مرة أخرى.';
 T.en.requestError='Could not connect to Farmakon. Please try again.';
 
@@ -465,6 +466,7 @@ T.ar.otpEntryHint='اكتب الرمز أو الصقه من الرسالة';T.en
 T.ar.otpConfirm='تأكيد البريد والمتابعة';T.en.otpConfirm='Verify and continue';
 T.ar.otpResend='إعادة إرسال الرمز';T.en.otpResend='Resend code';
 T.ar.otpChange='تغيير البريد';T.en.otpChange='Change email';
+T.ar.otpExisting='لديك حساب بالفعل؟ تسجيل الدخول';T.en.otpExisting='Already registered? Sign in';
 T.ar.otpMissing='أدخل بريدك بإنشاء الحساب أولاً.';T.en.otpMissing='Enter your email in the signup form first.';
 T.ar.otpInvalid='أدخل رمزاً صحيحاً من 6 أرقام.';T.en.otpInvalid='Enter a valid six-digit code.';
 T.ar.otpTimeout='انتهت المدة المعروضة. اطلب رمزاً جديداً.';T.en.otpTimeout='The shown code window ended. Request a new code.';
@@ -719,6 +721,7 @@ $('#otp-resend').addEventListener('click',async()=>{
  }catch(err){feedback(err.message||T[L].requestError,true)}finally{otpTick()}
 });
 $('#otp-change').addEventListener('click',()=>{location.hash='register';goStep(1);$('#email').focus({preventScroll:true})});
+$('#otp-login').addEventListener('click',()=>{if(otpEmail)$('#lemail').value=otpEmail;location.hash='login'});
 setInterval(()=>{if(cur==='verify')otpTick()},1000);
 
 $('#vReset').onsubmit=async e=>{
