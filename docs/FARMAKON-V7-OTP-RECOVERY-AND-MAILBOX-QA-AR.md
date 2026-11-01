@@ -75,3 +75,15 @@ https://supabase.com/docs/reference/javascript/auth-resetpasswordforemail
 - فرع Staging `feature/farmakon-otp-staging-validation-2026-11-01` مستقل عن الإنتاج (preview env متصلة بمشروع Staging، وتعطيل DB الإنتاج).
 - فرع Review `feature/farmakon-auth-v5-real-platform-2026-11-01` حُدث بنفس واجهة الإدخال؛ PR #20 ما يزال Draft.
 - **لا تغيير لقالب الإرسال في Supabase الإنتاجي ولا دمج إلى الموقع الأصلي.**
+
+
+## 2026-11-01 18:16 UTC — conclusively verified missing recovery code for correct address
+- Connected Gmail profile `M88` matches **mahmoudpharmacy88@gmail.com**.
+- `Gmail.search_emails` for Farmakon messages since 2026-11-01 on that connected account yielded **zero matching emails**.
+- Read-only `SELECT` against `auth.users` in **Farmakon-Staging** for the correct address and typo found **exactly one** registered and confirmed account, belonging to **mahmuoudpharmacy88@gmail.com**. The **correct** Gmail address is **not registered in Staging**, and consequently a password recovery request does not send any code to it.
+- Staging `auth_logs` between 18:12:04 and 18:15:55 UTC shows `/recover` 200 responses with no `user_recovery_requested` event, consistent with account-not-found requests that respond generically to avoid account enumeration. Do **not** label a 200 response as proof of SMTP delivery.
+- Prior `550 5.1.1` bounces occurred when sending to the typo address. This is separate from the latest correct address request.
+- Root cause: **misregistration in test Auth DB, not sender-domain rerouting, missing recipient Gmail account, or a faulty HTML template**.
+- UX mitigation: both "Forgot password" and recovery-code page now explain that recovery is only for pre-existing accounts; provide **"New here? Create an account"** which prepopulates the same email in the original registration flow.
+- User should open the isolated staging preview, **register the valid Gmail address first** and verify signup OTP. Only after a confirmed signup, request Recovery OTP and test password update. Do not overwrite the mistyped confirmed account or alter production data without a deliberate account migration decision.
+- Keep generic recovery success; never offer public direct user-existence lookup. The presence of a signup route is preferable to revealing the account roster.
