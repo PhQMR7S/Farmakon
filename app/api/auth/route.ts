@@ -1,7 +1,10 @@
 import {authClient} from '../../../lib/supabase/server';
 import {z} from 'zod';
 export const dynamic='force-dynamic';
-export async function POST(req:Request){if(req.headers.get('origin')!==new URL(req.url).origin)return Response.json({error:'طلب غير مسموح'},{status:403});try{const b=z.object({action:z.enum(['login','signup','forgot','reset','logout','verifySignup','resendSignup','verifyRecovery']),email:z.string().email().max(250).optional(),password:z.string().min(10).max(128).optional(),name:z.string().trim().min(2).max(100).optional(),stage:z.enum(['1','2','3','4','5','grad']).optional(),university:z.string().trim().min(1).max(120).optional(),governorate:z.string().trim().min(1).max(120).optional(),token:z.string().regex(/^\d{6}$/).optional()}).parse(await req.json());const c=await authClient(),origin=new URL(req.url).origin;let error;
+export async function POST(req:Request){if(req.headers.get('origin')!==new URL(req.url).origin)return Response.json({error:'طلب غير مسموح'},{status:403});try{const b=z.object({action:z.enum(['login','signup','forgot','reset','logout','verifySignup','resendSignup','verifyRecovery']),email:z.string().email().max(250).optional(),password:z.string().min(10).max(128).optional(),name:z.string().trim().min(2).max(100).optional(),stage:z.enum(['1','2','3','4','5','grad']).optional(),university:z.string().trim().min(1).max(120).optional(),governorate:z.string().trim().min(1).max(120).optional(),token:z.string().regex(/^\d{6}$/).optional()}).parse(await req.json());// Preview is connected to the existing production Auth project for READ-ONLY viewing.
+// Do not send or mutate account email/password information from that environment.
+if(process.env.FARMAKON_PREVIEW_READ_ONLY==='1'&&!['login','logout'].includes(b.action))return Response.json({error:'معاينة ربط المنصة الأصلية للقراءة فقط. اختبر إنشاء الحساب والأكواد على نسخة Staging.'},{status:403,headers:{'Cache-Control':'no-store'}});
+const c=await authClient(),origin=new URL(req.url).origin;let error;
 if(b.action==='login'){if(!b.email||!b.password)throw Error();({error}=await c.auth.signInWithPassword({email:b.email,password:b.password}));}
 if(b.action==='signup'){
  if(!b.email||!b.password||!b.name)throw Error();
