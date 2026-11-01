@@ -715,7 +715,7 @@ $('#vReg').onsubmit=async e=>{
   otpStorage.setItem('farmakon-pending-email',otpEmail);
   otpStorage.setItem('farmakon-otp-start',String(otpRequestedAt));
   otpStorage.setItem('farmakon-otp-resend',String(otpNextResend));
-  $('#otp-code').value='';busy(f,false);
+  otpDigits.clear();busy(f,false);
   location.hash='verify';otpPaint();otpTick();feedback(T[L].signupComplete,false);
  }catch(err){feedback(err.message||T[L].requestError,true);busy(f,false)}
 };
