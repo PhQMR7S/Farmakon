@@ -41,3 +41,13 @@
 https://supabase.com/docs/guides/auth/auth-smtp
 https://supabase.com/docs/guides/auth/auth-email-templates
 https://knowledge.workspace.google.com/admin/security/set-up-bimi
+
+## تحديث تشخيص 16:03 UTC — البريد الجديد (مؤكد من السجلات)
+- 2026-11-01 16:00:14 UTC: `user_confirmation_requested` + `mail.send` لطلب إنشاء حساب جديد، وسجل /signup يعيد 200.
+- صورة المستخدم تبين أن **البريد وصل بالفعل** بعنوان `Confirm your email address` وفيه رابط، وليس OTP؛ لذلك العطل الحالي **عدم تفعيل قالب `Confirm sign up` في إعدادات Supabase**، ولا حاجة لنقل الهوية إلى Firebase/Google Cloud.
+- كود `verifySignup` وواجهة 6 أرقام في PR #20 جاهزان، لكن ملف HTML المضاف للمستودع ليس إعداداً نشطاً على Supabase حتى يتم لصقه في صفحة Email Templates (أو تحديثه عبر Management API).
+- افتح `https://supabase.com/dashboard/project/zviqtacbsprewyxrmpbb/auth/templates`، اختر **Confirm sign up** وليس Magic Link، انسخ ملف `docs/email-templates/farmakon-confirm-signup-otp.html` إلى القالب، واضبط عنوان الرسالة `Farmakon | رمز تأكيد بريدك الإلكتروني`.
+- تحقق من **Authentication → Sign In / Providers → Email → Email OTP expiration** = `1800 seconds`، وأن **Confirm email** مفعّلة وأن طول OTP ستة أرقام.
+- عند فحص البريد التالي استخدم عنواناً جديداً لم يؤكد مسبقاً؛ الحساب المؤكد لا يحتاج رمز تسجيل آخر. البريد الإفتراضي محدود وقد لا يصل لكل المستخدمين، لذا الإنتاج يتطلب SMTP مستقل.
+- لا يوجد نطاق إرسال مملوك للمستخدم الآن؛ يمكن اختبار رمز التسجيل باستخدام خدمة الإرسال الافتراضية في الحدود المتاحة بعد تعديل القالب، لكن لا يمكن ضمان شعار مرسل Gmail أو تسليم إنتاجي باسم Farmakon دون ضبط مزود بريد مرخّص ونطاق موثّق.
+- الحالة: **هذه الخطوات لم تُطبق بعد على Auth الإنتاجي من خلال الأدوات المتاحة**؛ لا تدّعِ أن التفعيل تم.
