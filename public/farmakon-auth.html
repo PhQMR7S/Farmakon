@@ -328,6 +328,7 @@ body{width:100%;min-width:0;overflow-x:clip}
 @media(max-width:360px){.otp-slots{gap:5px}.otp-slot{height:49px;border-radius:10px}.otp-actions{flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){.otp-slot{transition:none!important;transform:none!important}}
 
+.reset-footnote{font-size:12px;color:var(--muted);line-height:1.8;margin:8px 0 18px}
 </style>
 </head>
 <body>
@@ -426,11 +427,36 @@ body{width:100%;min-width:0;overflow-x:clip}
       </form>
 
       <form id="vReset" novalidate hidden>
+        <div class="otp-badge" aria-hidden="true"><svg class="i"><use href="#lock"/></svg></div>
         <h2 data-i="rst"></h2><p class="sub" data-i="rstp"></p>
-        <div class="ok" id="rok" hidden data-i="rsent"></div>
         <div class="f" id="w-remail"><svg class="i"><use href="#mail"/></svg><input class="ltr" id="remail" data-v type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder=" "><label for="remail" data-i="email"></label></div><div class="fe" id="e-remail" role="alert"></div>
         <button class="btn" type="submit"><span data-i="send"></span><svg class="i go"><use href="#arrow"/></svg></button>
         <div class="alt"><button type="button" class="lnk" id="backReset" data-i="back"></button></div>
+      </form>
+
+      <form id="vRecovery" novalidate hidden>
+        <div class="otp-badge" aria-hidden="true"><svg class="i"><use href="#mail"/></svg></div>
+        <h2 data-i="recoveryTitle"></h2><p class="sub" data-i="recoveryDesc"></p>
+        <div class="otp-email" id="recovery-email"></div>
+        <div class="otp-hint" data-i="otpEntryHint"></div>
+        <label for="recovery-code" class="otp-wrapper" id="recovery-input-wrapper">
+          <span class="otp-slots" aria-hidden="true"><span class="otp-slot active">·</span><span class="otp-slot">·</span><span class="otp-slot">·</span><span class="otp-slot">·</span><span class="otp-slot">·</span><span class="otp-slot">·</span></span>
+          <input id="recovery-code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" autocorrect="off" spellcheck="false" aria-describedby="recovery-countdown">
+        </label>
+        <div class="otp-helper"><svg class="i"><use href="#cal"/></svg><span id="recovery-countdown" role="timer"></span></div>
+        <button class="btn" type="submit" id="recovery-submit"><span data-i="recoveryConfirm"></span><svg class="i go"><use href="#arrow"/></svg></button>
+        <div class="otp-actions"><button class="lnk" type="button" id="recovery-resend" data-i="otpResend"></button><button class="lnk" type="button" id="recovery-change" data-i="otpChange"></button></div>
+        <div class="alt"><button class="lnk" type="button" id="recovery-login" data-i="back"></button></div>
+      </form>
+
+      <form id="vNewPass" novalidate hidden>
+        <div class="otp-badge" aria-hidden="true"><svg class="i"><use href="#lock"/></svg></div>
+        <h2 data-i="newPassTitle"></h2><p class="sub" data-i="newPassDesc"></p>
+        <div class="f pw" id="w-rpass"><svg class="i"><use href="#lock"/></svg><input class="ltr" id="rpass" data-v type="password" autocomplete="new-password" placeholder=" "><label for="rpass" data-i="newPass"></label><button type="button" class="eye" data-eye="rpass"><svg class="i"><use href="#eye"/></svg></button></div><div class="fe" id="e-rpass" role="alert"></div>
+        <div class="f pw" id="w-rpass2"><svg class="i"><use href="#lock"/></svg><input class="ltr" id="rpass2" data-v type="password" autocomplete="new-password" placeholder=" "><label for="rpass2" data-i="confirmNewPass"></label><button type="button" class="eye" data-eye="rpass2"><svg class="i"><use href="#eye"/></svg></button></div><div class="fe" id="e-rpass2" role="alert"></div>
+        <p class="reset-footnote" data-i="newPassRequirement"></p>
+        <button class="btn" type="submit"><span data-i="saveNewPass"></span><svg class="i go"><use href="#arrow"/></svg></button>
+        <div class="alt"><button class="lnk" type="button" id="newpass-back-login" data-i="back"></button></div>
       </form>
 
     </div>
@@ -440,8 +466,8 @@ body{width:100%;min-width:0;overflow-x:clip}
 
 
 <script>
-const T={ar:{sl:'منصة تعليم الصيدلة',tag:'ادرس الصيدلة <em>بذكاء</em> وبمنهج واضح',tagp:'منصة متخصصة في دراسة الصيدلة: محاضرات منظّمة، وبنك أسئلة، ومراجعة متباعدة، ومساعد ذكي يستند إلى مصادر موثّقة.',c1:'بنك الأسئلة',c2:'البطاقات التعليمية',c3:'المساعد الذكي',foot:'© Farmakon',login:'تسجيل الدخول',register:'إنشاء حساب',wel:'مرحباً بعودتك',welp:'سجّل دخولك لتكمل دراستك من حيث توقفت.',email:'البريد الإلكتروني',pass:'كلمة المرور',rem:'تذكّرني على هذا الجهاز',forgot:'نسيت كلمة المرور؟',loginBtn:'تسجيل الدخول',join:'أنشئ حسابك',joinp:'خطوتان فقط لتبدأ رحلتك الدراسية.',name:'الاسم الكامل',stage:'المرحلة الدراسية',uni:'الجامعة أو المعهد',gov:'المحافظة',next:'التالي',prev:'السابق',regBtn:'إنشاء الحساب',rq1:'10 أحرف على الأقل',rq2:'حروف وأرقام معاً',str:['ضعيفة','مقبولة','جيدة','قوية'],strW:'قوة كلمة المرور: ',stepOf:'الخطوة {n} من 2 · {t}',st1:'بيانات الحساب',st2:'بياناتك الدراسية',caps:'مفتاح Caps Lock مفعّل.',srch:'ابحث…',srchU:'ابحث أو اكتب اسم الجامعة أو المعهد',none:'لا توجد نتائج',useq:'استخدام «{q}»',show:'إظهار كلمة المرور',rst:'استعادة كلمة المرور',rstp:'أدخل بريدك الإلكتروني وسنرسل إليك رابط إعادة التعيين.',rsent:'إن كان هذا البريد مسجّلاً لدينا، فسيصلك رابط إعادة التعيين خلال دقائق.',send:'إرسال الرابط',back:'العودة إلى تسجيل الدخول',demo:'نموذج تصميمي تجريبي: لا تُرسل أي بيانات.',eReq:'البريد الإلكتروني مطلوب.',eBad:'أدخل بريداً إلكترونياً صحيحاً.',pReq:'كلمة المرور مطلوبة.',pShort:'يجب ألا تقل كلمة المرور عن 10 أحرف.',pWeak:'أضف حروفاً وأرقاماً معاً.',nReq:'اكتب اسمك الكامل.',sReq:'اختر مرحلتك الدراسية.',uReq:'اختر جامعتك أو معهدك أو اكتب اسمه.',gReq:'اختر المحافظة.',hi:'مرحباً،',today:'خطتك لهذا اليوم جاهزة',resume:'تابع من حيث توقفت',lec:'آخر محاضرة (مثال)',cont:'متابعة',due:'بطاقات مستحقة اليوم',plan:'خطة اليوم',plan1:'لا توجد مهام مجدولة بعد. حدّد موعد امتحانك لنبني لك خطة.',exam:'آخر الامتحانات',exam1:'لم تجرِ أي محاولة بعد.',sub:'اشتراكاتي',sub1:'فعّل كود الاشتراك للوصول إلى كورس.',sample:'بيانات تجريبية لغرض التصميم فقط، وليست إحصاءات حقيقية.',gsT:'مقترح للخريجين',gsP:'ابنِ مسار تحضير بعد التخرج: بنك أسئلة موجّه، وامتحانات تجريبية، ومراجعة متباعدة للموضوعات الأضعف.',gsB:'استكشف المسار',soon:'هذا القسم قيد البناء وسيكون متاحاً قريباً.',logout:'تسجيل الخروج',n1:'الرئيسية',n2:'كورساتي',n3:'بنك الأسئلة',n4:'البطاقات',n5:'المكتبة',n6:'المزيد'},
-en:{sl:'Pharmacy learning platform',tag:'Study pharmacy <em>smarter</em>, with a clear path',tagp:'Built exclusively for pharmacy education: structured lectures, a question bank, spaced repetition and an AI tutor grounded in cited sources.',c1:'Question bank',c2:'Flashcards',c3:'AI tutor',foot:'© Farmakon',login:'Sign in',register:'Sign up',wel:'Welcome back',welp:'Sign in to pick up right where you left off.',email:'Email address',pass:'Password',rem:'Remember me on this device',forgot:'Forgot password?',loginBtn:'Sign in',join:'Create your account',joinp:'Just two steps to start your study journey.',name:'Full name',stage:'Academic year',uni:'University / institute',gov:'Governorate',next:'Next',prev:'Back',regBtn:'Create account',rq1:'At least 10 characters',rq2:'Letters and numbers',str:['Weak','Fair','Good','Strong'],strW:'Password strength: ',stepOf:'Step {n} of 2 · {t}',st1:'Account details',st2:'Your studies',caps:'Caps Lock is on.',srch:'Search…',srchU:'Search or enter your university or institute',none:'No results found',useq:'Use “{q}”',show:'Show password',rst:'Reset your password',rstp:'Enter your email and we’ll send you a link to reset it.',rsent:'If this email is registered with us, a reset link will arrive within a few minutes.',send:'Send reset link',back:'Back to sign in',demo:'Design prototype: no data is sent anywhere.',eReq:'Email address is required.',eBad:'Enter a valid email address.',pReq:'Password is required.',pShort:'Password must be at least 10 characters.',pWeak:'Include both letters and numbers.',nReq:'Enter your full name.',sReq:'Select your academic year.',uReq:'Select or enter your university or institute.',gReq:'Select your governorate.',hi:'Hello,',today:'Your plan for today is ready',resume:'Continue where you left off',lec:'Latest lecture (sample)',cont:'Continue',due:'Flashcards due today',plan:'Today’s plan',plan1:'Nothing scheduled yet. Set your exam date and we’ll build a plan.',exam:'Recent exams',exam1:'No attempts yet.',sub:'My subscriptions',sub1:'Redeem an access code to unlock a course.',sample:'Sample data for design purposes only, not real statistics.',gsT:'Suggested for graduates',gsP:'Build a post‑graduation prep path: a focused question bank, mock exams and spaced review of your weakest topics.',gsB:'Explore the path',soon:'This section is under construction and will be available soon.',logout:'Sign out',n1:'Home',n2:'My courses',n3:'Question bank',n4:'Cards',n5:'Library',n6:'More'}};
+const T={ar:{sl:'منصة تعليم الصيدلة',tag:'ادرس الصيدلة <em>بذكاء</em> وبمنهج واضح',tagp:'منصة متخصصة في دراسة الصيدلة: محاضرات منظّمة، وبنك أسئلة، ومراجعة متباعدة، ومساعد ذكي يستند إلى مصادر موثّقة.',c1:'بنك الأسئلة',c2:'البطاقات التعليمية',c3:'المساعد الذكي',foot:'© Farmakon',login:'تسجيل الدخول',register:'إنشاء حساب',wel:'مرحباً بعودتك',welp:'سجّل دخولك لتكمل دراستك من حيث توقفت.',email:'البريد الإلكتروني',pass:'كلمة المرور',rem:'تذكّرني على هذا الجهاز',forgot:'نسيت كلمة المرور؟',loginBtn:'تسجيل الدخول',join:'أنشئ حسابك',joinp:'خطوتان فقط لتبدأ رحلتك الدراسية.',name:'الاسم الكامل',stage:'المرحلة الدراسية',uni:'الجامعة أو المعهد',gov:'المحافظة',next:'التالي',prev:'السابق',regBtn:'إنشاء الحساب',rq1:'10 أحرف على الأقل',rq2:'حروف وأرقام معاً',str:['ضعيفة','مقبولة','جيدة','قوية'],strW:'قوة كلمة المرور: ',stepOf:'الخطوة {n} من 2 · {t}',st1:'بيانات الحساب',st2:'بياناتك الدراسية',caps:'مفتاح Caps Lock مفعّل.',srch:'ابحث…',srchU:'ابحث أو اكتب اسم الجامعة أو المعهد',none:'لا توجد نتائج',useq:'استخدام «{q}»',show:'إظهار كلمة المرور',rst:'استعادة كلمة المرور',rstp:'أدخل بريدك الإلكتروني وسنرسل رمز تحقق من 6 أرقام، من دون أي رابط خارجي.',rsent:'إذا كان البريد مسجلاً، ستصلك رسالة برمز الاستعادة خلال دقائق.',send:'إرسال رمز التحقق',back:'العودة إلى تسجيل الدخول',demo:'نموذج تصميمي تجريبي: لا تُرسل أي بيانات.',eReq:'البريد الإلكتروني مطلوب.',eBad:'أدخل بريداً إلكترونياً صحيحاً.',pReq:'كلمة المرور مطلوبة.',pShort:'يجب ألا تقل كلمة المرور عن 10 أحرف.',pWeak:'أضف حروفاً وأرقاماً معاً.',nReq:'اكتب اسمك الكامل.',sReq:'اختر مرحلتك الدراسية.',uReq:'اختر جامعتك أو معهدك أو اكتب اسمه.',gReq:'اختر المحافظة.',hi:'مرحباً،',today:'خطتك لهذا اليوم جاهزة',resume:'تابع من حيث توقفت',lec:'آخر محاضرة (مثال)',cont:'متابعة',due:'بطاقات مستحقة اليوم',plan:'خطة اليوم',plan1:'لا توجد مهام مجدولة بعد. حدّد موعد امتحانك لنبني لك خطة.',exam:'آخر الامتحانات',exam1:'لم تجرِ أي محاولة بعد.',sub:'اشتراكاتي',sub1:'فعّل كود الاشتراك للوصول إلى كورس.',sample:'بيانات تجريبية لغرض التصميم فقط، وليست إحصاءات حقيقية.',gsT:'مقترح للخريجين',gsP:'ابنِ مسار تحضير بعد التخرج: بنك أسئلة موجّه، وامتحانات تجريبية، ومراجعة متباعدة للموضوعات الأضعف.',gsB:'استكشف المسار',soon:'هذا القسم قيد البناء وسيكون متاحاً قريباً.',logout:'تسجيل الخروج',n1:'الرئيسية',n2:'كورساتي',n3:'بنك الأسئلة',n4:'البطاقات',n5:'المكتبة',n6:'المزيد'},
+en:{sl:'Pharmacy learning platform',tag:'Study pharmacy <em>smarter</em>, with a clear path',tagp:'Built exclusively for pharmacy education: structured lectures, a question bank, spaced repetition and an AI tutor grounded in cited sources.',c1:'Question bank',c2:'Flashcards',c3:'AI tutor',foot:'© Farmakon',login:'Sign in',register:'Sign up',wel:'Welcome back',welp:'Sign in to pick up right where you left off.',email:'Email address',pass:'Password',rem:'Remember me on this device',forgot:'Forgot password?',loginBtn:'Sign in',join:'Create your account',joinp:'Just two steps to start your study journey.',name:'Full name',stage:'Academic year',uni:'University / institute',gov:'Governorate',next:'Next',prev:'Back',regBtn:'Create account',rq1:'At least 10 characters',rq2:'Letters and numbers',str:['Weak','Fair','Good','Strong'],strW:'Password strength: ',stepOf:'Step {n} of 2 · {t}',st1:'Account details',st2:'Your studies',caps:'Caps Lock is on.',srch:'Search…',srchU:'Search or enter your university or institute',none:'No results found',useq:'Use “{q}”',show:'Show password',rst:'Reset your password',rstp:'Enter your email to receive a six-digit password recovery code. No external link needed.',rsent:'If this email is registered, a six-digit recovery code should arrive shortly.',send:'Send recovery code',back:'Back to sign in',demo:'Design prototype: no data is sent anywhere.',eReq:'Email address is required.',eBad:'Enter a valid email address.',pReq:'Password is required.',pShort:'Password must be at least 10 characters.',pWeak:'Include both letters and numbers.',nReq:'Enter your full name.',sReq:'Select your academic year.',uReq:'Select or enter your university or institute.',gReq:'Select your governorate.',hi:'Hello,',today:'Your plan for today is ready',resume:'Continue where you left off',lec:'Latest lecture (sample)',cont:'Continue',due:'Flashcards due today',plan:'Today’s plan',plan1:'Nothing scheduled yet. Set your exam date and we’ll build a plan.',exam:'Recent exams',exam1:'No attempts yet.',sub:'My subscriptions',sub1:'Redeem an access code to unlock a course.',sample:'Sample data for design purposes only, not real statistics.',gsT:'Suggested for graduates',gsP:'Build a post‑graduation prep path: a focused question bank, mock exams and spaced review of your weakest topics.',gsB:'Explore the path',soon:'This section is under construction and will be available soon.',logout:'Sign out',n1:'Home',n2:'My courses',n3:'Question bank',n4:'Cards',n5:'Library',n6:'More'}};
 // Incremental registration labels, without changing the original visual identity.
 T.ar.openSearch='بحث أو إدخال اسم';
 T.en.openSearch='Search or enter name';
@@ -458,6 +484,28 @@ T.en.signupComplete='Check your inbox for the verification code. If this email a
 T.ar.requestError='تعذر الاتصال بالمنصة، حاول مرة أخرى.';
 T.en.requestError='Could not connect to Farmakon. Please try again.';
 
+T.ar.recoveryTitle='رمز استعادة كلمة المرور';
+T.en.recoveryTitle='Password recovery code';
+T.ar.recoveryDesc='إذا كان البريد مسجلاً، أرسلنا رمزاً من 6 أرقام. أدخله للانتقال إلى تغيير كلمة المرور.';
+T.en.recoveryDesc='If the address is registered, a six-digit recovery code was sent. Enter it to set a new password.';
+T.ar.recoveryConfirm='تحقق من الرمز';T.en.recoveryConfirm='Verify recovery code';
+T.ar.newPassTitle='تعيين كلمة مرور جديدة';T.en.newPassTitle='Create a new password';
+T.ar.newPassDesc='تم التحقق من الرمز بنجاح. اختر كلمة مرور قوية لحسابك.';
+T.en.newPassDesc='Your code was verified. Choose a strong password for your account.';
+T.ar.newPass='كلمة المرور الجديدة';T.en.newPass='New password';
+T.ar.confirmNewPass='تأكيد كلمة المرور';T.en.confirmNewPass='Confirm password';
+T.ar.newPassRequirement='10 أحرف على الأقل، وتحتوي على حروف وأرقام.';
+T.en.newPassRequirement='At least 10 characters, including letters and numbers.';
+T.ar.saveNewPass='حفظ كلمة المرور';T.en.saveNewPass='Save new password';
+T.ar.passMismatch='كلمتا المرور غير متطابقتين.';T.en.passMismatch='Passwords do not match.';
+T.ar.recoveryDone='تم تغيير كلمة المرور. سجّل الدخول باستخدام الكلمة الجديدة.';
+T.en.recoveryDone='Your password was updated. Sign in with your new password.';
+T.ar.recoverySent='إذا كان هذا البريد مسجلاً، أرسلنا رمز استعادة. افحص بريد المستلم الصحيح.';
+T.en.recoverySent='If this address is registered, a recovery code has been sent. Check the recipient inbox.';
+T.ar.recoveryError='رمز الاستعادة غير صحيح أو منتهي الصلاحية. تحقّق منه أو اطلب رمزاً جديداً.';
+T.en.recoveryError='The recovery code is invalid or expired. Check the code or request another.';
+T.ar.duplicateSignup='هذا البريد مسجل مسبقاً في Farmakon. استخدم تسجيل الدخول أو نسيت كلمة المرور.';
+T.en.duplicateSignup='This email is already registered with Farmakon. Sign in or choose Forgot password.';
 T.ar.otpTitle='تحقق من بريدك الإلكتروني';
 T.en.otpTitle='Verify your email';
 T.ar.otpDesc='أرسلنا رمز تحقق مكوّناً من 6 أرقام إلى بريدك. أدخله لتفعيل حسابك والانتقال إلى منصة Farmakon.';
@@ -575,7 +623,7 @@ function apply(){const d=document.documentElement;d.lang=L;d.dir=L=='ar'?'rtl':'
   $$('[data-i]').forEach(n=>{const v=T[L][n.dataset.i];if(typeof v=='string')n.innerHTML=v});
   $$('[data-eye]').forEach(b=>b.setAttribute('aria-label',T[L].show));
   $$('.js-lang').forEach(b=>{b.textContent=L=='ar'?'EN':'ع';b.setAttribute('aria-label',L=='ar'?'English':'العربية')});
-  Object.values(DD).forEach(x=>x.refresh());renderStep();renderStr();if(typeof otpPaint==='function')otpPaint();if(typeof otpTick==='function')otpTick();st('q7l',L)}
+  Object.values(DD).forEach(x=>x.refresh());renderStep();renderStr();if(typeof otpPaint==='function')otpPaint();if(typeof otpTick==='function')otpTick();if(typeof recoveryPaint==='function')recoveryPaint();if(typeof recoveryTick==='function')recoveryTick();st('q7l',L)}
 $$('.js-lang').forEach(b=>b.onclick=()=>{L=L=='ar'?'en':'ar';apply()});
 $$('.js-theme').forEach(b=>b.onclick=()=>{const r=document.documentElement,dk=r.dataset.theme?r.dataset.theme=='dark':matchMedia('(prefers-color-scheme:dark)').matches;r.dataset.theme=dk?'light':'dark';st('farmakon-auth-preview-theme',r.dataset.theme)});
 const savedTheme=st('farmakon-auth-preview-theme');if(['light','dark'].includes(savedTheme))document.documentElement.dataset.theme=savedTheme;
@@ -583,6 +631,7 @@ const savedTheme=st('farmakon-auth-preview-theme');if(['light','dark'].includes(
 
 /* ---------- validation ---------- */
 const rules={lemail:v=>!v.trim()?'eReq':em(v)?'':'eBad',remail:v=>!v.trim()?'eReq':em(v)?'':'eBad',email:v=>!v.trim()?'eReq':em(v)?'':'eBad',
+ rpass:v=>!v?'pReq':v.length<10?'pShort':!(/\\p{L}/u.test(v)&&/\\d/.test(v))?'pWeak':'',rpass2:v=>!v?'pReq':v!==$('#rpass').value?'passMismatch':'',
  lpass:v=>v?'':'pReq',pass:v=>!v?'pReq':v.length<10?'pShort':!(/\p{L}/u.test(v)&&/\d/.test(v))?'pWeak':'',
  name:v=>v.trim().length<2?'nReq':'',stage:v=>v?'':'sReq',uni:v=>v?'':'uReq',gov:v=>v?'':'gReq'};
 const val=n=>DD[n]?DD[n].val():$('#'+n).value;
@@ -604,7 +653,7 @@ function goStep(n){step=n;$('#s1').hidden=n!=1;$('#s2').hidden=n!=2;renderStep()
 $('#prev').onclick=()=>goStep(1);
 
 /* ---------- auth-only routes: never show a sample dashboard ---------- */
-const AUTH=['login','register','reset','verify'];
+const AUTH=['login','register','reset','verify','recover','new-password'];
 let cur='login';
 function focusFirst(){if(!matchMedia('(hover:hover)').matches)return;const f=document.querySelector('form:not([hidden]) .step:not([hidden]) .f input,form:not([hidden]):not(#vReg) .f input');f&&setTimeout(()=>f.focus(),60)}
 function feedback(message='',isError=false){
@@ -619,26 +668,25 @@ function route(first){
  if(!AUTH.includes(h))h='login';
  if(h!==location.hash.slice(1))history.replaceState(null,'','#'+h);
  if(h!==cur)feedback();cur=h;
- $('#vLogin').hidden=h!=='login';$('#vReg').hidden=h!=='register';$('#vReset').hidden=h!=='reset';$('#vOtp').hidden=h!=='verify';
- $('#seg').style.display=(h==='reset'||h==='verify')?'none':'';$('#seg').classList.toggle('r',h==='register');
+ $('#vLogin').hidden=h!=='login';$('#vReg').hidden=h!=='register';$('#vReset').hidden=h!=='reset';$('#vOtp').hidden=h!=='verify';$('#vRecovery').hidden=h!=='recover';$('#vNewPass').hidden=h!=='new-password';
+ $('#seg').style.display=(['reset','verify','recover','new-password'].includes(h))?'none':'';$('#seg').classList.toggle('r',h==='register');
  $('#t-login').setAttribute('aria-selected',String(h==='login'));
  $('#t-reg').setAttribute('aria-selected',String(h==='register'));
  if(h!=='register')step=1;if(h==='register')goStep(step);
- if(h!=='reset')$('#rok').hidden=true;
- if(h==='verify'){otpPaint();otpTick()}if(!first&&h!=='register'&&h!=='verify')focusFirst();
+ if(h==='verify'){otpPaint();otpTick()}if(h==='recover'){recoveryPaint();recoveryTick()}if(!first&&h!=='register'&&h!=='verify'&&h!=='recover')focusFirst();
 }
 window.addEventListener('hashchange',()=>{Object.values(DD).forEach(d=>d.close());route()});
 $('#t-login').onclick=()=>location.hash='login';$('#t-reg').onclick=()=>location.hash='register';
 $('#goReset').onclick=()=>location.hash='reset';$('#backReset').onclick=()=>location.hash='login';
 $('#seg').addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){location.hash=cur==='login'?'register':'login'}});
 /* ---------- real, same-origin Supabase authentication ---------- */
-function busy(f,on){const b=f.querySelector('button[type=submit]:not([hidden])');const k=f.id==='vLogin'?'loginBtn':f.id==='vOtp'?'otpConfirm':f.id==='vReset'?'send':step===1&&f.id==='vReg'?'next':'regBtn';
+function busy(f,on){const b=f.querySelector('button[type=submit]:not([hidden])');const k=f.id==='vLogin'?'loginBtn':f.id==='vOtp'?'otpConfirm':f.id==='vRecovery'?'recoveryConfirm':f.id==='vNewPass'?'saveNewPass':f.id==='vReset'?'send':step===1&&f.id==='vReg'?'next':'regBtn';
  f.querySelectorAll('button[type=submit]').forEach(x=>x.disabled=on);if(!b)return;
  b.innerHTML=on?'<span class="spin"></span>':`<span>${T[L][k]}</span><svg class="i go"><use href="#arrow"/></svg>`}
 async function sendAuth(payload){
  const response=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',cache:'no-store',body:JSON.stringify(payload)});
  let data={};try{data=await response.json()}catch{}
- if(!response.ok)throw Error(data.error||T[L].requestError);
+ if(!response.ok){const err=new Error(data.code==='EMAIL_ALREADY_REGISTERED'?T[L].duplicateSignup:(data.error||T[L].requestError));err.code=data.code;throw err}
  return data;
 }
 $('#vLogin').onsubmit=async e=>{
@@ -724,12 +772,88 @@ $('#otp-change').addEventListener('click',()=>{location.hash='register';goStep(1
 $('#otp-login').addEventListener('click',()=>{if(otpEmail)$('#lemail').value=otpEmail;location.hash='login'});
 setInterval(()=>{if(cur==='verify')otpTick()},1000);
 
+/* Recovery stays in Farmakon: email -> six-digit code -> new password. */
+let recoveryEmail=otpStorage.getItem('farmakon-recovery-email')||'';
+let recoveryRequestedAt=Number(otpStorage.getItem('farmakon-recovery-start'))||0;
+let recoveryNextResend=Number(otpStorage.getItem('farmakon-recovery-resend'))||0;
+let recoveryVerifying=false;
+const recoverySecondsLeft=()=>Math.max(0,Math.ceil((recoveryRequestedAt+1800000-Date.now())/1000));
+function recoveryPaint(){
+ const input=$('#recovery-code');if(!input)return;
+ input.setAttribute('aria-label',L==='ar'?'رمز استعادة كلمة المرور المكون من ستة أرقام':'Six-digit password recovery code');
+ const v=digitsOnly(input.value);if(v!==input.value)input.value=v;
+ $('#vRecovery .otp-slot').forEach((n,i)=>{n.textContent=v[i]||'·';n.classList.toggle('filled',!!v[i]);n.classList.toggle('active',i===Math.min(v.length,5))});
+ $('#recovery-submit').disabled=v.length!==6||recoveryVerifying||!recoverySecondsLeft()||!recoveryEmail;
+ $('#recovery-email').textContent=recoveryEmail.replace(/^(.{1,2})(.*)(@.*)$/,(_,a,b,c)=>a+'•'.repeat(Math.min(6,b.length))+c)||T[L].otpMissing;
+}
+function recoveryTick(){
+ const left=recoverySecondsLeft(),m=String(Math.floor(left/60)).padStart(2,'0'),sec=String(left%60).padStart(2,'0');
+ $('#recovery-countdown').textContent=left?`${T[L].otpExpiry} ${m}:${sec}`:T[L].otpTimeout;
+ $('#recovery-countdown').classList.toggle('otp-expired',!left);
+ const wait=Math.max(0,Math.ceil((recoveryNextResend-Date.now())/1000));
+ $('#recovery-resend').disabled=wait>0||recoveryVerifying||!recoveryEmail;
+ $('#recovery-resend').textContent=wait?`${T[L].otpWait} ${wait}s`:T[L].otpResend;
+ recoveryPaint();
+}
 $('#vReset').onsubmit=async e=>{
  e.preventDefault();if(!validate(['remail']))return;
  const f=e.currentTarget;feedback();busy(f,true);
- try{await sendAuth({action:'forgot',email:$('#remail').value.trim().toLowerCase()});$('#rok').hidden=false}
- catch(err){feedback(err.message||T[L].requestError,true)}finally{busy(f,false)}
+ try{
+  const email=$('#remail').value.trim().toLowerCase();
+  await sendAuth({action:'forgot',email});
+  recoveryEmail=email;recoveryRequestedAt=Date.now();recoveryNextResend=recoveryRequestedAt+60000;
+  otpStorage.setItem('farmakon-recovery-email',recoveryEmail);
+  otpStorage.setItem('farmakon-recovery-start',String(recoveryRequestedAt));
+  otpStorage.setItem('farmakon-recovery-resend',String(recoveryNextResend));
+  $('#recovery-code').value='';
+  location.hash='recover';recoveryPaint();recoveryTick();feedback(T[L].recoverySent,false);
+ }catch(err){feedback(err.message||T[L].requestError,true)}finally{busy(f,false)}
 };
+$('#recovery-code').addEventListener('input',()=>{
+ recoveryPaint();
+ if(digitsOnly($('#recovery-code').value).length===6&&!recoveryVerifying&&recoverySecondsLeft()&&recoveryEmail)$('#vRecovery').requestSubmit();
+});
+$('#vRecovery').addEventListener('submit',async e=>{
+ e.preventDefault();if(recoveryVerifying)return;
+ const token=digitsOnly($('#recovery-code').value);
+ if(token.length!==6||!recoveryEmail){feedback(T[L].otpInvalid,true);return}
+ if(!recoverySecondsLeft()){feedback(T[L].otpTimeout,true);return}
+ recoveryVerifying=true;busy($('#vRecovery'),true);feedback();
+ try{
+  await sendAuth({action:'verifyRecovery',email:recoveryEmail,token});
+  otpStorage.removeItem('farmakon-recovery-start');otpStorage.removeItem('farmakon-recovery-resend');
+  $('#recovery-code').value='';location.hash='new-password';
+  feedback(T[L].newPassDesc,false);
+ }catch(err){feedback(T[L].recoveryError,true)}finally{recoveryVerifying=false;busy($('#vRecovery'),false);recoveryPaint()}
+});
+$('#recovery-resend').addEventListener('click',async()=>{
+ if(!recoveryEmail||recoveryVerifying||Date.now()<recoveryNextResend)return;
+ $('#recovery-resend').disabled=true;feedback();
+ try{
+  await sendAuth({action:'forgot',email:recoveryEmail});
+  recoveryRequestedAt=Date.now();recoveryNextResend=recoveryRequestedAt+60000;
+  otpStorage.setItem('farmakon-recovery-start',String(recoveryRequestedAt));
+  otpStorage.setItem('farmakon-recovery-resend',String(recoveryNextResend));
+  $('#recovery-code').value='';feedback(T[L].recoverySent,false);
+ }catch(err){feedback(err.message||T[L].requestError,true)}finally{recoveryTick()}
+});
+$('#recovery-change').onclick=()=>{location.hash='reset';$('#remail').value=recoveryEmail};
+$('#recovery-login').onclick=()=>location.hash='login';
+$('#newpass-back-login').onclick=()=>location.hash='login';
+$('#vNewPass').addEventListener('submit',async e=>{
+ e.preventDefault();if(!validate(['rpass','rpass2']))return;
+ const f=e.currentTarget;feedback();busy(f,true);
+ try{
+  await sendAuth({action:'reset',password:$('#rpass').value});
+  otpStorage.removeItem('farmakon-recovery-email');
+  otpStorage.removeItem('farmakon-recovery-start');
+  otpStorage.removeItem('farmakon-recovery-resend');
+  if(recoveryEmail)$('#lemail').value=recoveryEmail;
+  $('#rpass').value='';$('#rpass2').value='';
+  location.hash='login';feedback(T[L].recoveryDone,false);
+ }catch(err){feedback(err.message||T[L].requestError,true)}finally{busy(f,false)}
+});
+setInterval(()=>{if(cur==='recover')recoveryTick()},1000);
 $('#brand').addEventListener('pointermove',e=>{const b=e.currentTarget,r=b.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;b.style.setProperty('--mx',x+'px');b.style.setProperty('--my',y+'px');b.style.setProperty('--ry',((x/r.width-.5)*14)+'deg');b.style.setProperty('--rx',(-(y/r.height-.5)*14)+'deg')});
 document.addEventListener('pointerdown',e=>{const b=e.target.closest('.btn,.tbtn,.ddb');if(b)b.classList.add('is-pressing')});
 for(const event of ['pointerup','pointercancel','pointerleave'])document.addEventListener(event,e=>{document.querySelectorAll('.is-pressing').forEach(n=>n.classList.remove('is-pressing'))});
