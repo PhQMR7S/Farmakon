@@ -308,6 +308,26 @@ body{width:100%;min-width:0;overflow-x:clip}
 }
 @media(max-width:390px){.dds-start{font-size:14px}}
 
+
+/* Email confirmation - original Farmakon colors and fluid motion */
+.otp-badge{width:58px;height:58px;margin:0 0 16px;display:grid;place-items:center;border-radius:18px;background:color-mix(in srgb,var(--acc) 13%,var(--surface));border:1px solid color-mix(in srgb,var(--acc) 26%,var(--border));color:var(--acc);box-shadow:0 8px 24px color-mix(in srgb,var(--acc) 12%,transparent)}
+.otp-badge .i{width:28px;height:28px}
+.otp-email{background:var(--field);border:1px solid var(--border);border-radius:12px;padding:10px 14px;text-align:center;direction:ltr;unicode-bidi:plaintext;font-family:Inter,Tajawal,sans-serif;font-size:13px;overflow-wrap:anywhere;color:var(--text);margin:0 0 18px}
+.otp-wrapper{position:relative;display:block;min-height:62px;margin:18px 0 10px;cursor:text;touch-action:manipulation}
+.otp-slots{direction:ltr;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
+.otp-slot{min-width:0;width:100%;height:58px;display:grid;place-items:center;border:1.5px solid var(--border);border-radius:13px;background:var(--field);font:700 clamp(18px,4vw,25px)/1 Inter,system-ui,sans-serif;color:var(--text);transition:border-color .2s,background .2s,transform .2s,box-shadow .2s}
+.otp-slot.filled{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 58%,var(--border))}
+.otp-wrapper:focus-within .otp-slot.active{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 18%,transparent);transform:translateY(-2px)}
+#otp-code{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:.01;border:0;background:transparent;cursor:text;color:transparent;caret-color:transparent;font-size:20px;-webkit-text-security:disc}
+.otp-helper{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:13px;margin:0 0 16px}
+.otp-helper .i{width:16px;height:16px}
+.otp-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:15px;font-size:13px}
+.otp-actions .lnk{font-size:13px}
+.otp-hint{margin:0 0 12px;color:var(--muted);font-size:13px}
+.otp-expired{color:var(--danger)}
+@media(max-width:360px){.otp-slots{gap:5px}.otp-slot{height:49px;border-radius:10px}.otp-actions{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){.otp-slot{transition:none!important;transform:none!important}}
+
 </style>
 </head>
 <body>
@@ -389,6 +409,21 @@ body{width:100%;min-width:0;overflow-x:clip}
         </div>
       </form>
 
+
+      <form id="vOtp" novalidate hidden>
+        <div class="otp-badge" aria-hidden="true"><svg class="i"><use href="#mail"/></svg></div>
+        <h2 data-i="otpTitle"></h2><p class="sub" data-i="otpDesc"></p>
+        <div id="otp-email" class="otp-email"></div>
+        <div class="otp-hint" data-i="otpEntryHint"></div>
+        <label for="otp-code" class="otp-wrapper" id="otp-input-wrapper">
+          <span class="otp-slots" aria-hidden="true"><span class="otp-slot active">·</span><span class="otp-slot">·</span><span class="otp-slot">·</span><span class="otp-slot">·</span><span class="otp-slot">·</span><span class="otp-slot">·</span></span>
+          <input id="otp-code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" autocorrect="off" spellcheck="false" aria-label="رمز التحقق المكون من ستة أرقام" aria-describedby="otp-countdown">
+        </label>
+        <div class="otp-helper"><svg class="i"><use href="#cal"/></svg><span id="otp-countdown" role="timer"></span></div>
+        <button class="btn" type="submit" id="otp-submit"><span data-i="otpConfirm"></span><svg class="i go"><use href="#arrow"/></svg></button>
+        <div class="otp-actions"><button class="lnk" type="button" id="otp-resend" data-i="otpResend"></button><button class="lnk" type="button" id="otp-change" data-i="otpChange"></button></div>
+      </form>
+
       <form id="vReset" novalidate hidden>
         <h2 data-i="rst"></h2><p class="sub" data-i="rstp"></p>
         <div class="ok" id="rok" hidden data-i="rsent"></div>
@@ -421,6 +456,27 @@ T.ar.signupComplete='تم إنشاء طلب الحساب. تحقق من بريد
 T.en.signupComplete='Check your email and confirm your account, then sign in to access the current Farmakon platform.';
 T.ar.requestError='تعذر الاتصال بالمنصة، حاول مرة أخرى.';
 T.en.requestError='Could not connect to Farmakon. Please try again.';
+
+T.ar.otpTitle='تحقق من بريدك الإلكتروني';
+T.en.otpTitle='Verify your email';
+T.ar.otpDesc='أرسلنا رمز تحقق مكوّناً من 6 أرقام إلى بريدك. أدخله لتفعيل حسابك والانتقال إلى منصة Farmakon.';
+T.en.otpDesc='We sent a six-digit verification code to your email. Enter it to activate your account and enter Farmakon.';
+T.ar.otpEntryHint='اكتب الرمز أو الصقه من الرسالة';T.en.otpEntryHint='Type or paste your email verification code';
+T.ar.otpConfirm='تأكيد البريد والمتابعة';T.en.otpConfirm='Verify and continue';
+T.ar.otpResend='إعادة إرسال الرمز';T.en.otpResend='Resend code';
+T.ar.otpChange='تغيير البريد';T.en.otpChange='Change email';
+T.ar.otpMissing='أدخل بريدك بإنشاء الحساب أولاً.';T.en.otpMissing='Enter your email in the signup form first.';
+T.ar.otpInvalid='أدخل رمزاً صحيحاً من 6 أرقام.';T.en.otpInvalid='Enter a valid six-digit code.';
+T.ar.otpTimeout='انتهت المدة المعروضة. اطلب رمزاً جديداً.';T.en.otpTimeout='The shown code window ended. Request a new code.';
+T.ar.otpWait='إعادة الإرسال بعد';T.en.otpWait='Resend in';
+T.ar.otpExpiry='الوقت المتبقي في هذه الصفحة:';T.en.otpExpiry='Time remaining in this screen:';
+T.ar.otpResent='أرسلنا رسالة جديدة إذا كان الحساب ينتظر التفعيل. راجع بريدك.';
+T.en.otpResent='If the account is awaiting confirmation, we sent another email. Check your inbox.';
+T.ar.otpError='الرمز غير صحيح أو منتهي الصلاحية. تحقّق منه أو اطلب رمزاً جديداً.';
+T.en.otpError='Invalid or expired code. Check it or request a new one.';
+T.ar.signupComplete='أرسلنا رمز التحقق. افتح بريدك وأدخله هنا لتأكيد الحساب.';
+T.en.signupComplete='We sent a verification code. Check your email and enter it here.';
+
 const GOV=[['Baghdad','بغداد'],['Basra','البصرة'],['Nineveh','نينوى'],['Erbil','أربيل'],['Sulaymaniyah','السليمانية'],['Duhok','دهوك'],['Kirkuk','كركوك'],['Anbar','الأنبار'],['Diyala','ديالى'],['Saladin','صلاح الدين'],['Babylon','بابل'],['Karbala','كربلاء'],['Najaf','النجف'],['Qadisiyyah','القادسية'],['Wasit','واسط'],['Maysan','ميسان'],['Dhi Qar','ذي قار'],['Muthanna','المثنى'],['Halabja','حلبجة']].map(([v,ar])=>({v,en:v,ar}));
 const UNI=[['University of Baghdad','جامعة بغداد'],['Mustansiriyah University','الجامعة المستنصرية'],['Al-Nahrain University','جامعة النهرين'],['University of Mosul','جامعة الموصل'],['University of Basrah','جامعة البصرة'],['University of Kufa','جامعة الكوفة'],['University of Babylon','جامعة بابل'],['University of Kerbala','جامعة كربلاء'],['University of Al-Qadisiyah','جامعة القادسية'],['University of Tikrit','جامعة تكريت'],['University of Anbar','جامعة الأنبار'],['University of Diyala','جامعة ديالى'],['University of Wasit','جامعة واسط'],['University of Thi-Qar','جامعة ذي قار'],['University of Misan','جامعة ميسان'],['University of Al-Muthanna','جامعة المثنى'],['University of Kirkuk','جامعة كركوك'],['University of Sulaimani','جامعة السليمانية'],['University of Duhok','جامعة دهوك'],['Hawler Medical University','جامعة هولير الطبية'],['Jabir ibn Hayyan Medical University','جامعة جابر بن حيان الطبية'],['Al-Mustaqbal University','جامعة المستقبل'],['Al-Bayan University','جامعة البيان'],['Al-Turath University','جامعة التراث'],['Al-Farabi University','جامعة الفارابي'],['Al-Kitab University','جامعة الكتاب'],['Ahl al-Bayt University','جامعة أهل البيت'],['Dijlah University','جامعة دجلة'],['Islamic University','الجامعة الإسلامية'],['Al-Kafeel University','جامعة الكفيل'],['Uruk University','جامعة أوروك'],['Al-Rafidain University College','كلية الرافدين الجامعة']].map(([v,ar])=>({v,en:v,ar}));
 const AR5=['الأولى','الثانية','الثالثة','الرابعة','الخامسة'];
@@ -517,7 +573,7 @@ function apply(){const d=document.documentElement;d.lang=L;d.dir=L=='ar'?'rtl':'
   $$('[data-i]').forEach(n=>{const v=T[L][n.dataset.i];if(typeof v=='string')n.innerHTML=v});
   $$('[data-eye]').forEach(b=>b.setAttribute('aria-label',T[L].show));
   $$('.js-lang').forEach(b=>{b.textContent=L=='ar'?'EN':'ع';b.setAttribute('aria-label',L=='ar'?'English':'العربية')});
-  Object.values(DD).forEach(x=>x.refresh());renderStep();renderStr();st('q7l',L)}
+  Object.values(DD).forEach(x=>x.refresh());renderStep();renderStr();if(typeof otpPaint==='function')otpPaint();if(typeof otpTick==='function')otpTick();st('q7l',L)}
 $$('.js-lang').forEach(b=>b.onclick=()=>{L=L=='ar'?'en':'ar';apply()});
 $$('.js-theme').forEach(b=>b.onclick=()=>{const r=document.documentElement,dk=r.dataset.theme?r.dataset.theme=='dark':matchMedia('(prefers-color-scheme:dark)').matches;r.dataset.theme=dk?'light':'dark';st('farmakon-auth-preview-theme',r.dataset.theme)});
 const savedTheme=st('farmakon-auth-preview-theme');if(['light','dark'].includes(savedTheme))document.documentElement.dataset.theme=savedTheme;
@@ -546,7 +602,7 @@ function goStep(n){step=n;$('#s1').hidden=n!=1;$('#s2').hidden=n!=2;renderStep()
 $('#prev').onclick=()=>goStep(1);
 
 /* ---------- auth-only routes: never show a sample dashboard ---------- */
-const AUTH=['login','register','reset'];
+const AUTH=['login','register','reset','verify'];
 let cur='login';
 function focusFirst(){if(!matchMedia('(hover:hover)').matches)return;const f=document.querySelector('form:not([hidden]) .step:not([hidden]) .f input,form:not([hidden]):not(#vReg) .f input');f&&setTimeout(()=>f.focus(),60)}
 function feedback(message='',isError=false){
@@ -561,20 +617,20 @@ function route(first){
  if(!AUTH.includes(h))h='login';
  if(h!==location.hash.slice(1))history.replaceState(null,'','#'+h);
  if(h!==cur)feedback();cur=h;
- $('#vLogin').hidden=h!=='login';$('#vReg').hidden=h!=='register';$('#vReset').hidden=h!=='reset';
- $('#seg').style.display=h==='reset'?'none':'';$('#seg').classList.toggle('r',h==='register');
+ $('#vLogin').hidden=h!=='login';$('#vReg').hidden=h!=='register';$('#vReset').hidden=h!=='reset';$('#vOtp').hidden=h!=='verify';
+ $('#seg').style.display=(h==='reset'||h==='verify')?'none':'';$('#seg').classList.toggle('r',h==='register');
  $('#t-login').setAttribute('aria-selected',String(h==='login'));
  $('#t-reg').setAttribute('aria-selected',String(h==='register'));
  if(h!=='register')step=1;if(h==='register')goStep(step);
  if(h!=='reset')$('#rok').hidden=true;
- if(!first&&h!=='register')focusFirst();
+ if(h==='verify'){otpPaint();otpTick()}if(!first&&h!=='register'&&h!=='verify')focusFirst();
 }
 window.addEventListener('hashchange',()=>{Object.values(DD).forEach(d=>d.close());route()});
 $('#t-login').onclick=()=>location.hash='login';$('#t-reg').onclick=()=>location.hash='register';
 $('#goReset').onclick=()=>location.hash='reset';$('#backReset').onclick=()=>location.hash='login';
 $('#seg').addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){location.hash=cur==='login'?'register':'login'}});
 /* ---------- real, same-origin Supabase authentication ---------- */
-function busy(f,on){const b=f.querySelector('button[type=submit]:not([hidden])');const k=f.id==='vLogin'?'loginBtn':f.id==='vReset'?'send':step===1&&f.id==='vReg'?'next':'regBtn';
+function busy(f,on){const b=f.querySelector('button[type=submit]:not([hidden])');const k=f.id==='vLogin'?'loginBtn':f.id==='vOtp'?'otpConfirm':f.id==='vReset'?'send':step===1&&f.id==='vReg'?'next':'regBtn';
  f.querySelectorAll('button[type=submit]').forEach(x=>x.disabled=on);if(!b)return;
  b.innerHTML=on?'<span class="spin"></span>':`<span>${T[L][k]}</span><svg class="i go"><use href="#arrow"/></svg>`}
 async function sendAuth(payload){
@@ -601,11 +657,70 @@ $('#vReg').onsubmit=async e=>{
   await sendAuth({action:'signup',name:$('#name').value.trim(),email:$('#email').value.trim().toLowerCase(),password:$('#pass').value,
    stage:DD.stage.val(),university:DD.uni.sel?.custom?DD.uni.val():DD.uni.sel?.ar||DD.uni.val(),
    governorate:DD.gov.sel?.custom?DD.gov.val():DD.gov.sel?.ar||DD.gov.val()});
-  feedback(T[L].signupComplete,false);
-  // Email confirmation is required; do not fake a logged-in state.
-  busy(f,false);
+  otpEmail=$('#email').value.trim().toLowerCase();otpRequestedAt=Date.now();otpNextResend=otpRequestedAt+60000;
+  otpStorage.setItem('farmakon-pending-email',otpEmail);
+  otpStorage.setItem('farmakon-otp-start',String(otpRequestedAt));
+  otpStorage.setItem('farmakon-otp-resend',String(otpNextResend));
+  $('#otp-code').value='';busy(f,false);
+  location.hash='verify';otpPaint();otpTick();feedback(T[L].signupComplete,false);
  }catch(err){feedback(err.message||T[L].requestError,true);busy(f,false)}
 };
+
+/* OTP confirmation - real Supabase server verification; no fake dashboard */
+const otpStorage={getItem(k){try{return window.sessionStorage.getItem(k)}catch{return null}},setItem(k,v){try{window.sessionStorage.setItem(k,v)}catch{}},removeItem(k){try{window.sessionStorage.removeItem(k)}catch{}}};
+let otpEmail=otpStorage.getItem('farmakon-pending-email')||'';
+let otpRequestedAt=Number(otpStorage.getItem('farmakon-otp-start'))||0;
+let otpNextResend=Number(otpStorage.getItem('farmakon-otp-resend'))||0;
+let otpVerifying=false;
+const otpSecondsLeft=()=>Math.max(0,Math.ceil((otpRequestedAt+1800000-Date.now())/1000));
+function digitsOnly(s){return String(s).replace(/[٠-٩]/g,ch=>String(ch.charCodeAt(0)-0x660)).replace(/[۰-۹]/g,ch=>String(ch.charCodeAt(0)-0x6f0)).replace(/\D/g,'').slice(0,6)}
+function otpPaint(){
+ const input=$('#otp-code');if(!input)return;
+ input.setAttribute('aria-label',L==='ar'?'رمز التحقق المكون من ستة أرقام':'Six-digit verification code');
+ const v=digitsOnly(input.value);if(input.value!==v)input.value=v;
+ $$('#vOtp .otp-slot').forEach((n,i)=>{n.textContent=v[i]||'·';n.classList.toggle('filled',!!v[i]);n.classList.toggle('active',i===Math.min(v.length,5))});
+ $('#otp-submit').disabled=v.length!==6||otpVerifying||!otpSecondsLeft()||!otpEmail;
+ const masked=otpEmail.replace(/^(.{1,2})(.*)(@.*)$/,(_,a,b,c)=>a+'•'.repeat(Math.min(6,b.length))+c);
+ $('#otp-email').textContent=masked||T[L].otpMissing;
+}
+function otpTick(){
+ const o=$('#otp-countdown');if(!o)return;
+ const left=otpSecondsLeft(),m=String(Math.floor(left/60)).padStart(2,'0'),sec=String(left%60).padStart(2,'0');
+ o.textContent=left?`${T[L].otpExpiry} ${m}:${sec}`:T[L].otpTimeout;
+ o.classList.toggle('otp-expired',!left);
+ const wait=Math.max(0,Math.ceil((otpNextResend-Date.now())/1000));
+ $('#otp-resend').disabled=wait>0||otpVerifying||!otpEmail;
+ $('#otp-resend').textContent=wait?`${T[L].otpWait} ${wait}s`:T[L].otpResend;
+ otpPaint();
+}
+$('#otp-code').addEventListener('input',()=>{otpPaint();if($('#otp-code').value.length===6 && !otpVerifying && otpSecondsLeft() && otpEmail)$('#vOtp').requestSubmit()});
+$('#vOtp').addEventListener('submit',async e=>{
+ e.preventDefault();if(otpVerifying)return;
+ const token=digitsOnly($('#otp-code').value);
+ if(!otpEmail){feedback(T[L].otpMissing,true);return}
+ if(token.length!==6){feedback(T[L].otpInvalid,true);return}
+ if(!otpSecondsLeft()){feedback(T[L].otpTimeout,true);return}
+ otpVerifying=true;busy($('#vOtp'),true);feedback();
+ try{
+  await sendAuth({action:'verifySignup',email:otpEmail,token});
+  otpStorage.removeItem('farmakon-pending-email');otpStorage.removeItem('farmakon-otp-start');otpStorage.removeItem('farmakon-otp-resend');
+  window.location.assign('/');
+ }catch(err){feedback(T[L].otpError,true);otpVerifying=false;busy($('#vOtp'),false);otpPaint()}
+});
+$('#otp-resend').addEventListener('click',async()=>{
+ if(!otpEmail||otpVerifying||Date.now()<otpNextResend)return;
+ const btn=$('#otp-resend');btn.disabled=true;feedback();
+ try{
+  await sendAuth({action:'resendSignup',email:otpEmail});
+  otpRequestedAt=Date.now();otpNextResend=otpRequestedAt+60000;
+  otpStorage.setItem('farmakon-otp-start',String(otpRequestedAt));
+  otpStorage.setItem('farmakon-otp-resend',String(otpNextResend));
+  $('#otp-code').value='';otpTick();feedback(T[L].otpResent,false);
+ }catch(err){feedback(err.message||T[L].requestError,true)}finally{otpTick()}
+});
+$('#otp-change').addEventListener('click',()=>{location.hash='register';goStep(1);$('#email').focus({preventScroll:true})});
+setInterval(()=>{if(cur==='verify')otpTick()},1000);
+
 $('#vReset').onsubmit=async e=>{
  e.preventDefault();if(!validate(['remail']))return;
  const f=e.currentTarget;feedback();busy(f,true);
