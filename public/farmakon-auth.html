@@ -318,7 +318,9 @@ body{width:100%;min-width:0;overflow-x:clip}
 .otp-slot{min-width:0;width:100%;height:58px;display:grid;place-items:center;border:1.5px solid var(--border);border-radius:13px;background:var(--field);font:700 clamp(18px,4vw,25px)/1 Inter,system-ui,sans-serif;color:var(--text);transition:border-color .2s,background .2s,transform .2s,box-shadow .2s}
 .otp-slot.filled{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 58%,var(--border))}
 .otp-wrapper:focus-within .otp-slot.active{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 18%,transparent);transform:translateY(-2px)}
-#otp-code,#recovery-code{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:.01;border:0;background:transparent;cursor:text;color:transparent;caret-color:transparent;font-size:20px;-webkit-text-security:disc}
+.otp-digit{position:relative;display:block!important;opacity:1!important;cursor:text;text-align:center;padding:0!important;margin:0!important;min-width:0!important;width:100%!important;direction:ltr;color:var(--text);-webkit-text-security:none!important;appearance:none;-webkit-appearance:none;outline:none;border:1.5px solid var(--border);font-family:Inter,Tajawal,sans-serif!important;font-weight:700!important;font-size:clamp(18px,4vw,25px)!important;line-height:1!important;border-radius:13px!important;height:58px!important;background:var(--field)!important;box-sizing:border-box!important;user-select:text;-webkit-user-select:text}
+.otp-digit:focus{border-color:var(--acc)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 18%,transparent)!important;transform:translateY(-2px)}
+@media(max-width:360px){.otp-digit{height:49px!important;border-radius:10px!important}}
 .otp-helper{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:13px;margin:0 0 16px}
 .otp-helper .i{width:16px;height:16px}
 .otp-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:15px;font-size:13px}
@@ -416,10 +418,10 @@ body{width:100%;min-width:0;overflow-x:clip}
         <h2 data-i="otpTitle"></h2><p class="sub" data-i="otpDesc"></p>
         <div id="otp-email" class="otp-email"></div>
         <div class="otp-hint" data-i="otpEntryHint"></div>
-        <label for="otp-code" class="otp-wrapper" id="otp-input-wrapper">
-          <span class="otp-slots" aria-hidden="true"><span class="otp-slot active">·</span><span class="otp-slot">·</span><span class="otp-slot">·</span><span class="otp-slot">·</span><span class="otp-slot">·</span><span class="otp-slot">·</span></span>
-          <input id="otp-code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" autocorrect="off" spellcheck="false" aria-label="رمز التحقق المكون من ستة أرقام" aria-describedby="otp-countdown">
-        </label>
+        <div class="otp-wrapper" id="otp-input-wrapper">
+          <div class="otp-slots" role="group" aria-label="رمز تأكيد بريدك"><input class="otp-slot otp-digit active" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" autocapitalize="none" spellcheck="false" aria-label="رمز تأكيد بريدك - الرقم 1 من 6" data-digit="0"><input class="otp-slot otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="رمز تأكيد بريدك - الرقم 2 من 6" data-digit="1"><input class="otp-slot otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="رمز تأكيد بريدك - الرقم 3 من 6" data-digit="2"><input class="otp-slot otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="رمز تأكيد بريدك - الرقم 4 من 6" data-digit="3"><input class="otp-slot otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="رمز تأكيد بريدك - الرقم 5 من 6" data-digit="4"><input class="otp-slot otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="رمز تأكيد بريدك - الرقم 6 من 6" data-digit="5"></div>
+          <input id="otp-code" type="hidden" value="">
+        </div>
         <div class="otp-helper"><svg class="i"><use href="#cal"/></svg><span id="otp-countdown" role="timer"></span></div>
         <button class="btn" type="submit" id="otp-submit"><span data-i="otpConfirm"></span><svg class="i go"><use href="#arrow"/></svg></button>
         <div class="otp-actions"><button class="lnk" type="button" id="otp-resend" data-i="otpResend"></button><button class="lnk" type="button" id="otp-change" data-i="otpChange"></button></div>
@@ -437,12 +439,12 @@ body{width:100%;min-width:0;overflow-x:clip}
       <form id="vRecovery" novalidate hidden>
         <div class="otp-badge" aria-hidden="true"><svg class="i"><use href="#mail"/></svg></div>
         <h2 data-i="recoveryTitle"></h2><p class="sub" data-i="recoveryDesc"></p>
-        <div class="otp-email" id="recovery-email"></div>
+        <div class="otp-email" id="recovery-email"></div><p class="otp-hint" data-i="recoveryAddressHelp"></p>
         <div class="otp-hint" data-i="otpEntryHint"></div>
-        <label for="recovery-code" class="otp-wrapper" id="recovery-input-wrapper">
-          <span class="otp-slots" aria-hidden="true"><span class="otp-slot active">·</span><span class="otp-slot">·</span><span class="otp-slot">·</span><span class="otp-slot">·</span><span class="otp-slot">·</span><span class="otp-slot">·</span></span>
-          <input id="recovery-code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" autocorrect="off" spellcheck="false" aria-describedby="recovery-countdown">
-        </label>
+        <div class="otp-wrapper" id="recovery-input-wrapper">
+          <div class="otp-slots" role="group" aria-label="رمز استعادة كلمة المرور"><input class="otp-slot otp-digit active" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" autocapitalize="none" spellcheck="false" aria-label="رمز استعادة كلمة المرور - الرقم 1 من 6" data-digit="0"><input class="otp-slot otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="رمز استعادة كلمة المرور - الرقم 2 من 6" data-digit="1"><input class="otp-slot otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="رمز استعادة كلمة المرور - الرقم 3 من 6" data-digit="2"><input class="otp-slot otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="رمز استعادة كلمة المرور - الرقم 4 من 6" data-digit="3"><input class="otp-slot otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="رمز استعادة كلمة المرور - الرقم 5 من 6" data-digit="4"><input class="otp-slot otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="رمز استعادة كلمة المرور - الرقم 6 من 6" data-digit="5"></div>
+          <input id="recovery-code" type="hidden" value="">
+        </div>
         <div class="otp-helper"><svg class="i"><use href="#cal"/></svg><span id="recovery-countdown" role="timer"></span></div>
         <button class="btn" type="submit" id="recovery-submit"><span data-i="recoveryConfirm"></span><svg class="i go"><use href="#arrow"/></svg></button>
         <div class="otp-actions"><button class="lnk" type="button" id="recovery-resend" data-i="otpResend"></button><button class="lnk" type="button" id="recovery-change" data-i="otpChange"></button></div>
@@ -484,10 +486,12 @@ T.en.signupComplete='Check your inbox for the verification code. If this email a
 T.ar.requestError='تعذر الاتصال بالمنصة، حاول مرة أخرى.';
 T.en.requestError='Could not connect to Farmakon. Please try again.';
 
+T.ar.recoveryAddressHelp='راجع البريد المكتوب أعلاه بدقة؛ إذا كان خطأ اضغط تغيير البريد.';
+T.en.recoveryAddressHelp='Check the exact address above. If it is wrong, choose Change email.';
 T.ar.recoveryTitle='رمز استعادة كلمة المرور';
 T.en.recoveryTitle='Password recovery code';
-T.ar.recoveryDesc='إذا كان البريد مسجلاً، أرسلنا رمزاً من 6 أرقام. أدخله للانتقال إلى تغيير كلمة المرور.';
-T.en.recoveryDesc='If the address is registered, a six-digit recovery code was sent. Enter it to set a new password.';
+T.ar.recoveryDesc='إذا كان البريد مسجلاً، سيصل رمز من 6 أرقام إلى نفس العنوان الذي كتبته. أدخله لتغيير كلمة المرور.';
+T.en.recoveryDesc='If this email is registered, a six-digit code is sent to the exact address you entered. Enter it to change your password.';
 T.ar.recoveryConfirm='تحقق من الرمز';T.en.recoveryConfirm='Verify recovery code';
 T.ar.newPassTitle='تعيين كلمة مرور جديدة';T.en.newPassTitle='Create a new password';
 T.ar.newPassDesc='تم التحقق من الرمز بنجاح. اختر كلمة مرور قوية لحسابك.';
@@ -500,8 +504,8 @@ T.ar.saveNewPass='حفظ كلمة المرور';T.en.saveNewPass='Save new passw
 T.ar.passMismatch='كلمتا المرور غير متطابقتين.';T.en.passMismatch='Passwords do not match.';
 T.ar.recoveryDone='تم تغيير كلمة المرور. سجّل الدخول باستخدام الكلمة الجديدة.';
 T.en.recoveryDone='Your password was updated. Sign in with your new password.';
-T.ar.recoverySent='إذا كان هذا البريد مسجلاً، أرسلنا رمز استعادة. افحص بريد المستلم الصحيح.';
-T.en.recoverySent='If this address is registered, a recovery code has been sent. Check the recipient inbox.';
+T.ar.recoverySent='إذا كان البريد مسجلاً وصحيحاً، ستصلك رسالة استعادة فيه. تأكد من عنوان المستلم وليس بريد Farmakon المرسل.';
+T.en.recoverySent='If the address exists and is registered, check that recipient inbox. The Farmakon sender inbox only receives delivery failures.';
 T.ar.recoveryError='رمز الاستعادة غير صحيح أو منتهي الصلاحية. تحقّق منه أو اطلب رمزاً جديداً.';
 T.en.recoveryError='The recovery code is invalid or expired. Check the code or request another.';
 T.ar.duplicateSignup='هذا البريد مسجل مسبقاً في Farmakon. استخدم تسجيل الدخول أو نسيت كلمة المرور.';
@@ -711,7 +715,7 @@ $('#vReg').onsubmit=async e=>{
   otpStorage.setItem('farmakon-pending-email',otpEmail);
   otpStorage.setItem('farmakon-otp-start',String(otpRequestedAt));
   otpStorage.setItem('farmakon-otp-resend',String(otpNextResend));
-  $('#otp-code').value='';busy(f,false);
+  otpDigits.clear();busy(f,false);
   location.hash='verify';otpPaint();otpTick();feedback(T[L].signupComplete,false);
  }catch(err){feedback(err.message||T[L].requestError,true);busy(f,false)}
 };
@@ -724,11 +728,71 @@ let otpNextResend=Number(otpStorage.getItem('farmakon-otp-resend'))||0;
 let otpVerifying=false;
 const otpSecondsLeft=()=>Math.max(0,Math.ceil((otpRequestedAt+1800000-Date.now())/1000));
 function digitsOnly(s){return String(s).replace(/[٠-٩]/g,ch=>String(ch.charCodeAt(0)-0x660)).replace(/[۰-۹]/g,ch=>String(ch.charCodeAt(0)-0x6f0)).replace(/\D/g,'').slice(0,6)}
+
+/* Native, visible OTP text fields: works with Android numeric keyboards,
+   Arabic/Persian digits, clipboard paste, SMS autofill and accessibility. */
+function bindVisibleOtp(formId,hiddenId){
+ const box=$('#'+formId),hidden=$('#'+hiddenId),slots=Array.from(box.querySelectorAll('.otp-digit'));
+ const sync=()=>{
+  hidden.value=slots.map(el=>digitsOnly(el.value)).join('');
+  hidden.dispatchEvent(new Event('input',{bubbles:true}));
+ };
+ const fill=(raw,start=0)=>{
+  const code=digitsOnly(raw);
+  if(!code)return;
+  for(let i=0;i<code.length&&start+i<6;i++)slots[start+i].value=code[i];
+  sync();
+  const target=Math.min(5,start+code.length);
+  slots[target].focus({preventScroll:true});
+ };
+ slots.forEach((slot,i)=>{
+  slot.addEventListener('input',()=>{
+   const v=digitsOnly(slot.value);
+   if(v.length>1){slot.value='';fill(v,i);return}
+   slot.value=v;
+   sync();
+   if(v&&i<5)slots[i+1].focus({preventScroll:true});
+  });
+  slot.addEventListener('keydown',e=>{
+   if(e.key==='Backspace'){
+    e.preventDefault();
+    if(slot.value)slot.value='';
+    else if(i>0){slots[i-1].value='';slots[i-1].focus({preventScroll:true})}
+    sync();
+   }else if(e.key==='ArrowLeft'&&i>0){e.preventDefault();slots[i-1].focus({preventScroll:true})}
+   else if(e.key==='ArrowRight'&&i<5){e.preventDefault();slots[i+1].focus({preventScroll:true})}
+  });
+  slot.addEventListener('paste',e=>{
+   const pasted=e.clipboardData?.getData('text')||'';
+   if(!digitsOnly(pasted))return;
+   e.preventDefault();
+   if(digitsOnly(pasted).length===6)fill(pasted,0);
+   else fill(pasted,i);
+  });
+  slot.addEventListener('focus',()=>{
+   slots.forEach((node,n)=>node.classList.toggle('active',n===i));
+   slot.select();
+  });
+ });
+ return {
+  paint(code){
+   slots.forEach((slot,i)=>{
+    const digit=code[i]||'';
+    if(slot.value!==digit)slot.value=digit;
+    slot.classList.toggle('filled',!!digit);
+    slot.setAttribute('aria-label',(L==='ar'?'الرقم ':'Digit ')+(i+1)+(L==='ar'?' من 6':' of 6'));
+   });
+  },
+  clear(){slots.forEach(slot=>{slot.value=''});hidden.value=''}
+ };
+}
+
+const otpDigits=bindVisibleOtp('vOtp','otp-code');
+const recoveryDigits=bindVisibleOtp('vRecovery','recovery-code');
 function otpPaint(){
  const input=$('#otp-code');if(!input)return;
- input.setAttribute('aria-label',L==='ar'?'رمز التحقق المكون من ستة أرقام':'Six-digit verification code');
  const v=digitsOnly(input.value);if(input.value!==v)input.value=v;
- $$('#vOtp .otp-slot').forEach((n,i)=>{n.textContent=v[i]||'·';n.classList.toggle('filled',!!v[i]);n.classList.toggle('active',i===Math.min(v.length,5))});
+ otpDigits.paint(v);
  $('#otp-submit').disabled=v.length!==6||otpVerifying||!otpSecondsLeft()||!otpEmail;
  const masked=otpEmail.replace(/^(.{1,2})(.*)(@.*)$/,(_,a,b,c)=>a+'•'.repeat(Math.min(6,b.length))+c);
  $('#otp-email').textContent=masked||T[L].otpMissing;
@@ -765,7 +829,7 @@ $('#otp-resend').addEventListener('click',async()=>{
   otpRequestedAt=Date.now();otpNextResend=otpRequestedAt+60000;
   otpStorage.setItem('farmakon-otp-start',String(otpRequestedAt));
   otpStorage.setItem('farmakon-otp-resend',String(otpNextResend));
-  $('#otp-code').value='';otpTick();feedback(T[L].otpResent,false);
+  otpDigits.clear();otpTick();feedback(T[L].otpResent,false);
  }catch(err){feedback(err.message||T[L].requestError,true)}finally{otpTick()}
 });
 $('#otp-change').addEventListener('click',()=>{location.hash='register';goStep(1);$('#email').focus({preventScroll:true})});
@@ -780,11 +844,10 @@ let recoveryVerifying=false;
 const recoverySecondsLeft=()=>Math.max(0,Math.ceil((recoveryRequestedAt+1800000-Date.now())/1000));
 function recoveryPaint(){
  const input=$('#recovery-code');if(!input)return;
- input.setAttribute('aria-label',L==='ar'?'رمز استعادة كلمة المرور المكون من ستة أرقام':'Six-digit password recovery code');
  const v=digitsOnly(input.value);if(v!==input.value)input.value=v;
- $('#vRecovery .otp-slot').forEach((n,i)=>{n.textContent=v[i]||'·';n.classList.toggle('filled',!!v[i]);n.classList.toggle('active',i===Math.min(v.length,5))});
+ recoveryDigits.paint(v);
  $('#recovery-submit').disabled=v.length!==6||recoveryVerifying||!recoverySecondsLeft()||!recoveryEmail;
- $('#recovery-email').textContent=recoveryEmail.replace(/^(.{1,2})(.*)(@.*)$/,(_,a,b,c)=>a+'•'.repeat(Math.min(6,b.length))+c)||T[L].otpMissing;
+ $('#recovery-email').textContent=recoveryEmail||T[L].otpMissing;
 }
 function recoveryTick(){
  const left=recoverySecondsLeft(),m=String(Math.floor(left/60)).padStart(2,'0'),sec=String(left%60).padStart(2,'0');
@@ -805,7 +868,7 @@ $('#vReset').onsubmit=async e=>{
   otpStorage.setItem('farmakon-recovery-email',recoveryEmail);
   otpStorage.setItem('farmakon-recovery-start',String(recoveryRequestedAt));
   otpStorage.setItem('farmakon-recovery-resend',String(recoveryNextResend));
-  $('#recovery-code').value='';
+  recoveryDigits.clear();
   location.hash='recover';recoveryPaint();recoveryTick();feedback(T[L].recoverySent,false);
  }catch(err){feedback(err.message||T[L].requestError,true)}finally{busy(f,false)}
 };
@@ -822,7 +885,7 @@ $('#vRecovery').addEventListener('submit',async e=>{
  try{
   await sendAuth({action:'verifyRecovery',email:recoveryEmail,token});
   otpStorage.removeItem('farmakon-recovery-start');otpStorage.removeItem('farmakon-recovery-resend');
-  $('#recovery-code').value='';location.hash='new-password';
+  recoveryDigits.clear();location.hash='new-password';
   feedback(T[L].newPassDesc,false);
  }catch(err){feedback(T[L].recoveryError,true)}finally{recoveryVerifying=false;busy($('#vRecovery'),false);recoveryPaint()}
 });
@@ -834,7 +897,7 @@ $('#recovery-resend').addEventListener('click',async()=>{
   recoveryRequestedAt=Date.now();recoveryNextResend=recoveryRequestedAt+60000;
   otpStorage.setItem('farmakon-recovery-start',String(recoveryRequestedAt));
   otpStorage.setItem('farmakon-recovery-resend',String(recoveryNextResend));
-  $('#recovery-code').value='';feedback(T[L].recoverySent,false);
+  recoveryDigits.clear();feedback(T[L].recoverySent,false);
  }catch(err){feedback(err.message||T[L].requestError,true)}finally{recoveryTick()}
 });
 $('#recovery-change').onclick=()=>{location.hash='reset';$('#remail').value=recoveryEmail};
