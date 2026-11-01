@@ -439,7 +439,7 @@ body{width:100%;min-width:0;overflow-x:clip}
       <form id="vRecovery" novalidate hidden>
         <div class="otp-badge" aria-hidden="true"><svg class="i"><use href="#mail"/></svg></div>
         <h2 data-i="recoveryTitle"></h2><p class="sub" data-i="recoveryDesc"></p>
-        <div class="otp-email" id="recovery-email"></div>
+        <div class="otp-email" id="recovery-email"></div><p class="otp-hint" data-i="recoveryAddressHelp"></p>
         <div class="otp-hint" data-i="otpEntryHint"></div>
         <div class="otp-wrapper" id="recovery-input-wrapper">
           <div class="otp-slots" role="group" aria-label="رمز استعادة كلمة المرور"><input class="otp-slot otp-digit active" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" autocapitalize="none" spellcheck="false" aria-label="رمز استعادة كلمة المرور - الرقم 1 من 6" data-digit="0"><input class="otp-slot otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="رمز استعادة كلمة المرور - الرقم 2 من 6" data-digit="1"><input class="otp-slot otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="رمز استعادة كلمة المرور - الرقم 3 من 6" data-digit="2"><input class="otp-slot otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="رمز استعادة كلمة المرور - الرقم 4 من 6" data-digit="3"><input class="otp-slot otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="رمز استعادة كلمة المرور - الرقم 5 من 6" data-digit="4"><input class="otp-slot otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="رمز استعادة كلمة المرور - الرقم 6 من 6" data-digit="5"></div>
@@ -486,10 +486,12 @@ T.en.signupComplete='Check your inbox for the verification code. If this email a
 T.ar.requestError='تعذر الاتصال بالمنصة، حاول مرة أخرى.';
 T.en.requestError='Could not connect to Farmakon. Please try again.';
 
+T.ar.recoveryAddressHelp='راجع البريد المكتوب أعلاه بدقة؛ إذا كان خطأ اضغط تغيير البريد.';
+T.en.recoveryAddressHelp='Check the exact address above. If it is wrong, choose Change email.';
 T.ar.recoveryTitle='رمز استعادة كلمة المرور';
 T.en.recoveryTitle='Password recovery code';
-T.ar.recoveryDesc='إذا كان البريد مسجلاً، أرسلنا رمزاً من 6 أرقام. أدخله للانتقال إلى تغيير كلمة المرور.';
-T.en.recoveryDesc='If the address is registered, a six-digit recovery code was sent. Enter it to set a new password.';
+T.ar.recoveryDesc='إذا كان البريد مسجلاً، سيصل رمز من 6 أرقام إلى نفس العنوان الذي كتبته. أدخله لتغيير كلمة المرور.';
+T.en.recoveryDesc='If this email is registered, a six-digit code is sent to the exact address you entered. Enter it to change your password.';
 T.ar.recoveryConfirm='تحقق من الرمز';T.en.recoveryConfirm='Verify recovery code';
 T.ar.newPassTitle='تعيين كلمة مرور جديدة';T.en.newPassTitle='Create a new password';
 T.ar.newPassDesc='تم التحقق من الرمز بنجاح. اختر كلمة مرور قوية لحسابك.';
@@ -502,8 +504,8 @@ T.ar.saveNewPass='حفظ كلمة المرور';T.en.saveNewPass='Save new passw
 T.ar.passMismatch='كلمتا المرور غير متطابقتين.';T.en.passMismatch='Passwords do not match.';
 T.ar.recoveryDone='تم تغيير كلمة المرور. سجّل الدخول باستخدام الكلمة الجديدة.';
 T.en.recoveryDone='Your password was updated. Sign in with your new password.';
-T.ar.recoverySent='إذا كان هذا البريد مسجلاً، أرسلنا رمز استعادة. افحص بريد المستلم الصحيح.';
-T.en.recoverySent='If this address is registered, a recovery code has been sent. Check the recipient inbox.';
+T.ar.recoverySent='إذا كان البريد مسجلاً وصحيحاً، ستصلك رسالة استعادة فيه. تأكد من عنوان المستلم وليس بريد Farmakon المرسل.';
+T.en.recoverySent='If the address exists and is registered, check that recipient inbox. The Farmakon sender inbox only receives delivery failures.';
 T.ar.recoveryError='رمز الاستعادة غير صحيح أو منتهي الصلاحية. تحقّق منه أو اطلب رمزاً جديداً.';
 T.en.recoveryError='The recovery code is invalid or expired. Check the code or request another.';
 T.ar.duplicateSignup='هذا البريد مسجل مسبقاً في Farmakon. استخدم تسجيل الدخول أو نسيت كلمة المرور.';
