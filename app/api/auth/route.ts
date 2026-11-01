@@ -36,6 +36,10 @@ if(b.action==='forgot'){
  const {error:recoveryRequestError}=await c.auth.resetPasswordForEmail(b.email,{redirectTo:origin+'/auth/callback?next=/reset-password'});
  if(recoveryRequestError?.status===429)
   return Response.json({error:'عدد طلبات الإرسال كبير. انتظر قليلاً قبل المحاولة.',code:'RATE_LIMIT'},{status:429,headers:{'Cache-Control':'no-store'}});
+ // A missing user is intentionally indistinguishable from a successful request.
+ // A genuine SMTP/backend error should not send the user to a code screen.
+ if(recoveryRequestError&&recoveryRequestError.code!=='user_not_found')
+  return Response.json({error:'تعذر إرسال رمز الاستعادة حالياً. حاول لاحقاً.',code:'RECOVERY_SEND_UNAVAILABLE'},{status:503,headers:{'Cache-Control':'no-store'}});
  // Always give a generic response to prevent guessing which addresses are registered.
  return Response.json({ok:true,message:'إذا كان البريد مسجلاً، ستصلك رسالة الاستعادة.'},{headers:{'Cache-Control':'no-store'}});
 }
