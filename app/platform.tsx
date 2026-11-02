@@ -46,7 +46,15 @@ const field=(key:string,v:any)=>setModal(m=>m?{...m,data:{...m.data,[key]:v}}:m)
 function courseCard(c:Item){const ls=data?.lesson.filter((l:Item)=>l.courseId===c.id)||[];const enrolled=active.some((e:Item)=>e.course_id===c.id);return <article className="course-card" key={c.id}><button className={'course-cover '+c.color} onClick={()=>{setCourse(c);setPage('courses')}}><span className="cover-tag">{c.category}</span><FlaskConical size={66} strokeWidth={1}/><span className="cover-en" dir="ltr">FARMAKON / {c.category==='التدريب الصيفي'?'PRACTICE':'PHARMACY'}</span>{c.status==='draft'&&<span className="draft-badge">مسودة</span>}</button><div className="course-info"><span className="eyebrow">{c.stage}</span><h3>{c.title}</h3><p className="clamp">{c.description||'أضف وصفًا للكورس من لوحة الإدارة.'}</p><div className="meta"><span><Play size={14}/>{ls.length} محاضرة</span><span><Clock size={14}/>{Math.round(ls.reduce((s:number,l:Item)=>s+l.minutes,0)/60*10)/10} ساعة</span></div><div className="card-bottom"><strong>{enrolled?'مشترك':money(c.price)}</strong><button className="text-btn" onClick={()=>{setCourse(c);setPage('courses')}}>{enrolled?'متابعة الدراسة':'تفاصيل الكورس'}<ChevronLeft size={16}/></button></div></div></article>}
 function empty(title:string,desc:string,kind?:string){return <div className="empty"><BookOpen size={38}/><h3>{title}</h3><p>{desc}</p>{adminMode&&kind&&<button className="primary" onClick={()=>edit(kind)}><Plus size={17}/>إضافة {names[kind]}</button>}</div>}
 if(error==='auth')return <main className="auth-card"><img src="/farmakon-logo.jpg" width="64" alt=""/><h1>Farmakon</h1><p>مساحتك الخاصة لتجهيز كورسات الصيدلة.</p><a className="primary" href="/login" target="_top">تسجيل الدخول بالبريد</a><small>النسخة الحالية خاصة بمالك المنصة. تسجيل الطلاب العام لم يُفعّل بعد.</small></main>;
-if(!data)return <main className="auth-card"><img src="/farmakon-logo.jpg" width="64" alt=""/><h1>Farmakon</h1>{error?<><p role="alert">{error}</p><button className="primary" onClick={load}>إعادة المحاولة</button></>:<><Loader2 className="spin"/><p>جارٍ تجهيز مساحة التعلم…</p></>}</main>;
+if(!data)return error?
+ <main className="auth-card"><img src="/farmakon-logo.jpg" width="64" alt=""/><h1>Farmakon</h1><p role="alert">{error}</p><button className="primary" onClick={load}>إعادة المحاولة</button></main>:
+ <main className="fk-loading-view" role="status" aria-live="polite" aria-label="جارٍ تجهيز مساحة التعلّم">
+  <div className="fk-loading-brand"><img src="/farmakon-logo.jpg" width="44" height="44" alt=""/><div><strong>Farmakon</strong><small>جارٍ تجهيز مساحة التعلّم…</small></div></div>
+  <div className="fk-skeleton-heading"/><div className="fk-skeleton-sub"/>
+  <div className="fk-skeleton-grid"><div/><div/><div/><div/></div>
+  <div className="fk-skeleton-content"/>
+  <span className="sr-only">يرجى الانتظار حتى تحميل بياناتك.</span>
+ </main>;
 const navs=adminMode?['dashboard','content','students','payments','codes','questions','exams','library','announcements','reports','support','settings']:['dashboard','courses','library','questions','exams','downloads','subscriptions','account','support'];
 const searchItems:SearchResult[]=[
  ...data.course.filter((c:Item)=>adminMode||c.status==='published').map((c:Item)=>({id:'course-'+c.id,title:String(c.title||''),kind:'كورس',section:'courses',course:c})),
