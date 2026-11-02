@@ -47,6 +47,7 @@ const labels:Record<string,string>={...Object.fromEntries(sections.map(s=>[s.id,
 const examples:SearchResult[]=courses.map(c=>({id:c.id,title:c.title,kind:'كورس توضيحي',section:'courses',course:c}));
 export default function CoursesPreview(){
  const [section,setSection]=useState<Section>('courses');
+ const [courseMode,setCourseMode]=useState<'mine'|'explore'>('mine');
  const [selected,setSelected]=useState<CourseRecord|null>(null);
  const [panel,setPanel]=useState<ShellPanel>(null);
  const [menu,setMenu]=useState(false);
@@ -74,9 +75,9 @@ export default function CoursesPreview(){
    </aside>
    {menu&&<div className="shade" role="presentation" onClick={()=>setMenu(false)}/>}
    <div className="workspace">
-     <FarmakonHeader title={section==='courses'?selected?'تفاصيل الكورس':'كورساتي واستكشف':labels[section]||'مركز التعلّم'} menuOpen={menu} onMenu={()=>setMenu(true)} onToggleSidebar={()=>setCollapsed(v=>!v)} onSearch={()=>setPanel('search')} onNotifications={()=>setPanel('notifications')} onMore={()=>setPanel('more')}/>
+     <FarmakonHeader title={section==='courses'?selected?'تفاصيل الكورس':courseMode==='mine'?'كورساتي':'استكشف الكورسات':labels[section]||'مركز التعلّم'} menuOpen={menu} onMenu={()=>setMenu(true)} onToggleSidebar={()=>setCollapsed(v=>!v)} onSearch={()=>setPanel('search')} onNotifications={()=>setPanel('notifications')} onMore={()=>setPanel('more')}/>
      <main className="main fk-learning-main">
-       {section==='courses'&&!selected&&<CoursesHub courses={courses} lessons={lessons} enrollments={enrollments} activity={activity} userId="v1031-preview-only" isPreview onOpenCourse={showCourse} onResumeLesson={showResume}/>}
+       {section==='courses'&&!selected&&<CoursesHub onModeChange={setCourseMode} courses={courses} lessons={lessons} enrollments={enrollments} activity={activity} userId="v1031-preview-only" isPreview onOpenCourse={showCourse} onResumeLesson={showResume}/>}
        {section==='courses'&&selected&&<div className="fk-learning-subpage">
          <button type="button" className="fk-learn-back" onClick={()=>setSelected(null)}><ArrowRight size={17}/> العودة إلى الكورسات</button>
          <div className="fk-learning-subpage-card" style={{maxWidth:820,margin:'20px auto'}}>
