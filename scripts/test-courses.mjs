@@ -64,4 +64,29 @@ test('only published courses lessons counted',()=>{
 test('duration units are bounded',()=>{
  assert.equal(durationLabel(37),'37 دقيقة');assert.equal(durationLabel(120),'2 س');assert.equal(durationLabel(-4),'0 دقيقة');
 });
+
+const localeSrc=await readFile(path.join(root,'app/components/courses-i18n.ts'),'utf8');
+const localeJS=ts.transpileModule(localeSrc,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022},reportDiagnostics:true});
+assert.ok(!localeJS.diagnostics?.some(d=>d.category===ts.DiagnosticCategory.Error),'Locale TypeScript is valid');
+const {courseCopy,getCoursesCopy}=await import('data:text/javascript;base64,'+Buffer.from(localeJS.outputText).toString('base64'));
+test('Arabic and English share the same course UI translation keys',()=>{
+ const ar=Object.keys(courseCopy.ar).sort(),en=Object.keys(courseCopy.en).sort();
+ assert.deepEqual(ar,en);
+ assert.equal(getCoursesCopy('ar').myCourses,'كورساتي');
+ assert.equal(getCoursesCopy('en').myCourses,'My Courses');
+ assert.equal(getCoursesCopy('en').filterResults,'Apply filters');
+});
+test('locale prepared without exposing a language selector before Settings',async()=>{
+ const hub=await readFile(path.join(root,'app/components/courses-hub.tsx'),'utf8');
+ assert.ok(hub.includes("locale='ar'"));
+ assert.ok(hub.includes("dir={en?'ltr':'rtl'}"));
+ assert.ok(!hub.includes('language-selector'));
+});
+const platformAPI=await readFile(path.join(root,'app/api/platform/route.ts'),'utf8');
+test('favorite update is user-scoped and guarded by existing preview write block',()=>{
+ assert.match(platformAPI,/if\(b\.action==='courseFavorite'\)/);
+ assert.match(platformAPI,/await record\(cid\)/);
+ assert.match(platformAPI,/u\.userId,'course_favorite',cid/);
+ assert.match(platformAPI,/if\(process\.env\.FARMAKON_PREVIEW_READ_ONLY==='1'\)return json/);
+});
 console.log('PASS '+passed+' V10.3.1 course-logic groups');
