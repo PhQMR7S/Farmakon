@@ -68,7 +68,7 @@ check('course covers show specific symbols while owner images take precedence',(
 check('favorites shortcut remains outside horizontal chip scroller',()=>{
  const part=hub.slice(hub.indexOf('className="fk-courses-filter-shortcuts"'),hub.indexOf('className="fk-courses-results-head"'));
  assert.ok(part.includes('className="fk-courses-chips"'));
- assert.ok(part.includes('className={\\'fk-courses-fav-pinned'));
+ assert.ok(part.includes("className={\'fk-courses-fav-pinned"));
  assert.ok(css.includes('.fk-courses-fav-pinned'));
 });
 check('accessible labels and reduced-motion safety are present',()=>{
