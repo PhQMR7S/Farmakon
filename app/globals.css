@@ -909,3 +909,6 @@ body{background:radial-gradient(ellipse at 5% 0%,#27bce912,transparent 42%),radi
 @media(prefers-reduced-motion:reduce){.fk-courses-polish,.fk-courses-polish *,.fk-courses-filter-shade,.fk-courses-filter-sheet{animation:none!important;transition:none!important}}
 @media(prefers-reduced-transparency:reduce){.fk-courses-filter-sheet{background:#0e193b;backdrop-filter:none}.fk-courses-filter-shade{backdrop-filter:none}}
 @supports not (backdrop-filter:blur(1px)){.fk-courses-filter-shade{backdrop-filter:none}.fk-courses-filter-sheet{background:#0e193b}}
+
+/* Completion state is separate from subscription status. */
+.fk-courses-polish .fk-courses-study-state{font-weight:750;color:var(--teal)}
