@@ -77,7 +77,7 @@ export default function CoursesPreview(){
    <div className="workspace">
      <FarmakonHeader title={section==='courses'?selected?'تفاصيل الكورس':courseMode==='mine'?'كورساتي':'استكشف الكورسات':labels[section]||'مركز التعلّم'} menuOpen={menu} onMenu={()=>setMenu(true)} onToggleSidebar={()=>setCollapsed(v=>!v)} onSearch={()=>setPanel('search')} onNotifications={()=>setPanel('notifications')} onMore={()=>setPanel('more')}/>
      <main className="main fk-learning-main">
-       {section==='courses'&&!selected&&<CoursesHub onModeChange={setCourseMode} courses={courses} lessons={lessons} enrollments={enrollments} activity={activity} userId="v1031-preview-only" isPreview onOpenCourse={showCourse} onResumeLesson={showResume}/>}
+       {section==='courses'&&!selected&&<CoursesHub initialMode={courseMode} onModeChange={setCourseMode} courses={courses} lessons={lessons} enrollments={enrollments} activity={activity} userId="v1031-preview-only" isPreview onOpenCourse={showCourse} onResumeLesson={showResume}/>}
        {section==='courses'&&selected&&<div className="fk-learning-subpage">
          <button type="button" className="fk-learn-back" onClick={()=>setSelected(null)}><ArrowRight size={17}/> العودة إلى الكورسات</button>
          <div className="fk-learning-subpage-card" style={{maxWidth:820,margin:'20px auto'}}>
