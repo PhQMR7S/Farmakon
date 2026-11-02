@@ -52,6 +52,7 @@ const steps=[{name:'راجع آخر محاضرة',icon:PlayCircle},{name:'جاو
 function learningItem(key:Section){return content.find(x=>x.id===key)}
 export default function LearningDesignPreview(){
  const [direction,setDirection]=useState<Direction>('balanced');
+ useEffect(()=>{const chosen=new URLSearchParams(window.location.search).get('design');if(chosen==='balanced'||chosen==='focus'||chosen==='academy')setDirection(chosen)},[]);
  const [section,setSection]=useState<Section>('learning');
  const [panel,setPanel]=useState<ShellPanel>(null);
  const [menu,setMenu]=useState(false);
@@ -108,7 +109,7 @@ export default function LearningDesignPreview(){
      {previewBanner}
      <div className="fk-learning-picker" aria-label="اختيار تصميم مركز التعلّم">
       <div className="fk-picker-head"><div><span className="fk-learn-kicker">DESIGN PREVIEWS</span><h1>مركز التعلّم — كيف تتخيله؟</h1></div><span className="fk-picker-counter">3 تصاميم</span></div>
-      <div role="tablist" aria-label="نسخ التصميم" className="fk-picker-tabs">{directions.map(d=><button type="button" role="tab" aria-selected={direction===d.id} className={direction===d.id?'selected':''} key={d.id} onClick={()=>{setDirection(d.id);setSection('learning')}}><strong>{d.name}</strong><small>{d.desc}</small></button>)}</div>
+      <div role="tablist" aria-label="نسخ التصميم" className="fk-picker-tabs">{directions.map(d=><button type="button" role="tab" aria-selected={direction===d.id} className={direction===d.id?'selected':''} key={d.id} onClick={()=>{setDirection(d.id);setSection('learning');const u=new URL(window.location.href);u.searchParams.set('design',d.id);window.history.replaceState(null,'',u.pathname+u.search)}}><strong>{d.name}</strong><small>{d.desc}</small></button>)}</div>
      </div>
      <div className="fk-preview-greeting-controls"><span><Smile size={16}/> جرّب الترحيب باسم نموذجي:</span><button className={student==='طالب Farmakon'?'selected':''} onClick={()=>setStudent('طالب Farmakon')}>عام</button><button className={student==='أحمد'?'selected':''} onClick={()=>setStudent('أحمد')}>أحمد</button><button className={student==='سارة'?'selected':''} onClick={()=>setStudent('سارة')}>سارة</button></div>
      {section!=='learning'?<div className="fk-learning-subpage"><button className="fk-learn-back" onClick={back}><ArrowRight size={18}/> العودة إلى مركز التعلّم</button><div className="fk-learning-subpage-card"><div className="fk-learning-tile-icon">{(()=>{const item=navEntries.find(x=>x.id===section)||learningItem(section);const Icon=item?.icon||BookOpen;return <Icon size={34}/>})()}</div><h2>{labels[section]}</h2><p>توضيح للانتقال من مركز التعلّم إلى هذا القسم. ربط المحتوى الحقيقي سيتم ضمن تطوير القسم الخاص به، وتبقى بيانات الطلاب محمية.</p><button className="fk-learn-primary" onClick={back}>الرجوع للمركز <ArrowRight size={17}/></button></div></div>:
