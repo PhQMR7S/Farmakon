@@ -912,3 +912,140 @@ body{background:radial-gradient(ellipse at 5% 0%,#27bce912,transparent 42%),radi
 
 /* Completion state is separate from subscription status. */
 .fk-courses-polish .fk-courses-study-state{font-weight:750;color:var(--teal)}
+
+
+/* FARMAKON V10.3.1 / Icon & Interaction Polish
+   Native-feeling, not an imitation of proprietary Apple assets:
+   one rounded outline geometry, readable active states and soft glass feature icons.
+   Applied only to current V10 header/dock and Courses surfaces.
+*/
+.fk-header-v2{--fk-icon-stroke:1.95}
+.fk-header-v2 .fk-header-actions{gap:8px}
+.fk-header-v2 :is(.fk-nav-trigger,.fk-header-action,.fk-header-profile){
+ border-radius:15px;
+ min-width:44px;min-height:44px;width:44px;height:44px;
+ background:linear-gradient(148deg,color-mix(in srgb,var(--surface) 90%,white 10%),color-mix(in srgb,var(--surface) 96%,transparent));
+ border:1px solid color-mix(in srgb,var(--line) 73%,var(--teal) 27%);
+ box-shadow:inset 0 1px #ffffff10,0 4px 13px #07112f0e;
+ -webkit-tap-highlight-color:transparent;
+ touch-action:manipulation;
+ transition:transform 150ms cubic-bezier(.24,1.2,.25,1),background 210ms ease,border-color 210ms ease,box-shadow 210ms ease;
+}
+.fk-header-v2 .fk-header-profile{
+ background:linear-gradient(146deg,color-mix(in srgb,var(--accent-soft) 72%,var(--surface)),color-mix(in srgb,var(--surface) 66%,transparent));
+ color:var(--teal);
+}
+.fk-header-v2 :is(.fk-nav-trigger,.fk-header-action,.fk-header-profile) svg{
+ stroke-linecap:round;stroke-linejoin:round;
+ transition:transform 190ms cubic-bezier(.15,1.38,.3,1);
+}
+.fk-header-v2 :is(.fk-nav-trigger,.fk-header-action,.fk-header-profile):active{transform:scale(.935)}
+.fk-header-v2 :is(.fk-nav-trigger,.fk-header-action,.fk-header-profile):active svg{transform:scale(.92)}
+.fk-header-v2 :is(.fk-nav-trigger,.fk-header-action,.fk-header-profile):focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+/* Dock: transparent material, comfortably distinct glyphs.
+   Icons don't depend on colour alone: always pair with label. */
+.fk-app .mobile-dock.fk-dock-v2 .fk-dock-item{
+ overflow:visible;
+ gap:3px;min-height:63px;
+ -webkit-tap-highlight-color:transparent;
+}
+.fk-dock-glyph{position:relative;display:grid;place-items:center;
+ width:39px;height:35px;
+ border-radius:13px;
+ transition:transform 230ms cubic-bezier(.2,1.5,.34,1),background 230ms ease,box-shadow 230ms ease}
+.fk-dock-glyph svg{stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 3px #02092936)}
+.fk-app .mobile-dock.fk-dock-v2 .fk-dock-item.active .fk-dock-glyph{
+ background:linear-gradient(145deg,rgba(67,173,245,.2),rgba(43,104,181,.10));
+ box-shadow:inset 0 1px 0 rgba(170,228,255,.2),0 3px 15px rgba(47,151,235,.12);
+ transform:translateY(-2px) scale(1.055);
+}
+.fk-app .mobile-dock.fk-dock-v2 .fk-dock-item.active .fk-dock-glyph svg{
+ filter:drop-shadow(0 0 6px #3abaff6a);
+}
+.fk-app .mobile-dock.fk-dock-v2 .fk-dock-item:active .fk-dock-glyph{transform:scale(.87)}
+.fk-app .mobile-dock.fk-dock-v2 .fk-dock-caption{
+ font-size:12px;line-height:1.35;letter-spacing:0;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;
+}
+.fk-app .mobile-dock.fk-dock-v2 .fk-dock-item.active .fk-dock-caption{
+ color:var(--teal);font-weight:750;
+}
+.fk-app .fk-sheet-icon svg{stroke-linecap:round;stroke-linejoin:round}
+/* Persistent Favorite shortcut: fixes the clipped heart chip seen in screenshot. */
+.fk-courses-polish .fk-courses-filter-shortcuts{display:flex;align-items:center;gap:9px;min-width:0;max-width:100%;position:relative}
+.fk-courses-polish .fk-courses-chips{flex:1;min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;scroll-snap-type:x proximity;padding:3px 2px 7px;mask-image:linear-gradient(to right,transparent 0,#000 10px,#000 calc(100% - 10px),transparent 100%);-webkit-mask-image:linear-gradient(to right,transparent 0,#000 10px,#000 calc(100% - 10px),transparent 100%)}
+.fk-courses-polish .fk-courses-chips::-webkit-scrollbar{display:none}
+.fk-courses-polish .fk-courses-chips>button{scroll-snap-align:start;min-height:43px}
+.fk-courses-polish .fk-courses-chips:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:13px}
+.fk-courses-fav-pinned{flex:0 0 auto;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;gap:7px;
+ border:1px solid color-mix(in srgb,var(--line) 74%,#70b9fc 26%);
+ background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--soft) 80%,var(--surface)));
+ color:var(--muted);border-radius:14px;font:650 12px Tajawal,sans-serif;
+ padding:8px 13px;box-shadow:inset 0 1px #ffffff14;
+ transition:transform 170ms cubic-bezier(.17,1.42,.33,1),color 200ms,background 200ms;
+ white-space:nowrap;
+}
+.fk-courses-fav-pinned.active{color:#f48bb7;border-color:#df73ae88;background:linear-gradient(145deg,#782f5866,#311e5060)}
+.fk-courses-fav-pinned:active{transform:scale(.92)}
+/* Course images are semantic; only category-specific highlight controls their colour. */
+.fk-courses-polish .fk-course-discipline-icon{isolation:isolate;transform:rotate(-9deg);
+ border-width:1.5px;box-shadow:inset 0 2px 1px #ffffff48,inset -4px -5px 10px #03092273,0 12px 25px #0006,0 0 0 14px #ffffff08;
+ transition:transform 280ms cubic-bezier(.18,1.28,.35,1),box-shadow 280ms ease}
+.fk-courses-polish .fk-course-discipline-icon:before{content:"";position:absolute;inset:5px;z-index:0;pointer-events:none;
+ border-radius:inherit;background:radial-gradient(ellipse at 30% 10%,#ffffff23,transparent 58%)}
+.fk-courses-polish .fk-course-discipline-icon svg{z-index:1;filter:drop-shadow(0 5px 4px #0009);stroke-linecap:round;stroke-linejoin:round}
+.fk-courses-polish .fk-course-tone-cyan{color:#b0edff;background:linear-gradient(150deg,#338fbd,#16365c)}
+.fk-courses-polish .fk-course-tone-violet{color:#e6d4ff;background:linear-gradient(150deg,#8c71c9,#3b326e)}
+.fk-courses-polish .fk-course-tone-teal{color:#b3fff0;background:linear-gradient(150deg,#319998,#174f6a)}
+.fk-courses-polish .fk-course-tone-coral{color:#ffe4e7;background:linear-gradient(150deg,#c97591,#663052)}
+.fk-courses-polish .fk-course-tone-amber{color:#fff1c5;background:linear-gradient(150deg,#bf9561,#705274)}
+.fk-courses-polish .fk-courses-card:hover .fk-course-discipline-icon{transform:rotate(-7deg) translateY(-3px);box-shadow:inset 0 2px 1px #ffffff48,0 18px 28px #0004,0 0 0 14px #ffffff08}
+.fk-courses-polish .fk-courses-cover.has-image:has(img) .fk-courses-cover-wordmark{color:#f4fbff;text-shadow:0 2px 7px #071127}
+.fk-courses-polish .fk-courses-favorite{transition:transform 180ms cubic-bezier(.14,1.6,.26,1),color 170ms ease,background 170ms ease}
+.fk-courses-polish .fk-courses-favorite:active{transform:scale(.86)}
+.fk-courses-polish .fk-courses-favorite.is-on{animation:fk-icon-heart-pop 270ms cubic-bezier(.16,1.56,.36,1) both}
+@keyframes fk-icon-heart-pop{0%{transform:scale(.93)}55%{transform:scale(1.15)}100%{transform:scale(1)}}
+/* All actions: fluid touch without hiding labels or reducing target area. */
+.fk-courses-polish :is(.fk-courses-switch button,.fk-courses-filter-trigger,.fk-courses-primary,.fk-courses-card-open,.fk-courses-resume button,.fk-courses-chips button){
+ -webkit-tap-highlight-color:transparent;
+ touch-action:manipulation;
+ transition:transform 160ms cubic-bezier(.14,1.4,.27,1),background 200ms ease,border-color 200ms ease,box-shadow 200ms ease;
+}
+.fk-courses-polish :is(.fk-courses-switch button,.fk-courses-filter-trigger,.fk-courses-primary,.fk-courses-card-open,.fk-courses-resume button,.fk-courses-chips button):active{transform:scale(.955)}
+.fk-courses-polish :is(.fk-courses-filter-trigger,.fk-courses-card-open):focus-visible,.fk-courses-fav-pinned:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+.fk-courses-polish .fk-courses-card .fk-courses-meta svg{color:var(--teal)}
+.fk-courses-polish .fk-courses-stats-icon svg,.fk-courses-polish .fk-courses-stat-icon svg{stroke-width:1.95}
+.fk-courses-polish .fk-courses-card-footer strong{line-height:1.7}
+.fk-courses-polish .fk-courses-demo-note b{color:#99d9ff}
+.fk-courses-filter-shade{background:rgba(4,9,29,.72);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.fk-courses-filter-sheet{
+ background:linear-gradient(165deg,rgba(31,49,90,.97),rgba(10,18,48,.98));
+ border-color:#a7d6ff50;box-shadow:inset 0 2px 1px #ffffff19,0 28px 80px #0009;
+ animation:fk-filter-up 290ms cubic-bezier(.15,1,.28,1) both
+}
+@keyframes fk-filter-up{from{opacity:.8;transform:translateY(25px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+.fk-courses-filter-actions button:active{transform:scale(.975)}
+@media(max-width:700px){
+ .fk-courses-polish .fk-courses-fav-pinned{padding:8px 11px;gap:0;min-width:45px}
+ .fk-courses-polish .fk-courses-fav-pinned span{display:none}
+ .fk-courses-polish .fk-courses-filter-shortcuts{gap:6px}
+ .fk-courses-polish .fk-courses-cover .fk-course-discipline-icon{width:119px;height:119px}
+ .fk-courses-polish .fk-courses-cover .fk-course-discipline-icon svg{width:65px;height:65px}
+ .fk-courses-polish .fk-courses-card h3{font-size:20px}
+ .fk-courses-polish .fk-courses-hero h1{font-size:clamp(21px,5.8vw,27px)}
+ .fk-courses-polish .fk-courses-hero{padding:18px 20px 16px}
+ .fk-app .fk-dock-glyph{width:36px;height:34px}
+ .fk-app .mobile-dock.fk-dock-v2 .fk-dock-caption{font-size:11px}
+}
+@media(max-width:390px){
+ .fk-courses-polish .fk-courses-switch button{font-size:11px}
+ .fk-courses-polish .fk-courses-switch button svg{width:18px;height:18px}
+ .fk-courses-polish .fk-courses-stat-ring{width:34px;height:34px}
+}
+@media(prefers-reduced-motion:reduce){
+ .fk-courses-polish .fk-courses-favorite.is-on{animation:none!important}
+ .fk-courses-filter-sheet{animation:none!important}
+ .fk-courses-polish :is(button,.fk-course-discipline-icon),.fk-header-v2 button,.fk-app .mobile-dock.fk-dock-v2 .fk-dock-item,.fk-app .mobile-dock.fk-dock-v2 .fk-dock-glyph{transition:none!important;transform:none!important}
+}
+/* Avoid obscuring controls by overlapping bottom-sheets on small screens. */
+@media(max-height:620px){.fk-courses-filter-sheet{max-height:91dvh}}
