@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test:learning": "node scripts/test-learning.mjs"
+    "test:learning": "node scripts/test-learning.mjs",
+    "prebuild": "npm run test:learning"
   },
   "dependencies": {
     "next": "16.3.4",
