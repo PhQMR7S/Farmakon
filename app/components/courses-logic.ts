@@ -7,10 +7,14 @@ export function normalizeCourseText(value:unknown):string{
  .replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/ة/g,'ه')
  .replace(/\s+/g,' ').trim();
 }
+/** Match normalized Arabic/English words regardless of word order; require every search token. */
+export function matchesNormalizedQuery(source:unknown,query:string):boolean{
+ const haystack=normalizeCourseText(source);
+ const terms=normalizeCourseText(query).split(' ').filter(Boolean);
+ return terms.every(term=>haystack.includes(term));
+}
 export function courseMatches(course:CourseRecord,query:string):boolean{
- const q=normalizeCourseText(query);
- if(!q)return true;
- return normalizeCourseText([course.title,course.category,course.stage,course.description,course.instructor].filter(Boolean).join(' ')).includes(q);
+ return matchesNormalizedQuery([course.title,course.category,course.stage,course.description,course.instructor].filter(Boolean).join(' '),query);
 }
 export function getCourseEntitlement(courseId:string,enrollments:CourseRecord[],now=Date.now()):{active:boolean;expired:boolean;expires:number|null}{
  const list=enrollments.filter(e=>String(e.course_id||e.courseId||'')===String(courseId));
@@ -32,5 +36,5 @@ export function durationLabel(totalMinutes:number):string{
  return minutes>=60?(Math.floor(minutes/60)+' س '+(minutes%60?minutes%60+' د':'')).trim():minutes+' دقيقة';
 }
 export function coursePublishedLessons(courseId:string,lessons:CourseRecord[]):CourseRecord[]{
- return lessons.filter(l=>String(l.courseId)===String(courseId)&&l.status==='published');
+ return lessons.filter(l=>String(l.courseId)===String(courseId)&&l.status==='published'&&!l.locked);
 }
