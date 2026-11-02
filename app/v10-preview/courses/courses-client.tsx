@@ -2,6 +2,7 @@
 import {useEffect,useState} from 'react';
 import {ArrowRight,BookOpen,ChevronLeft,ClipboardList,GraduationCap,House,Library,LifeBuoy,PanelRightClose,ShieldCheck,Sparkles,Wallet,X} from 'lucide-react';
 import CoursesHub from '../../components/courses-hub';
+import CourseDetails from '../../components/course-details';
 import {FarmakonHeader,MobileNavigation,ShellLayers,type ShellPanel,type SearchResult} from '../../components/v10-shell';
 import type {CourseRecord} from '../../components/courses-logic';
 import {farmIcons,FARM_ICON_STROKE} from '../../components/farmakon-icons';
@@ -50,6 +51,7 @@ export default function CoursesPreview(){
  const [section,setSection]=useState<Section>('courses');
  const [courseMode,setCourseMode]=useState<'mine'|'explore'>('mine');
  const [selected,setSelected]=useState<CourseRecord|null>(null);
+ const [selectedLesson,setSelectedLesson]=useState<CourseRecord|null>(null);
  const [panel,setPanel]=useState<ShellPanel>(null);
  const [menu,setMenu]=useState(false);
  const [collapsed,setCollapsed]=useState(false);
@@ -58,12 +60,12 @@ export default function CoursesPreview(){
  useEffect(()=>{document.documentElement.dataset.theme=theme;return()=>document.documentElement.removeAttribute('data-theme')},[theme]);
  useEffect(()=>{if(!menu)return;const saved=document.body.style.overflow;document.body.style.overflow='hidden';const key=(e:KeyboardEvent)=>{if(e.key==='Escape')setMenu(false)};document.addEventListener('keydown',key);return()=>{document.body.style.overflow=saved;document.removeEventListener('keydown',key)}},[menu]);
  function go(id:string,c?:CourseRecord){
-   setPanel(null);setMenu(false);setSelected(c||null);
+   setPanel(null);setMenu(false);setSelected(c||null);setSelectedLesson(null);
    if(id in labels)setSection(id as Section);
    else setNotice('هذا القسم قيد التطوير.');
    window.scrollTo({top:0,behavior:'smooth'});
  }
- const showCourse=(c:CourseRecord)=>{setSelected(c);setSection('courses');window.scrollTo({top:0,behavior:'smooth'})};
+ const showCourse=(c:CourseRecord)=>{setSelected(c);setSelectedLesson(null);setSection('courses');window.scrollTo({top:0,behavior:'smooth'})};
  const showResume=(l:CourseRecord,c:CourseRecord)=>{setNotice('تجربة استكمال الفيديو الفعلية ستكون في صفحة المحاضرة بعد ربط بيانات Staging.');setSelected(c);window.scrollTo({top:0,behavior:'smooth'})};
  return <div dir="rtl" className={'app fk-app fk-demo-app fk-learning-preview '+(collapsed?'fk-compact':'')}>
    <aside className={'sidebar '+(menu?'open ':'')+(collapsed?'is-collapsed':'')} aria-label="قائمة Farmakon التجريبية">
@@ -79,15 +81,18 @@ export default function CoursesPreview(){
      <FarmakonHeader title={section==='courses'?selected?'تفاصيل الكورس':courseMode==='mine'?'كورساتي':'استكشف الكورسات':labels[section]||'مركز التعلّم'} menuOpen={menu} onMenu={()=>setMenu(true)} onToggleSidebar={()=>setCollapsed(v=>!v)} onSearch={()=>setPanel('search')} onNotifications={()=>setPanel('notifications')} onMore={()=>setPanel('more')}/>
      <main className="main fk-learning-main">
        {section==='courses'&&!selected&&<CoursesHub initialMode={courseMode} onModeChange={setCourseMode} courses={courses} lessons={lessons} enrollments={enrollments} activity={activity} userId="v1031-preview-only" isPreview onOpenCourse={showCourse} onResumeLesson={showResume}/>}
-       {section==='courses'&&selected&&<div className="fk-learning-subpage">
-         <button type="button" className="fk-learn-back" onClick={()=>setSelected(null)}><ArrowRight size={17}/> العودة إلى الكورسات</button>
-         <div className="fk-learning-subpage-card" style={{maxWidth:820,margin:'20px auto'}}>
+       {section==='courses'&&selected&&!selectedLesson&&<CourseDetails
+         key={String(selected.id)} course={selected} lessons={lessons} enrollments={enrollments} orders={[]} isPreview
+         onBack={()=>{setSelected(null);setSelectedLesson(null)}}
+         onOpenLesson={l=>{setSelectedLesson(l);window.scrollTo({top:0,behavior:'smooth'})}}
+       />}
+       {section==='courses'&&selected&&selectedLesson&&<div className="fk-learning-subpage">
+         <button type="button" className="fk-learn-back" onClick={()=>setSelectedLesson(null)}><ArrowRight size={17}/> العودة إلى تفاصيل الكورس</button>
+         <div className="fk-learning-subpage-card">
            <div className="fk-learning-tile-icon"><BookOpen size={35}/></div>
-           <span style={{color:'var(--teal)',fontSize:12}}>FARMAKON · COURSE DETAILS</span>
-           <h2>{selected.title}</h2>
-           <p>{selected.description}</p>
-           <p>هذه شاشة تمهيدية لتوضيح انتقال البطاقة. التفاصيل الكاملة والوحدات والاشتراكات ستكون ضمن المرحلة V10.3.2.</p>
-           <button type="button" className="fk-learn-primary" onClick={()=>setSelected(null)}>العودة للكورسات <ChevronLeft size={17}/></button>
+           <h2>{selectedLesson.title}</h2>
+           <p>هذه معاينة لتصفح المنهج فقط. تشغيل الفيديو والتقدم الفعلي يتمان في حساب الطالب المصرح له بعد اختبار Staging.</p>
+           <button type="button" className="fk-learn-primary" onClick={()=>setSelectedLesson(null)}>العودة إلى المنهج</button>
          </div>
        </div>}
        {section!=='courses'&&<div className="fk-learning-subpage">

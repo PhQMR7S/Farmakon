@@ -1,0 +1,30 @@
+name: Farmakon V10.3.2 — Read-only quality gate
+on:
+  push:
+    branches:
+      - feature/farmakon-v10-3-2-course-details-2026-11-03
+  pull_request:
+    branches:
+      - feature/farmakon-v10-3-1-qa-accessibility-2026-11-03
+permissions:
+  contents: read
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout proposed code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Configure Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install from lockfile
+        run: npm ci --ignore-scripts
+      - name: Verify types
+        run: npm run typecheck
+      - name: Test and compile (prebuild is automatic)
+        run: npm run build
