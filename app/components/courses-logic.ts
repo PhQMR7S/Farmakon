@@ -4,7 +4,7 @@ export type CourseProgress={total:number;done:number;percent:number|null;lastAct
 export function normalizeCourseText(value:unknown):string{
  return String(value??'').normalize('NFKC').toLocaleLowerCase('ar')
  .replace(/[\u064B-\u065F\u0670\u0640]/g,'')
- .replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ؤ/g,'و').replace(/ئ/g,'ي')
+ .replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/ة/g,'ه')
  .replace(/\s+/g,' ').trim();
 }
 export function courseMatches(course:CourseRecord,query:string):boolean{
@@ -29,7 +29,7 @@ export function getCourseProgress(courseId:string,lessons:CourseRecord[],activit
 }
 export function durationLabel(totalMinutes:number):string{
  const minutes=Math.max(0,Math.round(Number.isFinite(totalMinutes)?totalMinutes:0));
- return minutes>=60?Math.floor(minutes/60)+' س '+(minutes%60?minutes%60+' د':''):minutes+' دقيقة';
+ return minutes>=60?(Math.floor(minutes/60)+' س '+(minutes%60?minutes%60+' د':'')).trim():minutes+' دقيقة';
 }
 export function coursePublishedLessons(courseId:string,lessons:CourseRecord[]):CourseRecord[]{
  return lessons.filter(l=>String(l.courseId)===String(courseId)&&l.status==='published');
