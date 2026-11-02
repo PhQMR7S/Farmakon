@@ -31,52 +31,67 @@ function greetingFor(hour:number){return hour>=5&&hour<12?'صباح الخير':
 function lastTimestamp(row:RecordItem){return Number(row.updated||row.created||0)||0}
 function elapsed(seconds:number){const minutes=Math.floor((Number(seconds)||0)/60);return minutes>=60?`${Math.floor(minutes/60)} س و${minutes%60} د`:`${minutes} دقيقة`}
 export type LearningCenterProps={
- userName?:string;userId?:string;courses?:RecordItem[];lessons?:RecordItem[];
+ userName?:string;userId?:string;authSessionKey?:string;courses?:RecordItem[];lessons?:RecordItem[];
  enrollments?:RecordItem[];activity?:RecordItem[];questions?:RecordItem[];exams?:RecordItem[];
  files?:RecordItem[];isPreview?:boolean;
  onNavigate:(section:string)=>void;
  onResume?:(lesson:RecordItem,course:RecordItem)=>void;
 };
-export default function LearningCenter({userName,userId='preview',courses=[],lessons=[],enrollments=[],activity=[],questions=[],exams=[],files=[],isPreview=false,onNavigate,onResume}:LearningCenterProps){
+export default function LearningCenter({userName,userId='preview',authSessionKey='',courses=[],lessons=[],enrollments=[],activity=[],questions=[],exams=[],files=[],isPreview=false,onNavigate,onResume}:LearningCenterProps){
  const [hour,setHour]=useState(12);
  const [messageIndex,setMessageIndex]=useState(0);
  const [ready,setReady]=useState(false);
  const [marked,setMarked]=useState<string[]>([]);
- const [iconPulse,setIconPulse]=useState(false);
  const [notice,setNotice]=useState('');
  const uid=String(userId||'preview');
  useEffect(()=>{
    setHour(new Date().getHours());
-   // Once per browser login/tab; sign-out clears this key. Avoid repeat of last message.
+   // Last-sign-in is verified server-side; it changes on a genuine Supabase login
+   // even if a previous tab remains open. No access token or private email is stored.
    const sessionKey='fk-v102-welcome:'+uid;
-   let index=Number(window.sessionStorage.getItem(sessionKey));
-   if(!Number.isInteger(index)||index<0||index>=motivations.length){
-     const prev=Number(window.localStorage.getItem('fk-v102-last-welcome:'+uid));
-     const choices=motivations.map((_,i)=>i).filter(i=>i!==prev);
+   let index=-1;
+   try{
+     const raw=window.sessionStorage.getItem(sessionKey);
+     const cached=raw?JSON.parse(raw):null;
+     if(cached&&cached.signIn===authSessionKey&&Number.isInteger(cached.index)&&cached.index>=0&&cached.index<motivations.length){
+       index=cached.index;
+     }
+   }catch{/* storage may be disabled on private browser sessions */}
+   if(index<0){
+     let previous=-1;
+     try{
+       const raw=window.localStorage.getItem('fk-v102-last-welcome:'+uid);
+       if(raw!==null){const value=Number(raw);if(Number.isInteger(value)&&value>=0&&value<motivations.length)previous=value}
+     }catch{}
+     const choices=motivations.map((_,i)=>i).filter(i=>i!==previous);
      index=choices[Math.floor(Math.random()*choices.length)]??0;
-     window.sessionStorage.setItem(sessionKey,String(index));
-     window.localStorage.setItem('fk-v102-last-welcome:'+uid,String(index));
+     try{
+       window.sessionStorage.setItem(sessionKey,JSON.stringify({signIn:authSessionKey,index}));
+       window.localStorage.setItem('fk-v102-last-welcome:'+uid,String(index));
+     }catch{}
    }
    setMessageIndex(index);
    const dayKey=new Date().toLocaleDateString('en-CA');
-   try{const raw=JSON.parse(window.localStorage.getItem('fk-v102-plan:'+uid+':'+dayKey)||'[]');setMarked(Array.isArray(raw)?raw.filter(v=>typeof v==='string'):[])}catch{setMarked([])}
+   try{
+     const raw=JSON.parse(window.localStorage.getItem('fk-v102-plan:'+uid+':'+dayKey)||'[]');
+     setMarked(Array.isArray(raw)?raw.filter(v=>typeof v==='string'&&['study','quiz','review'].includes(v)):[]);
+   }catch{setMarked([])}
    setReady(true);
- },[uid]);
- const activeCourses=useMemo(()=>new Set(enrollments.filter(e=>e.expires>Date.now()).map(e=>e.course_id)),[enrollments]);
+ },[uid,authSessionKey]);
+ const activeCourses=useMemo(()=>new Set(enrollments.filter(e=>Number(e.expires)>Date.now()).map(e=>e.course_id)),[enrollments]);
  const allowedLessons=useMemo(()=>lessons.filter(l=>l.status==='published'&&!l.locked&&courses.some(c=>c.id===l.courseId&&c.status==='published')),[lessons,courses]);
  const progress=useMemo(()=>activity.filter(a=>a.kind==='progress'&&allowedLessons.some(l=>l.id===a.target)),[activity,allowedLessons]);
  const completed=useMemo(()=>new Set(progress.filter(p=>p.data?.completed).map(p=>p.target)).size,[progress]);
- const resume=useMemo(()=>progress.filter(p=>!p.data?.completed).sort((a,b)=>lastTimestamp(b)-lastTimestamp(a)).map(p=>{
+ const resume=useMemo(()=>[...progress].filter(p=>!p.data?.completed).sort((a,b)=>lastTimestamp(b)-lastTimestamp(a)).map(p=>{
   const lesson=allowedLessons.find(l=>l.id===p.target);
   const course=courses.find(c=>c.id===lesson?.courseId);
   return lesson&&course?{lesson,course,seconds:Math.max(0,Math.min(Number(p.data?.seconds)||0,(Number(lesson.minutes)||0)*60||86400))}:null
  }).find(Boolean),[progress,allowedLessons,courses]) as {lesson:RecordItem;course:RecordItem;seconds:number}|undefined;
- const publicCourses=courses.filter(c=>c.status==='published');
  const availableQuestions=questions.filter(q=>q.status==='published');
  const availableFiles=files.filter(f=>f.status==='published');
- const visibleExams=exams.filter(e=>e.status==='published');
  const examActivity=activity.filter(a=>a.kind==='exam');
- const studyMinutes=Math.floor(progress.reduce((acc:number,p:RecordItem)=>acc+Math.max(0,Number(p.data?.seconds)||0),0)/60);
+ // Progress seconds is a resume position, NOT cumulative study duration.
+ const lastResumePosition=resume?.seconds??null;
  const enrolledLessonIds=new Set(allowedLessons.filter(l=>activeCourses.has(l.courseId)).map(l=>l.id));
  const enrolledLessonsTotal=enrolledLessonIds.size;
  const enrolledCompleted=[...enrolledLessonIds].filter(id=>progress.some(p=>p.target===id&&p.data?.completed)).length;
@@ -95,7 +110,7 @@ export default function LearningCenter({userName,userId='preview',courses=[],les
  function toggleTask(id:string){
   setMarked(prev=>{
    const next=prev.includes(id)?prev.filter(x=>x!==id):[...prev,id];
-   if(!isPreview){const dayKey=new Date().toLocaleDateString('en-CA');window.localStorage.setItem('fk-v102-plan:'+uid+':'+dayKey,JSON.stringify(next))}
+   if(!isPreview){const dayKey=new Date().toLocaleDateString('en-CA');try{window.localStorage.setItem('fk-v102-plan:'+uid+':'+dayKey,JSON.stringify(next))}catch{}}
    return next;
   });
  }
@@ -156,7 +171,7 @@ export default function LearningCenter({userName,userId='preview',courses=[],les
       <div><BookOpen size={21}/><small>كورساتي النشطة</small><strong>{isPreview?'—':activeCourses.size}</strong></div>
       <div><Target size={21}/><small>المحاضرات المكتملة</small><strong>{isPreview?'—':completed}</strong></div>
       <div><TrendingUp size={21}/><small>محاولات الاختبار</small><strong>{isPreview?'—':examActivity.length}</strong></div>
-      <div><Clock3 size={21}/><small>وقت المشاهدة المحفوظ</small><strong>{isPreview?'—':elapsed(studyMinutes*60)}</strong></div>
+      <div><Clock3 size={21}/><small>آخر موضع توقف</small><strong>{isPreview||lastResumePosition===null?'—':elapsed(lastResumePosition)}</strong></div>
      </div>
    </section>
    <section className="fk-learning-last fk-v102-activity" aria-labelledby="fk-v102-last-title">
