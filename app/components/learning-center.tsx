@@ -6,15 +6,16 @@ import {
  Sparkles,Stethoscope,Target,TrendingUp,Layers,Heart,CalendarDays,LockKeyhole
 } from 'lucide-react';
 import {chooseGreeting,greetingForHour,formatResumeTime,getResumeSeconds,safeLastTimestamp} from './learning-logic';
+import {farmIcons} from './farmakon-icons';
 
 type RecordItem=Record<string,any>;
 type ActionId='courses'|'questions'|'exams'|'library'|'notes'|'flashcards'|'cases'|'ai'|'review';
 type SectionInfo={id:ActionId;title:string;description:string;icon:typeof BookOpen;live:boolean;accent:'cyan'|'violet'|'coral'|'mint'};
 const sections:SectionInfo[]=[
- {id:'courses',title:'المحاضرات والكورسات',description:'موادك ومحاضراتك في مكان واحد',icon:BookOpen,live:true,accent:'cyan'},
- {id:'questions',title:'بنك الأسئلة',description:'تدرّب مع شرح الإجابات',icon:ClipboardList,live:true,accent:'violet'},
+ {id:'courses',title:'المحاضرات والكورسات',description:'موادك ومحاضراتك في مكان واحد',icon:farmIcons.courses,live:true,accent:'cyan'},
+ {id:'questions',title:'بنك الأسئلة',description:'تدرّب مع شرح الإجابات',icon:farmIcons.bank,live:true,accent:'violet'},
  {id:'exams',title:'الاختبارات',description:'اختبر فهمك وتابع نتائجك',icon:GraduationCap,live:true,accent:'coral'},
- {id:'library',title:'المكتبة العلمية',description:'الملازم والملفات والمصادر',icon:Library,live:true,accent:'mint'},
+ {id:'library',title:'المكتبة العلمية',description:'الملازم والملفات والمصادر',icon:farmIcons.library,live:true,accent:'mint'},
  {id:'notes',title:'ملاحظاتي',description:'ملاحظات مرتبطة بمحاضراتك',icon:FileText,live:false,accent:'cyan'},
  {id:'flashcards',title:'البطاقات التعليمية',description:'بطاقات مراجعة وتكرار متباعد',icon:Layers,live:false,accent:'violet'},
  {id:'cases',title:'الحالات السريرية',description:'تعلّم التفكير السريري',icon:Stethoscope,live:false,accent:'coral'},
