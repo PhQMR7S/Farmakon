@@ -204,10 +204,12 @@ export default function CoursesHub({
        <div className="fk-courses-search"><Search size={20}/><span className="sr-only">{t.searchHint}</span><input type="search" autoComplete="off" value={query} onChange={e=>setQuery(e.target.value)} placeholder={t.search} aria-label={t.search}/>{query&&<button type="button" aria-label={t.clearSearch} onClick={()=>setQuery('')}><X size={18}/></button>}</div>
        <button type="button" ref={filterButtonRef} className="fk-courses-filter-trigger" onClick={()=>setFilterOpen(true)} aria-label={t.filtersOpen} aria-haspopup="dialog" aria-expanded={filterOpen}><farmIcons.filters size={20} strokeWidth={FARM_ICON_STROKE}/><span>{t.filters}</span>{countActive>0&&<span className="fk-courses-filter-badge">{fmtNumber(countActive)}</span>}</button>
      </div>
-     <div className="fk-courses-chips" aria-label={t.filterResults}>
-       {mode==='mine'?[['all',t.all],['ongoing',t.ongoing],['completed',t.completed],['expired',t.expired]].map(([v,label])=><button type="button" key={v} className={mineFilter===v?'active':''} aria-pressed={mineFilter===v} onClick={()=>setMineFilter(v)}>{label}</button>)
-        :[['all',t.allCourses],['free',t.free],['paid',t.paid]].map(([v,label])=><button type="button" key={v} className={pricing===v?'active':''} aria-pressed={pricing===v} onClick={()=>setPricing(v)}>{label}</button>)}
-       <button type="button" className={onlyFavorites?'active fk-courses-fav-filter':'fk-courses-fav-filter'} aria-pressed={onlyFavorites} onClick={()=>setOnlyFavorites(v=>!v)}><Heart size={16} fill={onlyFavorites?'currentColor':'none'}/>{t.favorites}</button>
+     <div className="fk-courses-filter-shortcuts">
+       <div className="fk-courses-chips" role="group" aria-label={t.filterResults} tabIndex={0}>
+        {mode==='mine'?[['all',t.all],['ongoing',t.ongoing],['completed',t.completed],['expired',t.expired]].map(([v,label])=><button type="button" key={v} className={mineFilter===v?'active':''} aria-pressed={mineFilter===v} onClick={()=>setMineFilter(v)}>{label}</button>)
+         :[['all',t.allCourses],['free',t.free],['paid',t.paid]].map(([v,label])=><button type="button" key={v} className={pricing===v?'active':''} aria-pressed={pricing===v} onClick={()=>setPricing(v)}>{label}</button>)}
+       </div>
+       <button type="button" className={'fk-courses-fav-pinned '+(onlyFavorites?'active':'')} aria-pressed={onlyFavorites} onClick={()=>setOnlyFavorites(v=>!v)} aria-label={t.favorites} title={t.favorites}><farmIcons.favorites size={20} strokeWidth={FARM_ICON_STROKE} fill={onlyFavorites?'currentColor':'none'}/><span>{t.favorites}</span></button>
      </div>
    </div>
    <div className="fk-courses-results-head"><span><b>{fmtNumber(matching.length)}</b> {mode==='mine'?t.ofMyCourses:t.coursesAvailable}</span>{hasFilters&&<button type="button" onClick={clearFilters}>{t.clearFilters}<X size={15}/></button>}</div>
