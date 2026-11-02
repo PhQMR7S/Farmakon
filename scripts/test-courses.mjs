@@ -76,8 +76,8 @@ test('Arabic and English share the same course UI translation keys',()=>{
  assert.equal(getCoursesCopy('en').myCourses,'My Courses');
  assert.equal(getCoursesCopy('en').filterResults,'Apply filters');
 });
-test('locale prepared without exposing a language selector before Settings',async()=>{
- const hub=await readFile(path.join(root,'app/components/courses-hub.tsx'),'utf8');
+const hub=await readFile(path.join(root,'app/components/courses-hub.tsx'),'utf8');
+test('locale prepared without exposing a language selector before Settings',()=>{
  assert.ok(hub.includes("locale='ar'"));
  assert.ok(hub.includes("dir={en?'ltr':'rtl'}"));
  assert.ok(!hub.includes('language-selector'));
