@@ -169,3 +169,23 @@ body{background:radial-gradient(ellipse at 5% 0%,#27bce912,transparent 42%),radi
  .fk-app *, .fk-app *::before,.fk-app *::after,.fk-dialog{animation:none!important;transition:none!important}
 }
 @media(prefers-contrast:more){.fk-dialog,.fk-app .mobile-dock,.fk-app .sidebar,.fk-app .topbar{background:var(--surface)!important;border-width:2px}}
+
+/* V10.1 loading/keyboard polish */
+.fk-loading-view{min-height:100dvh;max-width:1200px;margin:auto;padding:clamp(24px,5vw,56px);display:grid;align-content:start;gap:18px;color:var(--ink);font-family:Tajawal,'IBM Plex Sans Arabic',sans-serif}
+.fk-loading-brand{display:flex;align-items:center;gap:12px;margin-bottom:30px}
+.fk-loading-brand img{border-radius:13px}
+.fk-loading-brand>div{display:grid;gap:2px}
+.fk-loading-brand strong{font:700 21px Inter,Tajawal,sans-serif}
+.fk-loading-brand small{font-size:13px;color:var(--muted)}
+.fk-skeleton-heading,.fk-skeleton-sub,.fk-skeleton-grid>div,.fk-skeleton-content{background:linear-gradient(110deg,var(--soft) 8%,var(--surface) 21%,var(--soft) 40%);background-size:250% 100%;animation:fk-skeleton-wave 1.55s ease-in-out infinite;border:1px solid var(--line)}
+.fk-skeleton-heading{width:48%;height:35px;border-radius:13px}
+.fk-skeleton-sub{width:68%;height:17px;border-radius:9px;margin-bottom:10px}
+.fk-skeleton-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.fk-skeleton-grid>div{height:112px;border-radius:20px}
+.fk-skeleton-content{height:240px;border-radius:24px;margin-top:10px}
+@keyframes fk-skeleton-wave{0%{background-position-x:130%}100%{background-position-x:-130%}}
+@media(max-width:760px){.fk-loading-view{padding:28px 18px}.fk-skeleton-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.fk-skeleton-grid>div{height:100px}.fk-skeleton-heading{width:79%}.fk-skeleton-sub{width:92%}.fk-skeleton-content{height:190px}
+ .fk-app .sidebar:not(.open){visibility:hidden;pointer-events:none}
+ .fk-app .sidebar.open{visibility:visible;pointer-events:auto}
+}
+@media(prefers-reduced-motion:reduce){.fk-skeleton-heading,.fk-skeleton-sub,.fk-skeleton-grid>div,.fk-skeleton-content{animation:none}}
