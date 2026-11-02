@@ -3,6 +3,7 @@ import {useEffect,useMemo,useRef,useState} from 'react';
 import {ArrowLeft,BookOpen,BookOpenCheck,Check,CheckCircle2,ChevronLeft,Clock3,Compass,FlaskConical,GraduationCap,Heart,LockKeyhole,PlayCircle,Search,SlidersHorizontal,Sparkles,TimerReset,TrendingUp,X} from 'lucide-react';
 import {courseMatches,coursePublishedLessons,durationLabel,getCourseEntitlement,getCourseProgress,type CourseRecord} from './courses-logic';
 import {getCoursesCopy,type CourseLocale} from './courses-i18n';
+import {courseIconKind,farmIconTone,farmIcons,FARM_ICON_STROKE} from './farmakon-icons';
 
 export type CoursesHubProps={
  courses:CourseRecord[];lessons:CourseRecord[];enrollments:CourseRecord[];activity:CourseRecord[];
@@ -135,16 +136,17 @@ export default function CoursesHub({
    const published=item.publishedLessons;
    const mins=published.reduce((sum,l)=>sum+Math.max(0,Number(l.minutes)||0),0);
    const theme=color(c.color),coverUrl=cover(c),tag=String(c.category||t.pharmacy);
+   const iconKind=courseIconKind(c.category,c.title),CourseIcon=farmIcons[iconKind],iconTone=farmIconTone[iconKind];
    return <article className="fk-courses-card fk-course-polished-card" key={c.id}>
      <div className={'fk-courses-cover fk-courses-'+theme+(coverUrl?' has-image':'')}>
        {coverUrl&&<img src={coverUrl} alt="" className="fk-courses-cover-img" loading="lazy" decoding="async" referrerPolicy="no-referrer"/>}
        <span className="fk-courses-cover-tag">{tag}</span>
-       {!coverUrl&&<div className="fk-courses-cover-symbol" aria-hidden="true"><FlaskConical size={65} strokeWidth={1.3}/><span/><span/></div>}
+       {!coverUrl&&<div className={'fk-courses-cover-symbol fk-course-discipline-icon fk-course-tone-'+iconTone} aria-hidden="true"><CourseIcon size={68} strokeWidth={1.65}/><span/><span/></div>}
        <span className="fk-courses-cover-wordmark">FARMAKON / {String(c.category)==='التدريب الصيفي'?'PRACTICE':'LEARNING'}</span>
        <button type="button" disabled={pendingFavorites.includes(String(c.id))}
         className={'fk-courses-favorite '+(starred?'is-on':'')} aria-label={starred?t.bookmarkRemove:t.bookmarkAdd}
         aria-pressed={starred} onClick={()=>void toggleFavorite(String(c.id))}>
-        <Heart size={20} fill={starred?'currentColor':'none'}/>
+        <farmIcons.favorites size={22} strokeWidth={starred?2.1:FARM_ICON_STROKE} fill={starred?'currentColor':'none'}/>
        </button>
      </div>
      <div className="fk-courses-card-content">
@@ -153,17 +155,17 @@ export default function CoursesHub({
        </div>
        <h3>{c.title}</h3>
        <p>{c.description||t.courseInfo}</p>
-       <div className="fk-courses-meta"><span><BookOpen size={16}/>{fmtNumber(published.length)} {t.lecture}</span><span><Clock3 size={16}/>{duration(mins)}</span></div>
+       <div className="fk-courses-meta"><span><farmIcons.lessonCount size={18} strokeWidth={FARM_ICON_STROKE}/>{fmtNumber(published.length)} {t.lecture}</span><span><farmIcons.duration size={18} strokeWidth={FARM_ICON_STROKE}/>{duration(mins)}</span></div>
        {active&&<div className="fk-courses-card-progress">
          <div className="fk-courses-progress-label"><span>{p.percent===null?t.notPublished:t.yourProgress}</span><b>{p.percent===null?'—':fmtNumber(p.percent)+'%'}</b></div>
          <div className="fk-courses-meter" role="progressbar" aria-label={String(c.title)+' · '+t.yourProgress} aria-valuemin={0} aria-valuemax={100} aria-valuenow={p.percent??0}><span style={{width:(p.percent??0)+'%'}}/></div>
          <small><span className="fk-courses-study-state">{p.percent===100?t.completed:p.lastActivity>0?t.ongoing:t.notStarted}</span> · {fmtNumber(p.done)} / {fmtNumber(p.total)} {t.lessonsCompleted}</small>
        </div>}
-       {access.expires&&active&&<small className="fk-courses-expiry"><TimerReset size={14}/>{t.availableUntil} {fmtDate(access.expires)}</small>}
+       {access.expires&&active&&<small className="fk-courses-expiry"><farmIcons.expiry size={16} strokeWidth={FARM_ICON_STROKE}/>{t.availableUntil} {fmtDate(access.expires)}</small>}
        <div className="fk-courses-card-footer">
          <strong>{active?t.included:(Number(c.price)||0)===0?t.freeCourse:fmtPrice(c.price)}</strong>
          <button type="button" className="fk-courses-card-open" onClick={()=>open(c)} aria-label={t.openCourse+' '+String(c.title)}>
-          {active?t.continueCourse:t.courseDetails}<ChevronLeft size={18} className={en?'fk-ltr-chevron':''}/>
+          {active?t.continueCourse:t.courseDetails}<farmIcons.courseDetails size={18} strokeWidth={FARM_ICON_STROKE} className={en?'fk-ltr-chevron':''}/>
          </button>
        </div>
      </div>
@@ -174,19 +176,19 @@ export default function CoursesHub({
    <div className="fk-courses-hero">
      <div className="fk-courses-hero-copy"><span className="fk-courses-kicker">{t.heroEyebrow}</span>
        <h1 id="fk-courses-heading">{t.heroTitle}</h1><p>{t.heroDescription}</p>
-       <button type="button" className="fk-courses-primary" onClick={()=>switchMode('explore')}><Compass size={18}/>{t.heroAction}<ArrowLeft size={16} className={en?'fk-ltr-chevron':''}/></button>
+       <button type="button" className="fk-courses-primary" onClick={()=>switchMode('explore')}><farmIcons.explore size={18} strokeWidth={FARM_ICON_STROKE}/>{t.heroAction}<ArrowLeft size={16} className={en?'fk-ltr-chevron':''}/></button>
      </div>
-     <div className="fk-courses-hero-art" aria-hidden="true"><div className="fk-courses-hero-orbit"><BookOpen size={79} strokeWidth={1.25}/></div>
-       <div className="fk-courses-hero-mini a"><GraduationCap size={23}/></div><div className="fk-courses-hero-mini b"><FlaskConical size={21}/></div>
+     <div className="fk-courses-hero-art" aria-hidden="true"><div className="fk-courses-hero-orbit"><farmIcons.courses size={79} strokeWidth={1.45}/></div>
+       <div className="fk-courses-hero-mini a"><farmIcons.learning size={23}/></div><div className="fk-courses-hero-mini b"><farmIcons.practice size={21}/></div>
      </div>
    </div>
    <div className="fk-courses-snapshot" aria-label={t.yourProgress}>
-     <div><span className="fk-courses-stat-icon cyan"><BookOpenCheck size={21}/></span><small>{t.activeCourses}</small><strong>{fmtNumber(my.length)}</strong></div>
-     <div><span className="fk-courses-stat-ring" role="img" aria-label={t.yourProgress+' '+fmtNumber(overallPercent)+'%'} style={{background:'conic-gradient(#55c9ff '+overallPercent+'%,rgba(93,161,218,.17) 0)'}}><span><CheckCircle2 size={19}/></span></span><small>{t.completedLessons}</small><strong>{fmtNumber(totalDone)}</strong></div>
-     <div><span className="fk-courses-stat-icon rose"><TrendingUp size={20}/></span><small>{t.completedCourses}</small><strong>{fmtNumber(completedCourses)}</strong></div>
+     <div><span className="fk-courses-stat-icon cyan"><farmIcons.activeSubscription size={23} strokeWidth={FARM_ICON_STROKE}/></span><small>{t.activeCourses}</small><strong>{fmtNumber(my.length)}</strong></div>
+     <div><span className="fk-courses-stat-ring" role="img" aria-label={t.yourProgress+' '+fmtNumber(overallPercent)+'%'} style={{background:'conic-gradient(#55c9ff '+overallPercent+'%,rgba(93,161,218,.17) 0)'}}><span><farmIcons.completedLessons size={20} strokeWidth={FARM_ICON_STROKE}/></span></span><small>{t.completedLessons}</small><strong>{fmtNumber(totalDone)}</strong></div>
+     <div><span className="fk-courses-stat-icon rose"><farmIcons.completedCourses size={21} strokeWidth={FARM_ICON_STROKE}/></span><small>{t.completedCourses}</small><strong>{fmtNumber(completedCourses)}</strong></div>
    </div>
    {mode==='mine'&&<div className="fk-courses-resume">
-     <div className="fk-courses-resume-icon"><PlayCircle size={27}/></div>
+     <div className="fk-courses-resume-icon"><farmIcons.resume size={28} strokeWidth={FARM_ICON_STROKE}/></div>
      <div className="fk-courses-resume-info"><span>{t.resume}</span><strong>{lastResume?lastResume.progress.nextLesson?.title:t.startJourney}</strong><small>{lastResume?lastResume.course.title:t.discoverHint}</small></div>
      <button type="button" onClick={()=>lastResume?resume(lastResume.course,lastResume.progress.nextLesson):switchMode('explore')} aria-label={lastResume?t.continue:t.discover}>
        {lastResume?t.continue:t.discover}<ChevronLeft size={19} className={en?'fk-ltr-chevron':''}/>
@@ -194,13 +196,13 @@ export default function CoursesHub({
    </div>}
    <div className="fk-courses-section-bar"><div><span className="fk-courses-kicker">YOUR COURSE LIBRARY</span><h2>{t.library}</h2></div><span className="fk-courses-library-hint">{t.libraryHint}</span></div>
    <div className="fk-courses-switch" role="group" aria-label={t.courseType}>
-     <button type="button" aria-pressed={mode==='mine'} className={mode==='mine'?'active':''} onClick={()=>switchMode('mine')}><BookOpenCheck size={19}/>{t.myCourses}<span>{fmtNumber(my.length)}</span></button>
-     <button type="button" aria-pressed={mode==='explore'} className={mode==='explore'?'active':''} onClick={()=>switchMode('explore')}><Compass size={19}/>{t.explore}<span>{fmtNumber(list.length)}</span></button>
+     <button type="button" aria-pressed={mode==='mine'} className={mode==='mine'?'active':''} onClick={()=>switchMode('mine')}><farmIcons.courses size={20} strokeWidth={FARM_ICON_STROKE}/>{t.myCourses}<span>{fmtNumber(my.length)}</span></button>
+     <button type="button" aria-pressed={mode==='explore'} className={mode==='explore'?'active':''} onClick={()=>switchMode('explore')}><farmIcons.explore size={20} strokeWidth={FARM_ICON_STROKE}/>{t.explore}<span>{fmtNumber(list.length)}</span></button>
    </div>
    <div className="fk-courses-search-panel">
      <div className="fk-courses-search-row">
        <div className="fk-courses-search"><Search size={20}/><span className="sr-only">{t.searchHint}</span><input type="search" autoComplete="off" value={query} onChange={e=>setQuery(e.target.value)} placeholder={t.search} aria-label={t.search}/>{query&&<button type="button" aria-label={t.clearSearch} onClick={()=>setQuery('')}><X size={18}/></button>}</div>
-       <button type="button" ref={filterButtonRef} className="fk-courses-filter-trigger" onClick={()=>setFilterOpen(true)} aria-label={t.filtersOpen} aria-haspopup="dialog" aria-expanded={filterOpen}><SlidersHorizontal size={19}/><span>{t.filters}</span>{countActive>0&&<span className="fk-courses-filter-badge">{fmtNumber(countActive)}</span>}</button>
+       <button type="button" ref={filterButtonRef} className="fk-courses-filter-trigger" onClick={()=>setFilterOpen(true)} aria-label={t.filtersOpen} aria-haspopup="dialog" aria-expanded={filterOpen}><farmIcons.filters size={20} strokeWidth={FARM_ICON_STROKE}/><span>{t.filters}</span>{countActive>0&&<span className="fk-courses-filter-badge">{fmtNumber(countActive)}</span>}</button>
      </div>
      <div className="fk-courses-chips" aria-label={t.filterResults}>
        {mode==='mine'?[['all',t.all],['ongoing',t.ongoing],['completed',t.completed],['expired',t.expired]].map(([v,label])=><button type="button" key={v} className={mineFilter===v?'active':''} aria-pressed={mineFilter===v} onClick={()=>setMineFilter(v)}>{label}</button>)
@@ -223,10 +225,10 @@ export default function CoursesHub({
          <button type="button" data-close aria-label={t.close} onClick={()=>setFilterOpen(false)}><X size={22}/></button>
        </div>
        <div className="fk-courses-filter-body">
-         <label><span><GraduationCap size={18}/>{t.filterStage}</span><select value={stage} onChange={e=>setStage(e.target.value)}><option value="all">{t.allStages}</option>{stages.map(value=><option value={value} key={value}>{value}</option>)}</select></label>
-         <label><span><BookOpen size={18}/>{t.filterCategory}</span><select value={category} onChange={e=>setCategory(e.target.value)}><option value="all">{t.allCategories}</option>{categories.map(value=><option value={value} key={value}>{value}</option>)}</select></label>
-         <label><span><TrendingUp size={18}/>{t.sort}</span><select value={sort} onChange={e=>setSort(e.target.value as SortOrder)}><option value="recent">{t.sortRecent}</option><option value="name">{t.sortName}</option><option value="progress">{t.sortProgress}</option><option value="duration">{t.sortDuration}</option></select></label>
-         {mode==='explore'&&<label><span><SlidersHorizontal size={18}/>{t.filterPrice}</span><select value={pricing} onChange={e=>setPricing(e.target.value)}><option value="all">{t.allCourses}</option><option value="free">{t.free}</option><option value="paid">{t.paid}</option></select></label>}
+         <label><span><farmIcons.learning size={19} strokeWidth={FARM_ICON_STROKE}/>{t.filterStage}</span><select value={stage} onChange={e=>setStage(e.target.value)}><option value="all">{t.allStages}</option>{stages.map(value=><option value={value} key={value}>{value}</option>)}</select></label>
+         <label><span><farmIcons.courses size={19} strokeWidth={FARM_ICON_STROKE}/>{t.filterCategory}</span><select value={category} onChange={e=>setCategory(e.target.value)}><option value="all">{t.allCategories}</option>{categories.map(value=><option value={value} key={value}>{value}</option>)}</select></label>
+         <label><span><farmIcons.progress size={19} strokeWidth={FARM_ICON_STROKE}/>{t.sort}</span><select value={sort} onChange={e=>setSort(e.target.value as SortOrder)}><option value="recent">{t.sortRecent}</option><option value="name">{t.sortName}</option><option value="progress">{t.sortProgress}</option><option value="duration">{t.sortDuration}</option></select></label>
+         {mode==='explore'&&<label><span><farmIcons.filters size={19} strokeWidth={FARM_ICON_STROKE}/>{t.filterPrice}</span><select value={pricing} onChange={e=>setPricing(e.target.value)}><option value="all">{t.allCourses}</option><option value="free">{t.free}</option><option value="paid">{t.paid}</option></select></label>}
          <button type="button" className={'fk-courses-filter-fav '+(onlyFavorites?'is-active':'')} aria-pressed={onlyFavorites} onClick={()=>setOnlyFavorites(v=>!v)}><Heart size={19} fill={onlyFavorites?'currentColor':'none'}/>{t.favorites}<span>{onlyFavorites&&<Check size={18}/>}</span></button>
        </div>
        <div className="fk-courses-filter-actions">
