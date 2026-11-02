@@ -22,17 +22,17 @@ export function FarmakonHeader({title,onMenu,onSearch,onNotifications,onMore,onT
  </header>;
 }
 
-export function MobileNavigation({page,adminMode,onNavigate,onOpen,panel=null}:{page:string;adminMode:boolean;onNavigate:(p:string)=>void;onOpen:(v:ShellPanel)=>void;panel?:ShellPanel}){
+export function MobileNavigation({page,adminMode,onNavigate,onOpen,panel=null,learningAsPage=false}:{page:string;adminMode:boolean;onNavigate:(p:string)=>void;onOpen:(v:ShellPanel)=>void;panel?:ShellPanel;learningAsPage?:boolean}){
  const tabs=adminMode
  ?[{id:'dashboard',label:'الرئيسية',icon:House},{id:'content',label:'المحتوى',icon:Layers},{id:'codes',label:'الأكواد',icon:Ticket},{id:'students',label:'الطلاب',icon:Users}]
  :[{id:'dashboard',label:'الرئيسية',icon:House},{id:'courses',label:'كورساتي',icon:BookOpen},{id:'learning',label:'التعلّم',icon:GraduationCap},{id:'library',label:'المكتبة',icon:Library}];
  const inMore=['account','subscriptions','downloads','support','settings','announcements','reports','payments'];
- const active=(id:string)=>id==='learning'?(panel==='learning'||(!panel&&['questions','exams'].includes(page))):id==='more'?(panel==='more'||(!panel&&inMore.includes(page))):id===page&&!panel;
+ const active=(id:string)=>id==='learning'?(learningAsPage?page==='learning'&&!panel:(panel==='learning'||(!panel&&['questions','exams'].includes(page)))):id==='more'?(panel==='more'||(!panel&&inMore.includes(page))):id===page&&!panel;
  const items=[...tabs,{id:'more',label:'المزيد',icon:Menu}];
  const activeIndex=Math.max(0,items.findIndex(i=>active(i.id)));
  return <nav className="mobile-dock fk-dock fk-dock-v2" aria-label="أقسام Farmakon" style={{'--fk-tab-index':activeIndex} as React.CSSProperties}>
     <span className="fk-dock-active-indicator" aria-hidden="true"/>
-    {items.map(t=>{const Icon=t.icon;return <button type="button" key={t.id} className={'fk-dock-item '+(active(t.id)?'active':'')} aria-current={active(t.id)?'page':undefined} aria-label={t.label} onClick={()=>t.id==='more'?onOpen('more'):t.id==='learning'?onOpen('learning'):onNavigate(t.id)}>
+    {items.map(t=>{const Icon=t.icon;return <button type="button" key={t.id} className={'fk-dock-item '+(active(t.id)?'active':'')} aria-current={active(t.id)?'page':undefined} aria-label={t.label} onClick={()=>t.id==='more'?onOpen('more'):t.id==='learning'&&!learningAsPage?onOpen('learning'):onNavigate(t.id)}>
       <Icon size={21} strokeWidth={active(t.id)?2.15:1.8}/><span>{t.label}</span>
     </button>})}
    </nav>;
