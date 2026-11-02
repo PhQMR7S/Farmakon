@@ -7,7 +7,7 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const source=await readFile(path.join(root,'app/components/courses-logic.ts'),'utf8');
 const x=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022},reportDiagnostics:true});
 if(x.diagnostics?.some(d=>d.category===ts.DiagnosticCategory.Error))throw Error('TypeScript compile failed');
-const {normalizeCourseText,courseMatches,getCourseEntitlement,getCourseProgress,durationLabel,coursePublishedLessons}=await import('data:text/javascript;base64,'+Buffer.from(x.outputText).toString('base64'));
+const {normalizeCourseText,matchesNormalizedQuery,courseMatches,getCourseEntitlement,getCourseProgress,durationLabel,coursePublishedLessons}=await import('data:text/javascript;base64,'+Buffer.from(x.outputText).toString('base64'));
 let passed=0;
 function test(name,fn){fn();passed++;console.log('PASS courses:',name)}
 const now=1760000000000;
@@ -35,7 +35,13 @@ test('Arabic search normalizes hamza and diacritics',()=>{
  assert.ok(courseMatches(courses[0],'علم الأدوية'));
  assert.ok(courseMatches(courses[0],'الثالثة'));
 });
-test('search includes category, stage and description',()=>{
+test('multi-word Arabic/English searches ignore order, hamza and diacritics',()=>{
+  assert.ok(matchesNormalizedQuery('علم الأدوية للمرحلة الثالثة','ثالثه أدوية'));
+  assert.ok(matchesNormalizedQuery('Clinical Pharmacy Essentials','pharmacy CLINICAL'));
+  assert.ok(!matchesNormalizedQuery('Clinical Pharmacy Essentials','pharmacy microbiology'));
+  assert.ok(courseMatches({title:'علم الأدوية',stage:'المرحلة الثالثة'},'الثالثة علم'));
+ });
+ test('search includes category, stage and description',()=>{
  assert.ok(courseMatches({title:'Therapeutics',description:'حالات سريرية',category:'العلاجيات',stage:'الخامسة'},'حالات'));
  assert.ok(!courseMatches(courses[0],'غير موجود'));
 });
@@ -59,9 +65,15 @@ test('empty lessons yield honest unknown progress and no continuation',()=>{
 });
 test('only published courses lessons counted',()=>{
  const p=coursePublishedLessons('a',lessons);
- assert.equal(p.length,3);assert.ok(p.every(x=>x.status==='published'));
+ assert.equal(p.length,2);assert.ok(p.every(x=>x.status==='published'&&!x.locked));
 });
-test('duration units are bounded',()=>{
+test('published displayed lesson count and duration match accessible progress base',()=>{
+  const visible=coursePublishedLessons('a',lessons);
+  const progress=getCourseProgress('a',lessons,activities);
+  assert.equal(visible.length,progress.total);
+  assert.equal(visible.reduce((n,l)=>n+l.minutes,0),80);
+ });
+ test('duration units are bounded',()=>{
  assert.equal(durationLabel(37),'37 دقيقة');assert.equal(durationLabel(120),'2 س');assert.equal(durationLabel(-4),'0 دقيقة');
 });
 

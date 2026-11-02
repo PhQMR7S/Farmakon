@@ -158,7 +158,7 @@ export default function CoursesHub({
        <div className="fk-courses-meta"><span><farmIcons.lessonCount size={18} strokeWidth={FARM_ICON_STROKE}/>{fmtNumber(published.length)} {t.lecture}</span><span><farmIcons.duration size={18} strokeWidth={FARM_ICON_STROKE}/>{duration(mins)}</span></div>
        {active&&<div className="fk-courses-card-progress">
          <div className="fk-courses-progress-label"><span>{p.percent===null?t.notPublished:t.yourProgress}</span><b>{p.percent===null?'—':fmtNumber(p.percent)+'%'}</b></div>
-         <div className="fk-courses-meter" role="progressbar" aria-label={String(c.title)+' · '+t.yourProgress} aria-valuemin={0} aria-valuemax={100} aria-valuenow={p.percent??0}><span style={{width:(p.percent??0)+'%'}}/></div>
+         <div className="fk-courses-meter" role="progressbar" aria-label={String(c.title)+' · '+t.yourProgress} aria-valuemin={0} aria-valuemax={100} aria-valuenow={p.percent??undefined} aria-valuetext={p.percent===null?t.notPublished:fmtNumber(p.percent)+'%'}><span style={{width:(p.percent??0)+'%'}}/></div>
          <small><span className="fk-courses-study-state">{p.percent===100?t.completed:p.lastActivity>0?t.ongoing:t.notStarted}</span> · {fmtNumber(p.done)} / {fmtNumber(p.total)} {t.lessonsCompleted}</small>
        </div>}
        {access.expires&&active&&<small className="fk-courses-expiry"><farmIcons.expiry size={16} strokeWidth={FARM_ICON_STROKE}/>{t.availableUntil} {fmtDate(access.expires)}</small>}

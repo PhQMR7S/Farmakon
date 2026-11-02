@@ -71,7 +71,11 @@ check('favorites shortcut remains outside horizontal chip scroller',()=>{
  assert.ok(part.includes("className={\'fk-courses-fav-pinned"));
  assert.ok(css.includes('.fk-courses-fav-pinned'));
 });
-check('accessible labels and reduced-motion safety are present',()=>{
+check('global search normalizes Arabic and dock never fabricates a selected tab',()=>{
+  assert.match(shell,/matchesNormalizedQuery\(\[v\.title,v\.kind\]\.join\(' '\),q\)/);
+  assert.match(shell,/activeIndex>=0&&<span className="fk-dock-active-indicator"/);
+ });
+ check('accessible labels and reduced-motion safety are present',()=>{
  assert.ok(hub.includes('aria-label={t.favorites}'));
  assert.ok(shell.includes('aria-current='));
  assert.ok(css.includes('@media(prefers-reduced-motion:reduce)'));

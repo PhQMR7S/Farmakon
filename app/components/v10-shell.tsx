@@ -2,6 +2,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {BookOpen,House,GraduationCap,Library,Menu,Search,Bell,UserRound,ClipboardList,Users,Ticket,Layers,Wallet,ShieldCheck,Download,LifeBuoy,Settings,Sun,Moon,X,ChevronLeft,PlayCircle} from 'lucide-react';
 import {farmIcons,FARM_ICON_STROKE} from './farmakon-icons';
+import {matchesNormalizedQuery,normalizeCourseText} from './courses-logic';
 
 export type ShellPanel='search'|'learning'|'more'|'notifications'|null;
 export type ShellAnnouncement={id:string;title:string;description?:string;date?:string};
@@ -30,9 +31,9 @@ export function MobileNavigation({page,adminMode,onNavigate,onOpen,panel=null,le
  const inMore=['account','subscriptions','downloads','support','settings','announcements','reports','payments'];
  const active=(id:string)=>id==='learning'?(learningAsPage?page==='learning'&&!panel:(panel==='learning'||(!panel&&['questions','exams'].includes(page)))):id==='more'?(panel==='more'||(!panel&&inMore.includes(page))):id===page&&!panel;
  const items=[...tabs,{id:'more',label:'المزيد',icon:farmIcons.more}];
- const activeIndex=Math.max(0,items.findIndex(i=>active(i.id)));
+ const activeIndex=items.findIndex(i=>active(i.id));
  return <nav className="mobile-dock fk-dock fk-dock-v2" aria-label="أقسام Farmakon" style={{'--fk-tab-index':activeIndex} as React.CSSProperties}>
-    <span className="fk-dock-active-indicator" aria-hidden="true"/>
+    {activeIndex>=0&&<span className="fk-dock-active-indicator" aria-hidden="true"/>}
     {items.map(t=>{const Icon=t.icon;return <button type="button" key={t.id} className={'fk-dock-item '+(active(t.id)?'active':'')} aria-current={active(t.id)?'page':undefined} aria-label={t.label} onClick={()=>t.id==='more'?onOpen('more'):t.id==='learning'&&!learningAsPage?onOpen('learning'):onNavigate(t.id)}>
       <span className="fk-dock-glyph"><Icon size={23} strokeWidth={active(t.id)?2.3:FARM_ICON_STROKE}/></span><span className="fk-dock-caption">{t.label}</span>
     </button>})}
@@ -63,8 +64,8 @@ export function ShellLayers({panel,onClose,onNavigate,searchItems,theme,onTheme,
  return()=>{cancelAnimationFrame(raf);document.removeEventListener('keydown',onKey);document.body.style.overflow=old;previous?.focus()}},[panel]);
  if(!panel)return null;
  const go=(id:string,course?:Record<string,any>)=>{onClose();onNavigate(id,course)};
- const norm=q.trim().toLocaleLowerCase('ar');
- const found=!norm?[]:searchItems.filter(v=>v.title.toLocaleLowerCase('ar').includes(norm)||v.kind.toLocaleLowerCase('ar').includes(norm)).slice(0,18);
+ const norm=normalizeCourseText(q);
+ const found=!norm?[]:searchItems.filter(v=>matchesNormalizedQuery([v.title,v.kind].join(' '),q)).slice(0,18);
  const showMore=panel==='more',showLearning=panel==='learning',showAnnouncements=panel==='notifications';
  return <div className="fk-overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}>
    <div className={panel==='search'?'fk-dialog fk-search-dialog':'fk-dialog fk-sheet'} role="dialog" aria-modal="true" aria-labelledby="fk-dialog-title" ref={dialog}>
