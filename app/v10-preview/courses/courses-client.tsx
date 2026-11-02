@@ -82,7 +82,7 @@ export default function CoursesPreview(){
      <main className="main fk-learning-main">
        {section==='courses'&&!selected&&<CoursesHub initialMode={courseMode} onModeChange={setCourseMode} courses={courses} lessons={lessons} enrollments={enrollments} activity={activity} userId="v1031-preview-only" isPreview onOpenCourse={showCourse} onResumeLesson={showResume}/>}
        {section==='courses'&&selected&&!selectedLesson&&<CourseDetails
-         course={selected} lessons={lessons} enrollments={enrollments} orders={[]} isPreview
+         key={String(selected.id)} course={selected} lessons={lessons} enrollments={enrollments} orders={[]} isPreview
          onBack={()=>{setSelected(null);setSelectedLesson(null)}}
          onOpenLesson={l=>{setSelectedLesson(l);window.scrollTo({top:0,behavior:'smooth'})}}
        />}
