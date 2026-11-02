@@ -31,11 +31,11 @@ function firstName(name?:string){const cleaned=String(name||'').trim().replace(/
 export type LearningCenterProps={
  userName?:string;userId?:string;authSessionKey?:string;courses?:RecordItem[];lessons?:RecordItem[];
  enrollments?:RecordItem[];activity?:RecordItem[];questions?:RecordItem[];exams?:RecordItem[];
- files?:RecordItem[];isPreview?:boolean;
+ files?:RecordItem[];isPreview?:boolean;authenticatedPreview?:boolean;
  onNavigate:(section:string)=>void;
  onResume?:(lesson:RecordItem,course:RecordItem)=>void;
 };
-export default function LearningCenter({userName,userId='preview',authSessionKey='',courses=[],lessons=[],enrollments=[],activity=[],questions=[],exams=[],files=[],isPreview=false,onNavigate,onResume}:LearningCenterProps){
+export default function LearningCenter({userName,userId='preview',authSessionKey='',courses=[],lessons=[],enrollments=[],activity=[],questions=[],exams=[],files=[],isPreview=false,authenticatedPreview=false,onNavigate,onResume}:LearningCenterProps){
  const [hour,setHour]=useState<number|null>(null);
  const [messageIndex,setMessageIndex]=useState(0);
  const [ready,setReady]=useState(false);
@@ -120,7 +120,7 @@ export default function LearningCenter({userName,userId='preview',authSessionKey
  const Icon=current.icon;
  const greeting=greetingForHour(hour??-1);
  return <div className="fk-learning-preview fk-learning-v102" dir="rtl">
-   {isPreview&&<div className="fk-lab-banner" role="status"><Sparkles size={17}/><span><strong>معاينة V10.2</strong> — الأسماء والمحتوى توضيحية، بدون اتصال ببيانات الطالب.</span></div>}
+   {isPreview&&<div className="fk-lab-banner" role="status"><Sparkles size={17}/><span><strong>معاينة V10.2</strong> — {authenticatedPreview?'الترحيب باسمك الحقيقي من حساب الاختبار، لكن لا تُحمّل بيانات الكورسات أو التقدّم هنا.':'الأسماء والمحتوى توضيحية، بدون اتصال ببيانات الطالب.'}</span></div>}
    <section className="fk-learn-hero fk-v102-hero" aria-label="الترحيب الشخصي">
     <div className="fk-learn-hero-copy">
       <span className="fk-learn-eyebrow">FARMAKON · LEARNING SPACE</span>
