@@ -599,3 +599,12 @@ body{background:radial-gradient(ellipse at 5% 0%,#27bce912,transparent 42%),radi
 @media(prefers-reduced-motion:reduce){
  .fk-learning-v102,.fk-v102-tool,.fk-v102-icon3d,.fk-v102-hero-medal{animation:none!important;transition:none!important}
 }
+
+
+/* V10.2 genuine course-completion ring and 4 compact metrics */
+.fk-learning-v102 .fk-snapshot-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.fk-v102-rate{width:60px;height:60px;display:grid;place-items:center;flex-shrink:0;border-radius:50%;background:conic-gradient(var(--teal) var(--fk-progress),var(--soft) 0);position:relative;isolation:isolate}
+.fk-v102-rate:before{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--surface);z-index:-1}
+.fk-v102-rate strong{font:750 12px Inter,Tajawal,sans-serif;color:var(--ink);line-height:1}
+@media(max-width:760px){.fk-learning-v102 .fk-snapshot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.fk-v102-rate{height:51px;width:51px}}
+@media(max-width:360px){.fk-learning-v102 .fk-snapshot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.fk-learning-v102 .fk-snapshot-grid>div:last-child{grid-column:auto;display:flex;flex-direction:column;align-items:flex-start;min-height:92px}}
