@@ -76,6 +76,11 @@ export default function LearningCenter({userName,userId='preview',courses=[],les
  const availableFiles=files.filter(f=>f.status==='published');
  const visibleExams=exams.filter(e=>e.status==='published');
  const examActivity=activity.filter(a=>a.kind==='exam');
+ const studyMinutes=Math.floor(progress.reduce((acc:number,p:RecordItem)=>acc+Math.max(0,Number(p.data?.seconds)||0),0)/60);
+ const enrolledLessonIds=new Set(allowedLessons.filter(l=>activeCourses.has(l.courseId)).map(l=>l.id));
+ const enrolledLessonsTotal=enrolledLessonIds.size;
+ const enrolledCompleted=[...enrolledLessonIds].filter(id=>progress.some(p=>p.target===id&&p.data?.completed)).length;
+ const completionRate=enrolledLessonsTotal?Math.round(enrolledCompleted/enrolledLessonsTotal*100):null;
  const recent=activity.filter(a=>(a.kind==='progress'&&allowedLessons.some(l=>l.id===a.target))||a.kind==='exam').sort((a,b)=>lastTimestamp(b)-lastTimestamp(a)).slice(0,3);
  const tasks=[
   {id:'study',text:resume?'استكمل المحاضرة التي توقفت عندها':'استكشف محاضراتك المتاحة',destination:'courses' as ActionId,icon:PlayCircle},
@@ -146,11 +151,12 @@ export default function LearningCenter({userName,userId='preview',courses=[],les
     </div>})}</div>
    </section>
    <section className="fk-learn-snapshot fk-v102-stats" aria-labelledby="fk-v102-stats-title">
-     <div className="fk-learning-section-head"><div><span className="fk-learn-kicker">YOUR PROGRESS</span><h3 id="fk-v102-stats-title">تقدمك الدراسي</h3></div></div>
+     <div className="fk-learning-section-head"><div><span className="fk-learn-kicker">YOUR PROGRESS</span><h3 id="fk-v102-stats-title">تقدمك الدراسي</h3></div>{!isPreview&&completionRate!==null&&<div className="fk-v102-rate" role="img" aria-label={'معدل إكمال المحاضرات في كورساتك: '+completionRate+' بالمئة'} style={{'--fk-progress':completionRate+'%'} as React.CSSProperties}><strong>{completionRate}%</strong></div>}</div>
      <div className="fk-snapshot-grid">
       <div><BookOpen size={21}/><small>كورساتي النشطة</small><strong>{isPreview?'—':activeCourses.size}</strong></div>
       <div><Target size={21}/><small>المحاضرات المكتملة</small><strong>{isPreview?'—':completed}</strong></div>
       <div><TrendingUp size={21}/><small>محاولات الاختبار</small><strong>{isPreview?'—':examActivity.length}</strong></div>
+      <div><Clock3 size={21}/><small>وقت المشاهدة المحفوظ</small><strong>{isPreview?'—':elapsed(studyMinutes*60)}</strong></div>
      </div>
    </section>
    <section className="fk-learning-last fk-v102-activity" aria-labelledby="fk-v102-last-title">
