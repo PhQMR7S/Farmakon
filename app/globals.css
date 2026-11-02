@@ -1049,3 +1049,12 @@ body{background:radial-gradient(ellipse at 5% 0%,#27bce912,transparent 42%),radi
 }
 /* Avoid obscuring controls by overlapping bottom-sheets on small screens. */
 @media(max-height:620px){.fk-courses-filter-sheet{max-height:91dvh}}
+
+
+/* V10.3.1 QA accessibility and text resilience: keep original Farmakon identity. */
+.fk-courses-polish .fk-courses-card-footer{margin-top:auto}
+.fk-courses-polish .fk-courses-card h3{overflow-wrap:anywhere;hyphens:auto}
+.fk-courses-polish .fk-courses-cover-tag{max-width:calc(100% - 92px);overflow-wrap:anywhere;line-height:1.4}
+.fk-courses-polish .fk-courses-search:focus-within{outline:2px solid var(--teal);outline-offset:3px}
+.fk-courses-polish .fk-courses-resume-info strong{white-space:normal;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+@media(max-width:760px){.fk-app .main{scroll-padding-bottom:calc(175px + env(safe-area-inset-bottom))}}
