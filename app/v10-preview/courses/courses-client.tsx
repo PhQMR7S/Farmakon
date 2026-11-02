@@ -4,6 +4,7 @@ import {ArrowRight,BookOpen,ChevronLeft,ClipboardList,GraduationCap,House,Librar
 import CoursesHub from '../../components/courses-hub';
 import {FarmakonHeader,MobileNavigation,ShellLayers,type ShellPanel,type SearchResult} from '../../components/v10-shell';
 import type {CourseRecord} from '../../components/courses-logic';
+import {farmIcons,FARM_ICON_STROKE} from '../../components/farmakon-icons';
 type Section='courses'|'dashboard'|'learning'|'library'|'questions'|'exams'|'account'|'subscriptions'|'downloads'|'support';
 const now=Date.now();
 const courses:CourseRecord[]=[
@@ -34,13 +35,13 @@ const activity:CourseRecord[]=[
  {kind:'progress',target:'pharma-0',data:{seconds:900,completed:true},updated:1762000000000}
 ];
 const sections=[
- {id:'dashboard' as Section,label:'الرئيسية',icon:House},
- {id:'learning' as Section,label:'التعلّم',icon:GraduationCap},
- {id:'courses' as Section,label:'كورساتي',icon:BookOpen},
- {id:'library' as Section,label:'المكتبة العلمية',icon:Library},
- {id:'questions' as Section,label:'بنك الأسئلة',icon:ClipboardList},
- {id:'account' as Section,label:'حسابي',icon:ShieldCheck},
- {id:'subscriptions' as Section,label:'اشتراكاتي',icon:Wallet},
+ {id:'dashboard' as Section,label:'الرئيسية',icon:farmIcons.home},
+ {id:'learning' as Section,label:'التعلّم',icon:farmIcons.learning},
+ {id:'courses' as Section,label:'كورساتي',icon:farmIcons.courses},
+ {id:'library' as Section,label:'المكتبة العلمية',icon:farmIcons.library},
+ {id:'questions' as Section,label:'بنك الأسئلة',icon:farmIcons.bank},
+ {id:'account' as Section,label:'حسابي',icon:farmIcons.account},
+ {id:'subscriptions' as Section,label:'اشتراكاتي',icon:farmIcons.subscription},
  {id:'support' as Section,label:'الدعم والمساعدة',icon:LifeBuoy}
 ];
 const labels:Record<string,string>={...Object.fromEntries(sections.map(s=>[s.id,s.label])),exams:'الاختبارات',downloads:'التنزيلات'};
@@ -70,7 +71,7 @@ export default function CoursesPreview(){
      <a href="/v10-preview/courses" className="brand"><img src="/farmakon-logo.jpg" alt="" width={48} height={48}/><div><b>Farmakon</b><small>أكاديمية الصيدلة</small></div></a>
      <button type="button" className="mobile-close icon-btn" onClick={()=>setMenu(false)} aria-label="إغلاق القائمة"><X size={20}/></button>
      <div className="space-label">مساحة التعلّم</div>
-     <nav aria-label="أقسام المنصة">{sections.map(x=>{const Icon=x.icon;return <button type="button" key={x.id} className={'nav-item '+(section===x.id?'selected':'')} aria-current={section===x.id?'page':undefined} onClick={()=>go(x.id)}><Icon size={19}/>{x.label}</button>})}</nav>
+     <nav aria-label="أقسام المنصة">{sections.map(x=>{const Icon=x.icon;return <button type="button" key={x.id} className={'nav-item '+(section===x.id?'selected':'')} aria-current={section===x.id?'page':undefined} onClick={()=>go(x.id)}><Icon size={20} strokeWidth={FARM_ICON_STROKE}/>{x.label}</button>})}</nav>
      <div className="sidebar-bottom"><div className="mini-card"><Sparkles size={21}/><strong>معاينة V10.3.1</strong><small>بيانات توضيحية، بدون دخول أو اشتراك.</small></div></div>
    </aside>
    {menu&&<div className="shade" role="presentation" onClick={()=>setMenu(false)}/>}
