@@ -1,8 +1,8 @@
 'use client';
 import {useEffect,useState} from 'react';
 import {BookOpen,GraduationCap,House,Library,ClipboardList,ClipboardCheck,ShieldCheck,Wallet,Download,LifeBuoy,Sparkles,PanelRightClose,X,ArrowRight} from 'lucide-react';
-import {FarmakonHeader,MobileNavigation,ShellLayers,type ShellPanel,type SearchResult} from '../../components/v10-shell';
-import LearningCenter from '../../components/learning-center';
+import {FarmakonHeader,MobileNavigation,ShellLayers,type ShellPanel,type SearchResult} from '../components/v10-shell';
+import LearningCenter from '../components/learning-center';
 
 type Section='learning'|'dashboard'|'courses'|'library'|'questions'|'exams'|'account'|'subscriptions'|'downloads'|'support';
 const links=[
