@@ -9,5 +9,6 @@ export default async function Page(){
  const c=await authClient();
  const {data:{user},error}=await c.auth.getUser();
  if(error||!user?.email||!user.email_confirmed_at)redirect('/login');
- // A verified Supabase last-sign-in marker identifies actual new logins without exposing tokens.\n return <Farmakon authSessionKey={user.last_sign_in_at||''}/>;
+ // A verified Supabase last-sign-in marker identifies actual new logins without exposing tokens.
+ return <Farmakon authSessionKey={user.last_sign_in_at||''}/>;
 }
