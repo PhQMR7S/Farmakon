@@ -6,7 +6,7 @@ import {getCoursesCopy,type CourseLocale} from './courses-i18n';
 
 export type CoursesHubProps={
  courses:CourseRecord[];lessons:CourseRecord[];enrollments:CourseRecord[];activity:CourseRecord[];
- userId?:string;locale?:CourseLocale;isPreview?:boolean;
+ userId?:string;locale?:CourseLocale;isPreview?:boolean;initialMode?:'mine'|'explore';
  onOpenCourse:(course:CourseRecord)=>void;
  onResumeLesson?:(lesson:CourseRecord,course:CourseRecord)=>void;
  onModeChange?:(mode:'mine'|'explore')=>void;
@@ -19,10 +19,10 @@ const color=(v:unknown)=>['blue','purple','amber','teal'].includes(String(v))?St
 const safeCover=(v:unknown)=>{const url=typeof v==='string'?v.trim():'';return (/^https:\/\/[a-z0-9.-]+(?:\/|$)/i.test(url)||(/^\/(?!\/)/.test(url)&&!url.includes('\\')))?url:null};
 
 export default function CoursesHub({
- courses,lessons,enrollments,activity,userId='preview',locale='ar',isPreview=false,onOpenCourse,onResumeLesson,onToggleFavorite,onModeChange
+ courses,lessons,enrollments,activity,userId='preview',locale='ar',isPreview=false,initialMode='mine',onOpenCourse,onResumeLesson,onToggleFavorite,onModeChange
 }:CoursesHubProps){
  const t=getCoursesCopy(locale),en=locale==='en';
- const [mode,setMode]=useState<Mode>('mine');
+ const [mode,setMode]=useState<Mode>(initialMode);
  const [query,setQuery]=useState('');
  const [stage,setStage]=useState('all');
  const [category,setCategory]=useState('all');
@@ -157,7 +157,7 @@ export default function CoursesHub({
        {active&&<div className="fk-courses-card-progress">
          <div className="fk-courses-progress-label"><span>{p.percent===null?t.notPublished:t.yourProgress}</span><b>{p.percent===null?'—':fmtNumber(p.percent)+'%'}</b></div>
          <div className="fk-courses-meter" role="progressbar" aria-label={String(c.title)+' · '+t.yourProgress} aria-valuemin={0} aria-valuemax={100} aria-valuenow={p.percent??0}><span style={{width:(p.percent??0)+'%'}}/></div>
-         <small>{fmtNumber(p.done)} / {fmtNumber(p.total)} {t.lessonsCompleted}</small>
+         <small><span className="fk-courses-study-state">{p.percent===100?t.completed:p.lastActivity>0?t.ongoing:t.notStarted}</span> · {fmtNumber(p.done)} / {fmtNumber(p.total)} {t.lessonsCompleted}</small>
        </div>}
        {access.expires&&active&&<small className="fk-courses-expiry"><TimerReset size={14}/>{t.availableUntil} {fmtDate(access.expires)}</small>}
        <div className="fk-courses-card-footer">
