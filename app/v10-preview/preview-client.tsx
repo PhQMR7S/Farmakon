@@ -1,7 +1,7 @@
 'use client';
 import {useEffect,useState,useCallback} from 'react';
-import {BookOpen,House,Library,GraduationCap,ClipboardList,Download,Wallet,ShieldCheck,LifeBuoy,Menu,Search,Sun,Moon,ChevronLeft,X,PanelRightClose,PanelRightOpen,PlayCircle,FileText,Sparkles,CheckCircle2,Layers,ArrowUpLeft} from 'lucide-react';
-import {MobileNavigation,ShellLayers,type ShellPanel,type SearchResult} from '../components/v10-shell';
+import {BookOpen,House,Library,GraduationCap,ClipboardList,Download,Wallet,ShieldCheck,LifeBuoy,Menu,Search,Sun,Moon,ChevronLeft,X,PanelRightClose,FileText,Sparkles,CheckCircle2,Layers,ArrowUpLeft} from 'lucide-react';
+import {FarmakonHeader,MobileNavigation,ShellLayers,type ShellPanel,type SearchResult} from '../components/v10-shell';
 
 type Page='dashboard'|'courses'|'library'|'questions'|'exams'|'account'|'subscriptions'|'downloads'|'support';
 const links:{id:Page;label:string;icon:typeof House}[]=[
@@ -26,7 +26,8 @@ export default function PreviewClient(){
  const [page,setPage]=useState<Page>('dashboard'),[menu,setMenu]=useState(false);
  const [panel,setPanel]=useState<ShellPanel>(null),[collapsed,setCollapsed]=useState(false),[theme,setTheme]=useState<'dark'|'light'>('dark');
  const [notice,setNotice]=useState('');
- const go=useCallback((p:string)=>{if(p in names)setPage(p as Page);setMenu(false);setPanel(null);window.scrollTo?.({top:0,behavior:'smooth'})},[]);
+ const go=useCallback((p:string)=>{if(p in names){setPage(p as Page);if(window.location.hash!==('#'+p))window.history.pushState({farmakonPreviewPage:p},'','#'+p)}setMenu(false);setPanel(null);window.scrollTo?.({top:0,behavior:'smooth'})},[]);
+ useEffect(()=>{const read=()=>{const p=decodeURIComponent(location.hash.replace(/^#/,''));if(p in names)setPage(p as Page);else setPage('dashboard');setMenu(false);setPanel(null)};read();window.addEventListener('popstate',read);return()=>window.removeEventListener('popstate',read)},[]);
  const show=useCallback((p:ShellPanel)=>{setMenu(false);setPanel(p)},[]);
  const toggleTheme=()=>setTheme(t=>t==='dark'?'light':'dark');
  useEffect(()=>{document.documentElement.dataset.theme=theme;return()=>{delete document.documentElement.dataset.theme}},[theme]);
@@ -47,18 +48,7 @@ export default function PreviewClient(){
   </aside>
   {menu&&<div className="shade" role="presentation" onClick={()=>setMenu(false)}/>}
   <div className="workspace">
-   <header className="topbar fk-topbar">
-    <div className="breadcrumb fk-breadcrumb">
-     <button type="button" className="icon-btn mobile-menu" aria-label="فتح القائمة" aria-controls="demo-sidebar" aria-expanded={menu} onClick={()=>setMenu(true)}><Menu size={22}/></button>
-     <button type="button" className="icon-btn fk-desktop-expand" aria-label={collapsed?'توسيع القائمة':'طي القائمة'} onClick={()=>setCollapsed(!collapsed)}><Menu size={21}/></button>
-     <div className="fk-title-block"><small>Farmakon / مساحة التعلّم</small><b>{names[page]}</b></div>
-    </div>
-    <div className="top-actions fk-actions">
-     <button type="button" className="icon-btn fk-header-search" aria-label="البحث" title="البحث" onClick={()=>show('search')}><Search size={21}/></button>
-     <button type="button" className="icon-btn theme-toggle fk-desktop-theme" aria-label="تغيير المظهر" onClick={toggleTheme}>{theme==='dark'?<Sun size={20}/>:<Moon size={20}/>}</button>
-     <button type="button" className="fk-avatar-button" aria-label="الحساب والمزيد" onClick={()=>show('more')}><span>F</span></button>
-    </div>
-   </header>
+   <FarmakonHeader title={names[page]} menuOpen={menu} onMenu={()=>setMenu(true)} onToggleSidebar={()=>setCollapsed(!collapsed)} onSearch={()=>show('search')} onNotifications={()=>show('notifications')} onMore={()=>show('more')}/>
    <main className="main fk-demo-main">
     <div className="fk-demo-note" role="status"><Sparkles size={18}/><span><strong>معاينة تفاعلية للتصميم فقط</strong> — بيانات توضيحية، بلا حساب أو اشتراك أو اتصال بقاعدة البيانات.</span></div>
     <div className="page-heading"><div><div className="eyebrow">FARMAKON / V10.1 PREVIEW</div><h1>{page==='dashboard'?'خطوتك القادمة في الصيدلة':names[page]}</h1><p>{page==='dashboard'?'هنا يظهر مركزك الدراسي بعد الدخول بحسابك الحقيقي.':'هذا مثال لكيفية ظهور القسم ضمن هيكل Farmakon الجديد.'}</p></div></div>
@@ -77,8 +67,8 @@ export default function PreviewClient(){
     <footer className="fk-demo-footer">Farmakon V10.1 — Design Preview · No account required · No real data</footer>
    </main>
   </div>
-  <MobileNavigation page={page} adminMode={false} onNavigate={go} onOpen={show}/>
-  <ShellLayers panel={panel} onClose={()=>setPanel(null)} onNavigate={go} searchItems={examples} theme={theme} onTheme={toggleTheme} onInstall={()=>{setPanel(null);text('هذه معاينة تصميم فقط. تثبيت التطبيق متاح من موقع Farmakon الرسمي.')}} adminMode={false} onSidebar={()=>setMenu(true)}/>
+  <MobileNavigation page={page} panel={panel} adminMode={false} onNavigate={go} onOpen={show}/>
+  <ShellLayers panel={panel} onClose={()=>setPanel(null)} onNavigate={go} searchItems={examples} theme={theme} onTheme={toggleTheme} onInstall={()=>{setPanel(null);text('هذه معاينة تصميم فقط. تثبيت التطبيق متاح من موقع Farmakon الرسمي.')}} adminMode={false} onSidebar={()=>setMenu(true)} announcements={[]}/>
   {notice&&<div className="fk-demo-toast" role="status"><FileText size={18}/><span>{notice}</span><button type="button" aria-label="إغلاق التنبيه" onClick={()=>setNotice('')}><X size={16}/></button></div>}
  </div>;
 }
