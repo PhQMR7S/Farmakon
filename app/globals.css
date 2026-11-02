@@ -764,7 +764,7 @@ body{background:radial-gradient(ellipse at 5% 0%,#27bce912,transparent 42%),radi
 /* Farmakon V10.3.1 — screenshot-driven UI polish (mobile-first + accessible glass sheet)
  * Scoped under .fk-courses-polish. Unrelated Farmakon/owner screens stay unchanged.
  */
-.fk-courses-polish{gap:17px;max-width:1200px;padding-block-end:clamp(52px,8vw,90px)}
+.fk-courses-polish{gap:17px;max-width:1200px;padding-block-end:clamp(52px,8vw,90px);animation:none;transform:none}
 .fk-courses-polish .fk-courses-demo-note{padding:11px 14px;border-radius:15px;line-height:1.7;font-size:12px}
 .fk-courses-polish .fk-courses-hero{min-height:235px;grid-template-columns:minmax(0,1fr) 185px;padding:24px 31px;gap:5px;border-radius:26px}
 .fk-courses-polish .fk-courses-hero h1{font-size:clamp(23px,2.8vw,33px);line-height:1.52;margin:8px 0 7px}
