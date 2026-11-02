@@ -82,6 +82,14 @@ return <div className={'app fk-app '+(sidebarCollapsed?'fk-compact':'')}><aside 
 {page==='courses'&&!course&&(adminMode?<><div className="filters"><label className="search"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="ابحث عن كورس أو مادة…"/></label><select aria-label="المرحلة" value={stage} onChange={e=>setStage(e.target.value)}>{['الكل',...new Set(data.course.map((c:Item)=>c.stage))].map((s:any)=><option key={s}>{s}</option>)}</select></div>{courses.length?<div className="course-grid three">{courses.map(courseCard)}</div>:empty('لا توجد كورسات منشورة بعد','تجهّز الأكاديمية محتواها. ستظهر الكورسات المتاحة هنا.')}</>:<CoursesHub
  courses={data.course||[]} lessons={data.lesson||[]} enrollments={(data.enrollments||[]).filter((e:Item)=>e.email===data.user.email)}
  activity={data.activity||[]} userId={String(data.user.id)}
+ onToggleFavorite={async(courseId,saved)=>{
+  await api({action:'courseFavorite',courseId,saved});
+  setData((previous:Item|null)=>{
+    if(!previous)return previous;
+    const earlier=(previous.activity||[]).filter((entry:Item)=>!(entry.kind==='course_favorite'&&entry.target===courseId));
+    return {...previous,activity:[...earlier,{kind:'course_favorite',target:courseId,data:{saved},updated:Date.now()}]};
+  });
+ }}
  onOpenCourse={(c)=>{setCourse(c);setLesson(null);setPage('courses');window.scrollTo({top:0,behavior:'smooth'})}}
  onResumeLesson={(l,c)=>{
   if(l.locked||l.status!=='published'||c.status!=='published'){setToast('المحاضرة غير متاحة');return}
