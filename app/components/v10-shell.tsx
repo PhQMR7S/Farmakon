@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
 import {BookOpen,House,GraduationCap,Library,Menu,Search,Bell,UserRound,ClipboardList,Users,Ticket,Layers,Wallet,ShieldCheck,Download,LifeBuoy,Settings,Sun,Moon,X,ChevronLeft,PlayCircle} from 'lucide-react';
+import {farmIcons,FARM_ICON_STROKE} from './farmakon-icons';
 
 export type ShellPanel='search'|'learning'|'more'|'notifications'|null;
 export type ShellAnnouncement={id:string;title:string;description?:string;date?:string};
@@ -9,44 +10,44 @@ export type SearchResult={id:string;title:string;kind:string;section:string;cour
 export function FarmakonHeader({title,onMenu,onSearch,onNotifications,onMore,onToggleSidebar,menuOpen=false}:{title:string;onMenu:()=>void;onSearch:()=>void;onNotifications:()=>void;onMore:()=>void;onToggleSidebar:()=>void;menuOpen?:boolean}){
  return <header className="topbar fk-topbar fk-header-v2">
   <div className="fk-header-identity">
-   <button type="button" className="icon-btn mobile-menu fk-nav-trigger" aria-label="فتح القائمة" aria-expanded={menuOpen} onClick={onMenu}><Menu size={21}/></button>
-   <button type="button" className="icon-btn fk-desktop-expand fk-nav-trigger" aria-label="طي أو توسيع القائمة" onClick={onToggleSidebar}><Menu size={21}/></button>
+   <button type="button" className="icon-btn mobile-menu fk-nav-trigger" aria-label="فتح القائمة" aria-expanded={menuOpen} onClick={onMenu}><farmIcons.menu size={22} strokeWidth={FARM_ICON_STROKE}/></button>
+   <button type="button" className="icon-btn fk-desktop-expand fk-nav-trigger" aria-label="طي أو توسيع القائمة" onClick={onToggleSidebar}><farmIcons.menu size={22} strokeWidth={FARM_ICON_STROKE}/></button>
    <img className="fk-header-logo" src="/farmakon-logo.jpg" alt="" width={40} height={40}/>
    <span className="fk-header-brand"><strong>Farmakon</strong><small>{title}</small></span>
   </div>
   <div className="fk-header-actions">
-   <button type="button" className="fk-header-action" aria-label="البحث في Farmakon" title="البحث" onClick={onSearch}><Search size={20}/></button>
-   <button type="button" className="fk-header-action" aria-label="إعلانات الأكاديمية" title="الإعلانات" onClick={onNotifications}><Bell size={20}/></button>
-   <button type="button" className="fk-header-profile" aria-label="الحساب والخدمات" title="الحساب والخدمات" onClick={onMore}><UserRound size={20}/></button>
+   <button type="button" className="fk-header-action" aria-label="البحث في Farmakon" title="البحث" onClick={onSearch}><farmIcons.search size={22} strokeWidth={FARM_ICON_STROKE}/></button>
+   <button type="button" className="fk-header-action" aria-label="إعلانات الأكاديمية" title="الإعلانات" onClick={onNotifications}><farmIcons.notifications size={22} strokeWidth={FARM_ICON_STROKE}/></button>
+   <button type="button" className="fk-header-profile" aria-label="الحساب والخدمات" title="الحساب والخدمات" onClick={onMore}><farmIcons.account size={22} strokeWidth={FARM_ICON_STROKE}/></button>
   </div>
  </header>;
 }
 
 export function MobileNavigation({page,adminMode,onNavigate,onOpen,panel=null,learningAsPage=false}:{page:string;adminMode:boolean;onNavigate:(p:string)=>void;onOpen:(v:ShellPanel)=>void;panel?:ShellPanel;learningAsPage?:boolean}){
  const tabs=adminMode
- ?[{id:'dashboard',label:'الرئيسية',icon:House},{id:'content',label:'المحتوى',icon:Layers},{id:'codes',label:'الأكواد',icon:Ticket},{id:'students',label:'الطلاب',icon:Users}]
- :[{id:'dashboard',label:'الرئيسية',icon:House},{id:'courses',label:'كورساتي',icon:BookOpen},{id:'learning',label:'التعلّم',icon:GraduationCap},{id:'library',label:'المكتبة',icon:Library}];
+ ?[{id:'dashboard',label:'الرئيسية',icon:farmIcons.home},{id:'content',label:'المحتوى',icon:Layers},{id:'codes',label:'الأكواد',icon:Ticket},{id:'students',label:'الطلاب',icon:Users}]
+ :[{id:'dashboard',label:'الرئيسية',icon:farmIcons.home},{id:'courses',label:'كورساتي',icon:farmIcons.courses},{id:'learning',label:'التعلّم',icon:farmIcons.learning},{id:'library',label:'المكتبة',icon:farmIcons.library}];
  const inMore=['account','subscriptions','downloads','support','settings','announcements','reports','payments'];
  const active=(id:string)=>id==='learning'?(learningAsPage?page==='learning'&&!panel:(panel==='learning'||(!panel&&['questions','exams'].includes(page)))):id==='more'?(panel==='more'||(!panel&&inMore.includes(page))):id===page&&!panel;
- const items=[...tabs,{id:'more',label:'المزيد',icon:Menu}];
+ const items=[...tabs,{id:'more',label:'المزيد',icon:farmIcons.more}];
  const activeIndex=Math.max(0,items.findIndex(i=>active(i.id)));
  return <nav className="mobile-dock fk-dock fk-dock-v2" aria-label="أقسام Farmakon" style={{'--fk-tab-index':activeIndex} as React.CSSProperties}>
     <span className="fk-dock-active-indicator" aria-hidden="true"/>
     {items.map(t=>{const Icon=t.icon;return <button type="button" key={t.id} className={'fk-dock-item '+(active(t.id)?'active':'')} aria-current={active(t.id)?'page':undefined} aria-label={t.label} onClick={()=>t.id==='more'?onOpen('more'):t.id==='learning'&&!learningAsPage?onOpen('learning'):onNavigate(t.id)}>
-      <Icon size={21} strokeWidth={active(t.id)?2.15:1.8}/><span>{t.label}</span>
+      <span className="fk-dock-glyph"><Icon size={23} strokeWidth={active(t.id)?2.3:FARM_ICON_STROKE}/></span><span className="fk-dock-caption">{t.label}</span>
     </button>})}
    </nav>;
 }
 const moreLinks=[
- {id:'account',label:'حسابي',icon:ShieldCheck,description:'البيانات الشخصية والأمان'},
- {id:'subscriptions',label:'اشتراكاتي',icon:Wallet,description:'الكورسات المفعلة وصلاحيات الوصول'},
+ {id:'account',label:'حسابي',icon:farmIcons.account,description:'البيانات الشخصية والأمان'},
+ {id:'subscriptions',label:'اشتراكاتي',icon:farmIcons.subscription,description:'الكورسات المفعلة وصلاحيات الوصول'},
  {id:'downloads',label:'التنزيلات',icon:Download,description:'الملفات المحفوظة'},
  {id:'support',label:'المساعدة والدعم',icon:LifeBuoy,description:'التواصل والحصول على المساعدة'},
 ];
 const learningLinks=[
- {id:'courses',label:'المحاضرات والكورسات',icon:PlayCircle,description:'الوحدات ومتابعة المحاضرات'},
- {id:'questions',label:'بنك الأسئلة',icon:ClipboardList,description:'أسئلة التدريب والمراجعة'},
- {id:'exams',label:'الاختبارات',icon:GraduationCap,description:'اختبر معلوماتك وتابع نتائجك'}
+ {id:'courses',label:'المحاضرات والكورسات',icon:farmIcons.courses,description:'الوحدات ومتابعة المحاضرات'},
+ {id:'questions',label:'بنك الأسئلة',icon:farmIcons.bank,description:'أسئلة التدريب والمراجعة'},
+ {id:'exams',label:'الاختبارات',icon:farmIcons.academic,description:'اختبر معلوماتك وتابع نتائجك'}
 ];
 export function ShellLayers({panel,onClose,onNavigate,searchItems,theme,onTheme,onInstall,adminMode,onSidebar,announcements=[]}:{panel:ShellPanel;onClose:()=>void;onNavigate:(p:string,c?:Record<string,any>)=>void;searchItems:SearchResult[];theme:string;onTheme:()=>void;onInstall:()=>void;adminMode:boolean;onSidebar:()=>void;announcements?:ShellAnnouncement[]}){
  const [q,setQ]=useState('');
@@ -75,7 +76,7 @@ export function ShellLayers({panel,onClose,onNavigate,searchItems,theme,onTheme,
        {norm? found.length?found.map(r=><button type="button" key={r.id} className="fk-result" onClick={()=>go(r.section,r.course)}><div><strong>{r.title}</strong><small>{r.kind}</small></div><ChevronLeft size={18}/></button>):<p className="fk-empty-note">ما لقينا نتيجة في المحتوى المتاح لك. جرّب كلمات ثانية.</p>:<p className="fk-empty-note"><Search size={22}/>اكتب عنوان كورس أو اسم ملف للبحث في المحتوى المتاح.</p>}
       </div>
      </>:<>
-      <div className="fk-sheet-links">{(showLearning?learningLinks:moreLinks).map(item=>{const Icon=item.icon;return <button key={item.id} type="button" className="fk-sheet-link" onClick={()=>go(item.id)}><span className="fk-sheet-icon"><Icon size={21}/></span><span className="fk-sheet-copy"><strong>{item.label}</strong><small>{item.description}</small></span><ChevronLeft size={18}/></button>})}
+      <div className="fk-sheet-links">{(showLearning?learningLinks:moreLinks).map(item=>{const Icon=item.icon;return <button key={item.id} type="button" className="fk-sheet-link" onClick={()=>go(item.id)}><span className="fk-sheet-icon"><Icon size={22} strokeWidth={FARM_ICON_STROKE}/></span><span className="fk-sheet-copy"><strong>{item.label}</strong><small>{item.description}</small></span><ChevronLeft size={18}/></button>})}
        {showMore&&<><button className="fk-sheet-link" type="button" onClick={()=>{onClose();onTheme()}}><span className="fk-sheet-icon">{theme==='dark'?<Sun size={21}/>:<Moon size={21}/>}</span><span className="fk-sheet-copy"><strong>المظهر</strong><small>التبديل بين الوضع الفاتح والداكن</small></span><ChevronLeft size={18}/></button>
        <button className="fk-sheet-link" type="button" onClick={()=>{onClose();onInstall()}}><span className="fk-sheet-icon"><Download size={21}/></span><span className="fk-sheet-copy"><strong>تثبيت المنصة</strong><small>إضافة Farmakon إلى الشاشة الرئيسية</small></span><ChevronLeft size={18}/></button>
        {adminMode&&<button className="fk-sheet-link" type="button" onClick={()=>{onClose();onSidebar()}}><span className="fk-sheet-icon"><Settings size={21}/></span><span className="fk-sheet-copy"><strong>إدارة الأكاديمية</strong><small>عرض كل أقسام لوحة المالك</small></span><ChevronLeft size={18}/></button>}</>}

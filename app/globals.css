@@ -638,3 +638,414 @@ body{background:radial-gradient(ellipse at 5% 0%,#27bce912,transparent 42%),radi
 @media(prefers-reduced-motion:reduce){
  .fk-learning-v102 .fk-learn-tool,.fk-app .fk-dock-active-indicator{animation:none!important;transition:none!important}
 }
+
+
+/* Farmakon V10.3.1 — approved My Courses & Explore Courses. Scoped, RTL and responsive. */
+.fk-courses-v1031{max-width:1240px;margin:0 auto;padding:0 0 24px;display:grid;gap:22px;color:var(--ink);animation:fk-learning-enter .24s ease both}
+.fk-courses-v1031 :where(button,input,select){touch-action:manipulation}
+.fk-courses-v1031 button:focus-visible,.fk-courses-v1031 input:focus-visible,.fk-courses-v1031 select:focus-visible{outline:2px solid #4abbff;outline-offset:3px}
+.fk-courses-v1031 .fk-courses-kicker{font:700 11px Inter,'Tajawal',sans-serif;letter-spacing:2px;color:#66c7ff;direction:ltr;display:block}
+.fk-courses-hero{position:relative;overflow:hidden;min-height:310px;border:1px solid #4969939a;border-radius:30px;background:radial-gradient(ellipse at 0 100%,#ad406d22,transparent 42%),radial-gradient(ellipse at 83% 0,#2c8ed644,transparent 50%),linear-gradient(138deg,#142e55,#0d1739 67%,#202047);color:#f5f8ff;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(175px,.6fr);align-items:center;gap:15px;padding:33px 38px;box-shadow:0 20px 45px #030d2b22;isolation:isolate}
+.fk-courses-hero:after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:radial-gradient(#7dc5ff24 1px,transparent 1px);background-size:22px 22px;mask-image:linear-gradient(90deg,transparent,#000)}
+.fk-courses-hero h1{color:#f7fbff;font-family:Tajawal,'IBM Plex Sans Arabic',sans-serif;font-weight:800;font-size:clamp(25px,3.5vw,39px);line-height:1.48;letter-spacing:0;margin:15px 0 12px}
+.fk-courses-hero h1 span{color:#b9defc}
+.fk-courses-hero p{color:#c4d1e7;font-size:15px;max-width:560px;line-height:1.95;margin:0 0 20px}
+.fk-courses-hero-actions{display:flex;flex-wrap:wrap;gap:10px}
+.fk-courses-primary,.fk-courses-outline{min-height:47px;display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:16px;border:1px solid #88ceff55;padding:10px 17px;font-size:14px;font-weight:700;transition:transform .17s,box-shadow .18s,background .18s}
+.fk-courses-primary{background:linear-gradient(115deg,#37aeef,#48c6ff);color:#061a37;border-color:#79d7ff;box-shadow:0 8px 22px #17aaff2b}
+.fk-courses-outline{background:#ffffff14;color:#e9f4ff;backdrop-filter:blur(10px)}
+.fk-courses-primary:active,.fk-courses-outline:active{transform:scale(.965)}
+.fk-courses-hero-art{position:relative;height:230px;display:grid;place-items:center}
+.fk-courses-hero-orbit{width:154px;height:154px;transform:rotate(-8deg);display:grid;place-items:center;border:1px solid #9acfff77;border-radius:39px;color:#b5e8ff;background:linear-gradient(148deg,#267eb2,#133a70 61%,#131e4b);box-shadow:inset 3px 3px 4px #ffffff33,inset -6px -8px 16px #02082780,0 17px 30px #0006,0 0 0 9px #4cabe00b}
+.fk-courses-hero-orbit:before{content:"";position:absolute;inset:-20px;border:1px solid #ffffff1d;border-radius:56px;transform:rotate(18deg);z-index:-1}
+.fk-courses-hero-mini{position:absolute;width:52px;height:52px;border-radius:17px;display:grid;place-items:center;border:1px solid #bce6ff7a;background:linear-gradient(150deg,#346fc0,#1a2e6d);color:#c9f2ff;box-shadow:inset 2px 2px 3px #fff3,0 7px 20px #0006}
+.fk-courses-hero-mini.a{top:5%;right:5%}.fk-courses-hero-mini.b{bottom:6%;left:8%;background:linear-gradient(145deg,#a45692,#4d3674)}.fk-courses-hero-mini.c{top:6%;left:0%;background:linear-gradient(145deg,#3ea6a5,#165a66)}
+.fk-courses-snapshot{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.fk-courses-snapshot>div{border:1px solid var(--line);border-radius:22px;background:var(--surface);padding:19px 20px;min-height:125px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;box-shadow:var(--shadow)}
+.fk-courses-snapshot small{font-size:13px;color:var(--muted)}.fk-courses-snapshot strong{font:750 28px Inter,'Tajawal',sans-serif;color:var(--ink);line-height:1.45}
+.fk-courses-stat-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:14px;margin-bottom:3px;background:linear-gradient(145deg,#277eae,#193765);color:#95dcff;box-shadow:inset 1px 1px 2px #ffffff30,0 4px 9px #0001}
+.fk-courses-stat-icon.lilac{background:linear-gradient(145deg,#8260ae,#343566);color:#e2d1ff}.fk-courses-stat-icon.rose{background:linear-gradient(145deg,#b45582,#5c2c67);color:#ffe1e8}
+.fk-courses-resume{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:17px;border:1px solid #4388be83;background:linear-gradient(135deg,#182e55,#101d42 78%,#18244a);padding:20px 22px;border-radius:25px;color:#eff7ff}
+.fk-courses-resume-icon{display:grid;place-items:center;width:65px;height:65px;background:linear-gradient(150deg,#2a8abb,#103662);border:1px solid #8bd2ff99;border-radius:21px;color:#bfefff;box-shadow:inset 2px 2px 3px #ffffff22,0 6px 15px #04132877}
+.fk-courses-resume-info{min-width:0;display:grid;gap:2px}.fk-courses-resume-info>span{font-size:12px;color:#6bd2ff;font-weight:700}
+.fk-courses-resume-info strong{font-size:18px;line-height:1.7;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fk-courses-resume-info small{font-size:12px;color:#aebfdd}
+.fk-courses-resume button{min-height:44px;display:flex;align-items:center;justify-content:center;gap:8px;color:#d3ebff;background:#ffffff13;border:1px solid #88b8e75c;border-radius:13px;padding:10px 16px;font-weight:650}
+.fk-courses-resume button:active{transform:scale(.97)}
+.fk-courses-section-bar{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding:11px 0 0}
+.fk-courses-section-bar h2{font:800 26px Tajawal,'IBM Plex Sans Arabic',sans-serif;margin:7px 0 0;color:var(--ink)}.fk-courses-library-hint{color:var(--muted);font-size:12px}
+.fk-courses-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:var(--soft);border:1px solid var(--line);border-radius:20px;padding:6px}
+.fk-courses-switch button{display:flex;align-items:center;justify-content:center;gap:10px;background:transparent;color:var(--muted);border:1px solid transparent;border-radius:16px;min-height:51px;font-size:15px;font-weight:650;padding:8px 10px}
+.fk-courses-switch button.active{background:var(--surface);border-color:color-mix(in srgb,var(--teal) 50%,var(--line));color:var(--teal);box-shadow:0 6px 20px #060f3418}
+.fk-courses-switch button span{display:inline-flex;align-items:center;justify-content:center;min-width:27px;height:25px;background:var(--accent-soft);border-radius:9px;font:700 12px Inter,sans-serif}
+.fk-courses-search-panel{display:grid;gap:14px}
+.fk-courses-search{display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:0 15px;border-radius:17px;min-height:56px;box-shadow:var(--shadow)}
+.fk-courses-search>input{outline:none;border:0;background:none;flex:1;min-width:0;max-width:100%;font-size:14px;color:var(--ink)}.fk-courses-search>input::placeholder{color:var(--muted)}
+.fk-courses-search>button{display:grid;place-items:center;border:0;background:var(--soft);color:var(--muted);border-radius:9px;width:32px;height:32px}
+.fk-courses-selects{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.fk-courses-selects label{display:flex;align-items:center;gap:8px;border-radius:14px;border:1px solid var(--line);background:var(--surface);padding:0 11px;min-width:0;color:var(--teal);min-height:47px}
+.fk-courses-selects select{color:var(--ink);border:0;outline:none;background:transparent;min-width:0;width:100%;font-size:12px;text-overflow:ellipsis;cursor:pointer}
+.fk-courses-chips{display:flex;gap:8px;overflow-x:auto;padding:1px 2px 5px;scrollbar-width:thin}
+.fk-courses-chips button{flex:0 0 auto;display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:99px;min-height:40px;padding:7px 14px;font-size:12px}
+.fk-courses-chips button.active{color:var(--teal);background:var(--accent-soft);border-color:color-mix(in srgb,var(--teal) 42%,var(--line));font-weight:700}
+.fk-courses-results-head{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--muted);font-size:12px}.fk-courses-results-head b{color:var(--ink);font-weight:750}
+.fk-courses-results-head button{display:flex;align-items:center;gap:4px;color:var(--teal);border:0;background:transparent;font-size:12px}
+.fk-courses-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.fk-courses-card{min-width:0;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:var(--shadow);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.fk-courses-card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--teal) 42%,var(--line));box-shadow:0 14px 24px #020b2620}
+.fk-courses-cover{position:relative;min-height:166px;overflow:hidden;display:grid;place-items:center;background:radial-gradient(ellipse at 10% 90%,#33a9e444,transparent 45%),linear-gradient(120deg,#254c83,#1b3158);color:#c1f0ff}
+.fk-courses-cover:after{position:absolute;content:"";inset:0;pointer-events:none;background:repeating-linear-gradient(125deg,#ffffff0b 0 1px,transparent 1px 43px);opacity:.6}
+.fk-courses-cover.fk-courses-purple{background:radial-gradient(ellipse at 12% 92%,#aa7de366,transparent 48%),linear-gradient(120deg,#594e99,#262c61);color:#e7dbff}
+.fk-courses-cover.fk-courses-amber{background:radial-gradient(ellipse at 15% 92%,#ffc47e77,transparent 48%),linear-gradient(120deg,#986e55,#654960);color:#ffe0bb}
+.fk-courses-cover.fk-courses-teal{background:radial-gradient(ellipse at 15% 92%,#3af5cd44,transparent 48%),linear-gradient(120deg,#246c7b,#1b4d68);color:#c3ffef}
+.fk-courses-cover-symbol{position:relative;width:130px;height:130px;display:grid;place-items:center;border:1px solid #ffffff32;border-radius:39px;transform:rotate(-13deg);background:#ffffff0c;box-shadow:0 0 0 14px #ffffff08}
+.fk-courses-cover-symbol svg{filter:drop-shadow(0 6px 7px #0004)}.fk-courses-cover-symbol span{position:absolute;inset:13px;border:1px solid #ffffff22;border-radius:30px}
+.fk-courses-cover-tag,.fk-courses-cover-wordmark{position:absolute;z-index:1;color:#f8fbff}.fk-courses-cover-tag{top:15px;right:16px;border:1px solid #ffffff5c;background:#ffffff24;backdrop-filter:blur(9px);border-radius:99px;padding:5px 11px;font-size:11px}
+.fk-courses-cover-wordmark{bottom:13px;left:18px;letter-spacing:1.8px;direction:ltr;font:700 10px Inter,sans-serif}
+.fk-courses-favorite{z-index:2;position:absolute;top:12px;left:13px;display:grid;place-items:center;width:41px;height:41px;color:white;background:#071b4170;border:1px solid #ffffff4e;border-radius:13px;backdrop-filter:blur(9px)}
+.fk-courses-favorite.is-on{color:#ffc4d4;background:#8e315e88}
+.fk-courses-card-content{display:flex;flex-direction:column;flex:1;gap:10px;padding:18px}
+.fk-courses-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.fk-courses-access{font-size:11px;color:var(--teal);border:1px solid var(--line);background:var(--soft);padding:3px 8px;border-radius:8px}
+.fk-courses-access.is-active{color:#1ac19b;border-color:#159b7950;background:#118d7430}
+.fk-courses-access.is-expired{color:#f7a86b;border-color:#e28b5e40;background:#a5543422}
+.fk-courses-card h3{font:800 22px Tajawal,'IBM Plex Sans Arabic',sans-serif;margin:0;color:var(--ink);line-height:1.4;overflow-wrap:anywhere}
+.fk-courses-card-content>p{font-size:12px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.9;min-height:45px;margin:0}
+.fk-courses-meta{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:12px}.fk-courses-meta span{display:inline-flex;align-items:center;gap:6px}
+.fk-courses-card-progress{display:grid;gap:7px;background:var(--soft);border-radius:12px;padding:10px 12px}
+.fk-courses-progress-label{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:11px}.fk-courses-progress-label b{color:var(--teal);font:750 12px Inter,sans-serif}
+.fk-courses-meter{background:var(--line);height:6px;border-radius:20px;overflow:hidden}.fk-courses-meter>span{display:block;height:100%;background:linear-gradient(90deg,#318fe3,#53dcff);border-radius:20px;transition:width .23s ease}
+.fk-courses-card-progress small{font-size:10px;color:var(--muted);line-height:1.5}
+.fk-courses-expiry{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.fk-courses-card-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:12px;border-top:1px solid var(--line);margin-top:auto}
+.fk-courses-card-footer strong{font-size:13px;color:var(--ink)}
+.fk-courses-card-open{display:flex;align-items:center;justify-content:center;gap:5px;background:var(--accent-soft);color:var(--teal);border:1px solid color-mix(in srgb,var(--teal) 28%,var(--line));border-radius:11px;padding:8px 10px;min-height:40px;font-size:12px;font-weight:700}
+.fk-courses-empty{display:flex;align-items:center;flex-direction:column;justify-content:center;gap:12px;text-align:center;background:var(--surface);border:1px dashed var(--line);border-radius:25px;padding:52px 24px;min-height:270px}
+.fk-courses-empty>span{width:73px;height:73px;background:var(--accent-soft);display:grid;place-items:center;border-radius:23px;color:var(--teal)}
+.fk-courses-empty h3{color:var(--ink);font-size:19px;margin:0}.fk-courses-empty p{font-size:13px;color:var(--muted);margin:0}
+.fk-courses-empty button{display:flex;align-items:center;gap:8px;background:var(--accent-soft);color:var(--teal);border:1px solid var(--line);border-radius:12px;min-height:44px;padding:9px 18px;font-weight:700}
+.fk-courses-footnote{display:flex;align-items:center;gap:7px;flex-wrap:wrap;color:var(--muted);font-size:11px;margin:0}
+.fk-courses-demo-note{display:flex;align-items:center;gap:12px;background:linear-gradient(110deg,#1b3c69,#20305c);border:1px solid #538fc0a5;color:#d1e9fb;border-radius:19px;padding:14px 17px;font-size:13px}
+.fk-courses-demo-note b{color:#7bd1ff}.fk-courses-demo-note svg{flex-shrink:0;color:#60c7ff}
+.fk-courses-inline-notice{display:flex;align-items:center;justify-content:space-between;color:var(--ink);background:var(--accent-soft);padding:10px 15px;border-radius:11px}
+.fk-courses-inline-notice button{border:0;background:none}
+@media(min-width:1250px){.fk-courses-cards{grid-template-columns:repeat(3,minmax(0,1fr))}.fk-courses-card h3{font-size:20px}}
+@media(max-width:900px){.fk-courses-hero{grid-template-columns:minmax(0,1.5fr) 150px;padding:27px;min-height:265px}.fk-courses-hero-art{height:170px}.fk-courses-hero-orbit{width:122px;height:122px}.fk-courses-hero-mini{width:39px;height:39px}.fk-courses-card h3{font-size:19px}}
+@media(max-width:620px){
+ .fk-courses-v1031{gap:17px;padding-bottom:24px}
+ .fk-courses-hero{display:flex;flex-direction:column;align-items:stretch;min-height:0;padding:25px 22px 21px;border-radius:26px;gap:4px}
+ .fk-courses-hero-copy{z-index:1}.fk-courses-hero h1{font-size:26px;margin:12px 0 7px}
+ .fk-courses-hero p{font-size:13px;margin:0 0 16px}.fk-courses-hero-art{position:absolute;left:-28px;top:3px;width:138px;height:140px;opacity:.35;z-index:0}
+ .fk-courses-hero-orbit{width:103px;height:103px;border-radius:29px}.fk-courses-hero-orbit svg{width:60px;height:60px}
+ .fk-courses-hero-mini{display:none}.fk-courses-primary,.fk-courses-outline{min-height:44px;padding:8px 14px;font-size:12px}
+ .fk-courses-snapshot{gap:9px}.fk-courses-snapshot>div{min-height:110px;border-radius:16px;padding:12px 11px}.fk-courses-stat-icon{width:34px;height:34px;border-radius:11px}
+ .fk-courses-snapshot small{font-size:11px;line-height:1.45}.fk-courses-snapshot strong{font-size:24px}
+ .fk-courses-resume{gap:10px;padding:14px 12px;border-radius:18px}
+ .fk-courses-resume-icon{width:47px;height:47px;border-radius:15px}.fk-courses-resume-info strong{font-size:15px}.fk-courses-resume-info small{font-size:11px}
+ .fk-courses-resume button{padding:9px;min-width:44px;font-size:0}.fk-courses-resume button svg{font-size:initial}
+ .fk-courses-section-bar h2{font-size:23px}.fk-courses-switch button{font-size:12px;gap:6px;min-height:46px}.fk-courses-switch button span{height:23px;min-width:23px;font-size:11px}
+ .fk-courses-search{min-height:51px}.fk-courses-selects{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .fk-courses-selects label:last-child{grid-column:1/-1}.fk-courses-selects label{min-height:46px}
+ .fk-courses-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .fk-courses-cover{min-height:133px}.fk-courses-cover-symbol{width:92px;height:92px;border-radius:26px}.fk-courses-cover-symbol svg{width:53px;height:53px}
+ .fk-courses-cover-tag{right:8px;top:9px;font-size:9px;padding:4px 7px}.fk-courses-favorite{width:34px;height:34px;top:7px;left:7px}
+ .fk-courses-cover-wordmark{font-size:8px;letter-spacing:.7px;left:8px;bottom:9px}
+ .fk-courses-card{border-radius:19px}.fk-courses-card-content{gap:7px;padding:12px 10px}
+ .fk-courses-card h3{font-size:16px;line-height:1.43}.fk-courses-card-content>p{font-size:11px;min-height:42px}
+ .fk-courses-card-top{font-size:10px;align-items:flex-start;flex-wrap:wrap}.fk-courses-access{font-size:9px}
+ .fk-courses-meta{gap:5px;font-size:10px;flex-direction:column}
+ .fk-courses-card-footer{align-items:flex-start;flex-direction:column;gap:9px}.fk-courses-card-open{width:100%;justify-content:center;font-size:11px}
+ .fk-courses-card-progress{padding:8px 7px}.fk-courses-card-progress small{font-size:9px}
+ .fk-courses-expiry{font-size:10px}.fk-courses-footnote{padding:0 2px}
+}
+@media(max-width:360px){.fk-courses-hero h1{font-size:23px}.fk-courses-snapshot>div{padding:10px 8px}.fk-courses-snapshot small{font-size:10px}.fk-courses-switch{gap:4px}.fk-courses-switch button{padding:7px 4px;font-size:11px}.fk-courses-card-content{padding:10px 8px}.fk-courses-access{max-width:100%;overflow-wrap:anywhere}}
+@media(prefers-reduced-motion:reduce){.fk-courses-v1031,.fk-courses-v1031 *{animation:none!important;transition:none!important}}
+
+
+/* Farmakon V10.3.1 — screenshot-driven UI polish (mobile-first + accessible glass sheet)
+ * Scoped under .fk-courses-polish. Unrelated Farmakon/owner screens stay unchanged.
+ */
+.fk-courses-polish{gap:17px;max-width:1200px;padding-block-end:clamp(52px,8vw,90px);animation:none;transform:none}
+.fk-courses-polish .fk-courses-demo-note{padding:11px 14px;border-radius:15px;line-height:1.7;font-size:12px}
+.fk-courses-polish .fk-courses-hero{min-height:235px;grid-template-columns:minmax(0,1fr) 185px;padding:24px 31px;gap:5px;border-radius:26px}
+.fk-courses-polish .fk-courses-hero h1{font-size:clamp(23px,2.8vw,33px);line-height:1.52;margin:8px 0 7px}
+.fk-courses-polish .fk-courses-hero p{font-size:13px;margin:0 0 13px;line-height:1.8}
+.fk-courses-polish .fk-courses-primary{min-height:42px;padding:8px 16px;border-radius:13px}
+.fk-courses-polish .fk-courses-hero-art{height:185px}
+.fk-courses-polish .fk-courses-hero-orbit{width:127px;height:127px;border-radius:35px}
+.fk-courses-polish .fk-courses-hero-orbit svg{width:69px;height:69px}
+.fk-courses-polish .fk-courses-hero-mini{height:42px;width:42px;border-radius:14px}
+.fk-courses-polish .fk-courses-snapshot{gap:12px}
+.fk-courses-polish .fk-courses-snapshot>div{position:relative;min-width:0;min-height:99px;border-radius:18px;display:grid;grid-template-columns:44px 1fr;grid-template-rows:auto auto;align-items:center;column-gap:11px;row-gap:1px;padding:13px 14px}
+.fk-courses-polish .fk-courses-stat-icon,.fk-courses-polish .fk-courses-stat-ring{grid-row:1/3;width:43px;height:43px;margin:0;border-radius:14px}
+.fk-courses-polish .fk-courses-snapshot small{font-size:12px;line-height:1.35;align-self:end;overflow-wrap:break-word}
+.fk-courses-polish .fk-courses-snapshot strong{font-size:23px;line-height:1.4;align-self:start}
+.fk-courses-stat-ring{display:grid;place-items:center;color:#d7f3ff;padding:3px;box-shadow:0 6px 12px #061a3022}
+.fk-courses-stat-ring>span{display:grid;place-items:center;background:linear-gradient(140deg,#266caa,#19376e);width:100%;height:100%;border-radius:11px}
+.fk-courses-polish .fk-courses-resume{min-height:91px;gap:12px;padding:14px 17px;border-radius:19px}
+.fk-courses-polish .fk-courses-resume-icon{width:56px;height:56px;border-radius:16px}
+.fk-courses-polish .fk-courses-resume-info strong{font-size:17px}
+.fk-courses-polish .fk-courses-section-bar{padding-top:3px}
+.fk-courses-polish .fk-courses-section-bar h2{font-size:24px}
+.fk-courses-polish .fk-courses-switch{border-radius:16px}
+.fk-courses-polish .fk-courses-switch button{min-height:46px;border-radius:13px}
+.fk-courses-polish .fk-courses-search-panel{gap:9px}
+.fk-courses-search-row{display:flex;align-items:stretch;gap:10px}
+.fk-courses-polish .fk-courses-search{min-width:0;flex:1;min-height:49px;border-radius:15px}
+.fk-courses-filter-trigger{display:flex;align-items:center;justify-content:center;gap:8px;min-width:105px;min-height:49px;padding:8px 13px;border-radius:14px;border:1px solid color-mix(in srgb,var(--teal) 40%,var(--line));color:var(--teal);background:var(--surface);font-weight:750;font-size:13px;box-shadow:var(--shadow);transition:transform .14s ease,background .18s ease}
+.fk-courses-filter-trigger:active{transform:scale(.96)}
+.fk-courses-filter-badge{display:grid;place-items:center;min-width:23px;height:23px;font:750 12px Inter,sans-serif;border-radius:8px;background:var(--accent-soft);color:var(--teal)}
+.fk-courses-polish .fk-courses-chips{padding:1px 0 5px;gap:7px;scroll-padding-inline:10px;overscroll-behavior-x:contain}
+.fk-courses-polish .fk-courses-chips button{min-height:41px;border-radius:13px;white-space:nowrap}
+.fk-courses-polish .fk-courses-results-head{margin-top:0;padding-top:1px}
+.fk-courses-polish .fk-courses-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
+.fk-courses-polish .fk-courses-cover{min-height:182px;aspect-ratio:1.75/1;isolation:isolate}
+.fk-courses-polish .fk-courses-cover-img{position:absolute;inset:0;height:100%;width:100%;object-fit:cover;z-index:0;filter:saturate(.9)}
+.fk-courses-polish .fk-courses-cover.has-image:before{content:"";position:absolute;z-index:1;inset:0;background:linear-gradient(to bottom,#08112615,#08112688)}
+.fk-courses-polish .fk-courses-cover.has-image .fk-courses-cover-tag,.fk-courses-polish .fk-courses-cover.has-image .fk-courses-cover-wordmark{z-index:2}
+.fk-courses-polish .fk-courses-cover .fk-courses-favorite{z-index:4;min-width:44px;min-height:44px;top:12px;left:12px;border-radius:14px}
+.fk-courses-polish .fk-courses-card{border-radius:23px}
+.fk-courses-polish .fk-courses-card-content{gap:9px;padding:17px 19px}
+.fk-courses-polish .fk-courses-card h3{font-size:21px}
+.fk-courses-polish .fk-courses-card-content>p{font-size:13px;min-height:39px;line-height:1.7}
+.fk-courses-polish .fk-courses-meta{gap:16px}
+.fk-courses-polish .fk-courses-meta span{gap:7px}
+.fk-courses-polish .fk-courses-card-footer{flex-direction:row;align-items:center;padding-top:12px;gap:10px}
+.fk-courses-polish .fk-courses-card-open{min-height:44px;padding:10px 14px;border-radius:13px}
+.fk-courses-polish .fk-courses-card-progress{padding:11px 13px;gap:9px}
+.fk-courses-polish .fk-courses-meter{height:7px}
+.fk-courses-polish .fk-courses-footnote{margin:4px 0;line-height:1.7}
+.fk-courses-polish .fk-ltr-chevron{transform:rotate(180deg)}
+.fk-courses-polish[dir=ltr] .fk-courses-hero h1{font-family:Inter,Tajawal,sans-serif}
+.fk-courses-polish[dir=ltr] .fk-courses-section-bar h2,.fk-courses-polish[dir=ltr] .fk-courses-card h3{font-family:Inter,Tajawal,sans-serif}
+/* Modal remains above both header and dock while filtering. */
+.fk-courses-filter-shade{position:fixed;inset:0;z-index:180;background:rgba(2,7,25,.76);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:fk-show .2s ease both}
+.fk-courses-filter-sheet{position:fixed;z-index:181;inset-inline:12px;bottom:12px;max-width:530px;margin-inline:auto;max-height:min(83dvh,710px);overflow:auto;overscroll-behavior:contain;border-radius:30px;border:1px solid rgba(125,191,248,.36);background:linear-gradient(138deg,rgba(28,43,82,.97),rgba(11,21,53,.98));box-shadow:0 30px 90px rgba(0,0,0,.56),inset 0 1px 0 #ffffff20;color:#edf6ff;padding:12px 19px calc(19px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+.fk-courses-filter-grab{width:45px;height:5px;border-radius:100px;background:#a9c5e078;margin:0 auto 16px}
+.fk-courses-filter-head{display:flex;align-items:start;justify-content:space-between;gap:15px;margin-bottom:19px}
+.fk-courses-filter-head h3{font:800 23px Tajawal,sans-serif;margin:0 0 5px;color:#f3f9ff}
+.fk-courses-filter-head p{color:#b6c7e1;font-size:12px;margin:0;line-height:1.75}
+.fk-courses-filter-head>button{flex:0 0 43px;display:grid;place-items:center;width:43px;height:43px;border:1px solid #ffffff26;border-radius:14px;color:#d5e6fa;background:#ffffff16}
+.fk-courses-filter-body{display:grid;gap:11px}
+.fk-courses-filter-body label{display:grid;gap:8px;background:#ffffff0d;border:1px solid #ffffff24;border-radius:17px;padding:12px 15px;color:#eff7ff}
+.fk-courses-filter-body label span{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700}
+.fk-courses-filter-body label svg{color:#65c7ff}
+.fk-courses-filter-body select{display:block;min-height:45px;width:100%;border:1px solid #ffffff30;border-radius:11px;background:#0b193a;color:#eff7ff;font:500 13px Tajawal,sans-serif;padding:9px 11px;appearance:auto;direction:inherit}
+.fk-courses-filter-body select option{background:#0b193a;color:#eff7ff}
+.fk-courses-filter-fav{min-height:49px;display:flex;align-items:center;gap:10px;background:#ffffff0d;border:1px solid #ffffff22;border-radius:15px;color:#fff;padding:11px 14px}
+.fk-courses-filter-fav.is-active{background:rgba(76,182,255,.12);border-color:#5cbbf88c}
+.fk-courses-filter-fav>span{margin-inline-start:auto}
+.fk-courses-filter-actions{display:flex;gap:10px;margin-top:18px}
+.fk-courses-filter-actions button{display:flex;align-items:center;justify-content:center;gap:9px;min-height:48px;border-radius:14px;font-size:14px;font-weight:800}
+.fk-courses-filter-clear{flex:0 0 36%;background:#ffffff10;color:#e3edff;border:1px solid #ffffff3a}
+.fk-courses-filter-apply{flex:1;color:#071a37;border:1px solid #95dfff;background:linear-gradient(110deg,#34b1f6,#58cbff);box-shadow:0 8px 25px #31b8ff28}
+@media(min-width:1250px){.fk-courses-polish .fk-courses-cards{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:900px){.fk-courses-polish .fk-courses-hero{min-height:190px;grid-template-columns:minmax(0,1fr) 135px;padding:23px}.fk-courses-polish .fk-courses-hero-art{height:140px}.fk-courses-polish .fk-courses-hero-orbit{width:110px;height:110px}}
+@media(max-width:700px){
+ .fk-courses-polish{gap:14px;padding-block-end:calc(145px + env(safe-area-inset-bottom));max-width:100%;min-width:0}
+ .fk-courses-polish .fk-courses-demo-note{font-size:11px;padding:9px 11px;line-height:1.55}
+ .fk-courses-polish .fk-courses-hero{min-height:0;grid-template-columns:1fr;padding:19px 20px 17px;border-radius:22px}
+ .fk-courses-polish .fk-courses-hero-copy{position:relative;z-index:2}
+ .fk-courses-polish .fk-courses-hero h1{font-size:clamp(22px,5.9vw,27px);margin:7px 0 5px;line-height:1.45;max-width:90%}
+ .fk-courses-polish .fk-courses-hero p{font-size:12px;line-height:1.7;margin:0 0 11px;max-width:92%}
+ .fk-courses-polish .fk-courses-hero .fk-courses-kicker{font-size:9px}
+ .fk-courses-polish .fk-courses-primary{min-height:40px;padding:7px 13px;font-size:12px}
+ .fk-courses-polish .fk-courses-hero-art{position:absolute;top:8px;inset-inline-end:-27px;width:120px;height:123px;opacity:.22}
+ .fk-courses-polish .fk-courses-hero-orbit{width:103px;height:103px}
+ .fk-courses-polish .fk-courses-hero-mini{display:none}
+ .fk-courses-polish .fk-courses-snapshot{gap:8px}
+ .fk-courses-polish .fk-courses-snapshot>div{min-height:88px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;padding:9px 5px;border-radius:17px}
+ .fk-courses-polish .fk-courses-stat-icon,.fk-courses-polish .fk-courses-stat-ring{width:34px;height:34px;border-radius:11px}
+ .fk-courses-polish .fk-courses-stat-ring{border-radius:12px}.fk-courses-polish .fk-courses-stat-ring span{border-radius:9px}
+ .fk-courses-polish .fk-courses-stat-icon svg{width:18px;height:18px}
+ .fk-courses-polish .fk-courses-snapshot small{font-size:10px;line-height:1.3;min-height:24px;align-self:center}
+ .fk-courses-polish .fk-courses-snapshot strong{font-size:22px;align-self:center}
+ .fk-courses-polish .fk-courses-resume{grid-template-columns:50px minmax(0,1fr) auto;min-height:80px;gap:10px;padding:12px;border-radius:18px}
+ .fk-courses-polish .fk-courses-resume-icon{width:50px;height:50px}
+ .fk-courses-polish .fk-courses-resume-info strong{font-size:15px}
+ .fk-courses-polish .fk-courses-resume button{font-size:0;min-width:44px;width:44px;height:44px;padding:0}
+ .fk-courses-polish .fk-courses-section-bar h2{font-size:22px}
+ .fk-courses-polish .fk-courses-section-bar .fk-courses-kicker{font-size:10px}
+ .fk-courses-polish .fk-courses-switch{padding:5px}
+ .fk-courses-polish .fk-courses-switch button{min-height:48px;gap:5px;font-size:12px}
+ .fk-courses-polish .fk-courses-search-row{gap:8px}
+ .fk-courses-polish .fk-courses-search{min-height:51px;padding:0 11px;border-radius:14px}
+ .fk-courses-polish .fk-courses-search>input{font-size:13px}
+ .fk-courses-polish .fk-courses-filter-trigger{flex:0 0 auto;min-width:86px;padding:8px 10px;min-height:51px;font-size:12px;border-radius:14px;gap:5px}
+ .fk-courses-polish .fk-courses-chips{gap:6px}
+ .fk-courses-polish .fk-courses-chips button{min-height:40px;border-radius:13px;padding:6px 13px;font-size:12px}
+ .fk-courses-polish .fk-courses-cards{grid-template-columns:minmax(0,1fr);gap:15px}
+ .fk-courses-polish .fk-courses-card{display:flex;flex-direction:column;border-radius:22px;min-width:0}
+ .fk-courses-polish .fk-courses-cover{min-height:0;aspect-ratio:16/8.3}
+ .fk-courses-polish .fk-courses-cover-symbol{width:125px;height:125px;border-radius:37px}
+ .fk-courses-polish .fk-courses-cover-symbol svg{width:65px;height:65px}
+ .fk-courses-polish .fk-courses-cover-tag{font-size:11px;padding:5px 10px;right:13px;top:12px}
+ .fk-courses-polish .fk-courses-cover-wordmark{font-size:10px;letter-spacing:1.25px;left:13px;bottom:12px}
+ .fk-courses-polish .fk-courses-cover .fk-courses-favorite{width:44px;height:44px;top:10px;left:10px}
+ .fk-courses-polish .fk-courses-card-content{padding:17px 18px;gap:11px}
+ .fk-courses-polish .fk-courses-card h3{font-size:21px;line-height:1.47}
+ .fk-courses-polish .fk-courses-card-content>p{font-size:13px;min-height:0}
+ .fk-courses-polish .fk-courses-card-top{font-size:12px;flex-wrap:nowrap}
+ .fk-courses-polish .fk-courses-access{font-size:11px}
+ .fk-courses-polish .fk-courses-meta{flex-direction:row;gap:16px;font-size:12px}
+ .fk-courses-polish .fk-courses-card-footer{flex-direction:row;align-items:center;gap:10px}
+ .fk-courses-polish .fk-courses-card-open{width:auto;min-height:44px;font-size:13px;gap:7px;padding:10px 15px}
+ .fk-courses-polish .fk-courses-card-footer strong{font-size:13px}
+ .fk-courses-polish .fk-courses-card-progress{padding:11px 12px;gap:8px}
+ .fk-courses-polish .fk-courses-card-progress small{font-size:11px}
+ .fk-courses-polish .fk-courses-progress-label{font-size:12px}
+ .fk-courses-polish .fk-courses-expiry{font-size:11px}
+}
+@media(max-width:355px){
+ .fk-courses-polish .fk-courses-hero h1{font-size:21px}
+ .fk-courses-polish .fk-courses-snapshot small{font-size:9px}
+ .fk-courses-polish .fk-courses-switch button{font-size:11px;padding:6px 3px}
+ .fk-courses-polish .fk-courses-section-bar .fk-courses-library-hint{font-size:10px}
+ .fk-courses-polish .fk-courses-filter-trigger{min-width:48px}
+ .fk-courses-polish .fk-courses-filter-trigger>span:not(.fk-courses-filter-badge){display:none}
+ .fk-courses-polish .fk-courses-card-footer{gap:7px}
+ .fk-courses-polish .fk-courses-card-open{padding:10px;font-size:12px}
+}
+@media(min-width:760px){.fk-courses-polish{padding-bottom:35px}}
+@media(prefers-reduced-motion:reduce){.fk-courses-polish,.fk-courses-polish *,.fk-courses-filter-shade,.fk-courses-filter-sheet{animation:none!important;transition:none!important}}
+@media(prefers-reduced-transparency:reduce){.fk-courses-filter-sheet{background:#0e193b;backdrop-filter:none}.fk-courses-filter-shade{backdrop-filter:none}}
+@supports not (backdrop-filter:blur(1px)){.fk-courses-filter-shade{backdrop-filter:none}.fk-courses-filter-sheet{background:#0e193b}}
+
+/* Completion state is separate from subscription status. */
+.fk-courses-polish .fk-courses-study-state{font-weight:750;color:var(--teal)}
+
+
+/* FARMAKON V10.3.1 / Icon & Interaction Polish
+   Native-feeling, not an imitation of proprietary Apple assets:
+   one rounded outline geometry, readable active states and soft glass feature icons.
+   Applied only to current V10 header/dock and Courses surfaces.
+*/
+.fk-header-v2{--fk-icon-stroke:1.95}
+.fk-header-v2 .fk-header-actions{gap:8px}
+.fk-header-v2 :is(.fk-nav-trigger,.fk-header-action,.fk-header-profile){
+ border-radius:15px;
+ min-width:44px;min-height:44px;width:44px;height:44px;
+ background:linear-gradient(148deg,color-mix(in srgb,var(--surface) 90%,white 10%),color-mix(in srgb,var(--surface) 96%,transparent));
+ border:1px solid color-mix(in srgb,var(--line) 73%,var(--teal) 27%);
+ box-shadow:inset 0 1px #ffffff10,0 4px 13px #07112f0e;
+ -webkit-tap-highlight-color:transparent;
+ touch-action:manipulation;
+ transition:transform 150ms cubic-bezier(.24,1.2,.25,1),background 210ms ease,border-color 210ms ease,box-shadow 210ms ease;
+}
+.fk-header-v2 .fk-header-profile{
+ background:linear-gradient(146deg,color-mix(in srgb,var(--accent-soft) 72%,var(--surface)),color-mix(in srgb,var(--surface) 66%,transparent));
+ color:var(--teal);
+}
+.fk-header-v2 :is(.fk-nav-trigger,.fk-header-action,.fk-header-profile) svg{
+ stroke-linecap:round;stroke-linejoin:round;
+ transition:transform 190ms cubic-bezier(.15,1.38,.3,1);
+}
+.fk-header-v2 :is(.fk-nav-trigger,.fk-header-action,.fk-header-profile):active{transform:scale(.935)}
+.fk-header-v2 :is(.fk-nav-trigger,.fk-header-action,.fk-header-profile):active svg{transform:scale(.92)}
+.fk-header-v2 :is(.fk-nav-trigger,.fk-header-action,.fk-header-profile):focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+/* Dock: transparent material, comfortably distinct glyphs.
+   Icons don't depend on colour alone: always pair with label. */
+.fk-app .mobile-dock.fk-dock-v2 .fk-dock-item{
+ overflow:visible;
+ gap:3px;min-height:63px;
+ -webkit-tap-highlight-color:transparent;
+}
+.fk-dock-glyph{position:relative;display:grid;place-items:center;
+ width:39px;height:35px;
+ border-radius:13px;
+ transition:transform 230ms cubic-bezier(.2,1.5,.34,1),background 230ms ease,box-shadow 230ms ease}
+.fk-dock-glyph svg{stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 3px #02092936)}
+.fk-app .mobile-dock.fk-dock-v2 .fk-dock-item.active .fk-dock-glyph{
+ background:linear-gradient(145deg,rgba(67,173,245,.2),rgba(43,104,181,.10));
+ box-shadow:inset 0 1px 0 rgba(170,228,255,.2),0 3px 15px rgba(47,151,235,.12);
+ transform:translateY(-2px) scale(1.055);
+}
+.fk-app .mobile-dock.fk-dock-v2 .fk-dock-item.active .fk-dock-glyph svg{
+ filter:drop-shadow(0 0 6px #3abaff6a);
+}
+.fk-app .mobile-dock.fk-dock-v2 .fk-dock-item:active .fk-dock-glyph{transform:scale(.87)}
+.fk-app .mobile-dock.fk-dock-v2 .fk-dock-caption{
+ font-size:12px;line-height:1.35;letter-spacing:0;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;
+}
+.fk-app .mobile-dock.fk-dock-v2 .fk-dock-item.active .fk-dock-caption{
+ color:var(--teal);font-weight:750;
+}
+.fk-app .fk-sheet-icon svg{stroke-linecap:round;stroke-linejoin:round}
+/* Persistent Favorite shortcut: fixes the clipped heart chip seen in screenshot. */
+.fk-courses-polish .fk-courses-filter-shortcuts{display:flex;align-items:center;gap:9px;min-width:0;max-width:100%;position:relative}
+.fk-courses-polish .fk-courses-chips{flex:1;min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;scroll-snap-type:x proximity;padding:3px 2px 7px;mask-image:linear-gradient(to right,transparent 0,#000 10px,#000 calc(100% - 10px),transparent 100%);-webkit-mask-image:linear-gradient(to right,transparent 0,#000 10px,#000 calc(100% - 10px),transparent 100%)}
+.fk-courses-polish .fk-courses-chips::-webkit-scrollbar{display:none}
+.fk-courses-polish .fk-courses-chips>button{scroll-snap-align:start;min-height:43px}
+.fk-courses-polish .fk-courses-chips:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:13px}
+.fk-courses-fav-pinned{flex:0 0 auto;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;gap:7px;
+ border:1px solid color-mix(in srgb,var(--line) 74%,#70b9fc 26%);
+ background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--soft) 80%,var(--surface)));
+ color:var(--muted);border-radius:14px;font:650 12px Tajawal,sans-serif;
+ padding:8px 13px;box-shadow:inset 0 1px #ffffff14;
+ transition:transform 170ms cubic-bezier(.17,1.42,.33,1),color 200ms,background 200ms;
+ white-space:nowrap;
+}
+.fk-courses-fav-pinned.active{color:#f48bb7;border-color:#df73ae88;background:linear-gradient(145deg,#782f5866,#311e5060)}
+.fk-courses-fav-pinned:active{transform:scale(.92)}
+/* Course images are semantic; only category-specific highlight controls their colour. */
+.fk-courses-polish .fk-course-discipline-icon{isolation:isolate;transform:rotate(-9deg);
+ border-width:1.5px;box-shadow:inset 0 2px 1px #ffffff48,inset -4px -5px 10px #03092273,0 12px 25px #0006,0 0 0 14px #ffffff08;
+ transition:transform 280ms cubic-bezier(.18,1.28,.35,1),box-shadow 280ms ease}
+.fk-courses-polish .fk-course-discipline-icon:before{content:"";position:absolute;inset:5px;z-index:0;pointer-events:none;
+ border-radius:inherit;background:radial-gradient(ellipse at 30% 10%,#ffffff23,transparent 58%)}
+.fk-courses-polish .fk-course-discipline-icon svg{z-index:1;filter:drop-shadow(0 5px 4px #0009);stroke-linecap:round;stroke-linejoin:round}
+.fk-courses-polish .fk-course-tone-cyan{color:#b0edff;background:linear-gradient(150deg,#338fbd,#16365c)}
+.fk-courses-polish .fk-course-tone-violet{color:#e6d4ff;background:linear-gradient(150deg,#8c71c9,#3b326e)}
+.fk-courses-polish .fk-course-tone-teal{color:#b3fff0;background:linear-gradient(150deg,#319998,#174f6a)}
+.fk-courses-polish .fk-course-tone-coral{color:#ffe4e7;background:linear-gradient(150deg,#c97591,#663052)}
+.fk-courses-polish .fk-course-tone-amber{color:#fff1c5;background:linear-gradient(150deg,#bf9561,#705274)}
+.fk-courses-polish .fk-courses-card:hover .fk-course-discipline-icon{transform:rotate(-7deg) translateY(-3px);box-shadow:inset 0 2px 1px #ffffff48,0 18px 28px #0004,0 0 0 14px #ffffff08}
+.fk-courses-polish .fk-courses-cover.has-image:has(img) .fk-courses-cover-wordmark{color:#f4fbff;text-shadow:0 2px 7px #071127}
+.fk-courses-polish .fk-courses-favorite{transition:transform 180ms cubic-bezier(.14,1.6,.26,1),color 170ms ease,background 170ms ease}
+.fk-courses-polish .fk-courses-favorite:active{transform:scale(.86)}
+.fk-courses-polish .fk-courses-favorite.is-on{animation:fk-icon-heart-pop 270ms cubic-bezier(.16,1.56,.36,1) both}
+@keyframes fk-icon-heart-pop{0%{transform:scale(.93)}55%{transform:scale(1.15)}100%{transform:scale(1)}}
+/* All actions: fluid touch without hiding labels or reducing target area. */
+.fk-courses-polish :is(.fk-courses-switch button,.fk-courses-filter-trigger,.fk-courses-primary,.fk-courses-card-open,.fk-courses-resume button,.fk-courses-chips button){
+ -webkit-tap-highlight-color:transparent;
+ touch-action:manipulation;
+ transition:transform 160ms cubic-bezier(.14,1.4,.27,1),background 200ms ease,border-color 200ms ease,box-shadow 200ms ease;
+}
+.fk-courses-polish :is(.fk-courses-switch button,.fk-courses-filter-trigger,.fk-courses-primary,.fk-courses-card-open,.fk-courses-resume button,.fk-courses-chips button):active{transform:scale(.955)}
+.fk-courses-polish :is(.fk-courses-filter-trigger,.fk-courses-card-open):focus-visible,.fk-courses-fav-pinned:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+.fk-courses-polish .fk-courses-card .fk-courses-meta svg{color:var(--teal)}
+.fk-courses-polish .fk-courses-stats-icon svg,.fk-courses-polish .fk-courses-stat-icon svg{stroke-width:1.95}
+.fk-courses-polish .fk-courses-card-footer strong{line-height:1.7}
+.fk-courses-polish .fk-courses-demo-note b{color:#99d9ff}
+.fk-courses-filter-shade{background:rgba(4,9,29,.72);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.fk-courses-filter-sheet{
+ background:linear-gradient(165deg,rgba(31,49,90,.97),rgba(10,18,48,.98));
+ border-color:#a7d6ff50;box-shadow:inset 0 2px 1px #ffffff19,0 28px 80px #0009;
+ animation:fk-filter-up 290ms cubic-bezier(.15,1,.28,1) both
+}
+@keyframes fk-filter-up{from{opacity:.8;transform:translateY(25px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+.fk-courses-filter-actions button:active{transform:scale(.975)}
+@media(max-width:700px){
+ .fk-courses-polish .fk-courses-fav-pinned{padding:8px 11px;gap:0;min-width:45px}
+ .fk-courses-polish .fk-courses-fav-pinned span{display:none}
+ .fk-courses-polish .fk-courses-filter-shortcuts{gap:6px}
+ .fk-courses-polish .fk-courses-cover .fk-course-discipline-icon{width:119px;height:119px}
+ .fk-courses-polish .fk-courses-cover .fk-course-discipline-icon svg{width:65px;height:65px}
+ .fk-courses-polish .fk-courses-card h3{font-size:20px}
+ .fk-courses-polish .fk-courses-hero h1{font-size:clamp(21px,5.8vw,27px)}
+ .fk-courses-polish .fk-courses-hero{padding:18px 20px 16px}
+ .fk-app .fk-dock-glyph{width:36px;height:34px}
+ .fk-app .mobile-dock.fk-dock-v2 .fk-dock-caption{font-size:11px}
+}
+@media(max-width:390px){
+ .fk-courses-polish .fk-courses-switch button{font-size:11px}
+ .fk-courses-polish .fk-courses-switch button svg{width:18px;height:18px}
+ .fk-courses-polish .fk-courses-stat-ring{width:34px;height:34px}
+}
+@media(prefers-reduced-motion:reduce){
+ .fk-courses-polish .fk-courses-favorite.is-on{animation:none!important}
+ .fk-courses-filter-sheet{animation:none!important}
+ .fk-courses-polish :is(button,.fk-course-discipline-icon),.fk-header-v2 button,.fk-app .mobile-dock.fk-dock-v2 .fk-dock-item,.fk-app .mobile-dock.fk-dock-v2 .fk-dock-glyph{transition:none!important;transform:none!important}
+}
+/* Avoid obscuring controls by overlapping bottom-sheets on small screens. */
+@media(max-height:620px){.fk-courses-filter-sheet{max-height:91dvh}}
