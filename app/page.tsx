@@ -1,5 +1,5 @@
 import {redirect,notFound} from 'next/navigation';
-import Farmakon from './platform';
+import StudentStagingReview from './staging/student-review';
 import {authClient} from '../lib/supabase/server';
 
 export const dynamic='force-dynamic';
@@ -13,5 +13,5 @@ export default async function StudentStagingHome(){
  const c=await authClient();
  const {data:{user},error}=await c.auth.getUser();
  if(error||!user?.email||!user.email_confirmed_at)redirect('/login');
- return <Farmakon authSessionKey={user.last_sign_in_at||''} startInLearning/>;
+ return <StudentStagingReview userName={String(user.user_metadata?.name||'')} userId={user.id} authSessionKey={user.last_sign_in_at||''}/>;
 }
