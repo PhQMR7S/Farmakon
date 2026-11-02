@@ -26,7 +26,7 @@ const motivations=[
  {title:'جاهز تضيف معلومة جديدة لرصيدك؟',subtitle:'ابدأ بما تقدر عليه اليوم، وخلي المراجعة عادة بسيطة.',icon:BookMarked},
  {title:'الخطوة الجاية أقرب مما تتوقع.',subtitle:'قسّم الدراسة إلى خطوات واضحة، وخلي التقدم مستمر.',icon:Heart}
 ];
-function firstName(name?:string){const cleaned=String(name||'').trim().replace(/\s+/g,' ').replace(/^(?:Dr\.?|Ph\.?|Mr\.?|Ms\.?)\s*/i,'');const first=cleaned.split(' ')[0]||'';return first.length>22?'':first}
+function firstName(name?:string){const cleaned=String(name||'').trim().replace(/\s+/g,' ').replace(/^(?:Dr\.?|Ph\.?|Mr\.?|Ms\.?)\s*/i,'');if(!cleaned||cleaned==='طالب Farmakon')return '';const first=cleaned.split(' ')[0]||'';return first.length>22?'':first}
 function greetingFor(hour:number){return hour>=5&&hour<12?'صباح الخير':hour>=12&&hour<17?'نهارك سعيد':hour>=17&&hour<23?'مساء الخير':'أهلاً بعودتك'}
 function lastTimestamp(row:RecordItem){return Number(row.updated||row.created||0)||0}
 function elapsed(seconds:number){const minutes=Math.floor((Number(seconds)||0)/60);return minutes>=60?`${Math.floor(minutes/60)} س و${minutes%60} د`:`${minutes} دقيقة`}
