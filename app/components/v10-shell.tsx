@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
-import {BookOpen,House,GraduationCap,Library,Menu,Search,ClipboardList,Users,Ticket,Layers,Wallet,ShieldCheck,Download,LifeBuoy,Settings,Sun,Moon,X,ChevronLeft,PlayCircle,FileText,RefreshCcw,BookMarked} from 'lucide-react';
+import {BookOpen,House,GraduationCap,Library,Menu,Search,ClipboardList,Users,Ticket,Layers,Wallet,ShieldCheck,Download,LifeBuoy,Settings,Sun,Moon,X,ChevronLeft,PlayCircle} from 'lucide-react';
 
 export type ShellPanel='search'|'learning'|'more'|null;
 export type SearchResult={id:string;title:string;kind:string;section:string;course?:Record<string,any>};
@@ -38,7 +38,7 @@ export function ShellLayers({panel,onClose,onNavigate,searchItems,theme,onTheme,
  const items=Array.from(dialog.current.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),a[href]'));if(!items.length)return;const first=items[0],last=items[items.length-1];
  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}};
  document.addEventListener('keydown',onKey);
- return()=>{cancelAnimationFrame(raf);document.removeEventListener('keydown',onKey);document.body.style.overflow=old;previous?.focus()}},[panel,onClose]);
+ return()=>{cancelAnimationFrame(raf);document.removeEventListener('keydown',onKey);document.body.style.overflow=old;previous?.focus()}},[panel]);
  if(!panel)return null;
  const go=(id:string,course?:Record<string,any>)=>{onClose();onNavigate(id,course)};
  const norm=q.trim().toLocaleLowerCase('ar');
