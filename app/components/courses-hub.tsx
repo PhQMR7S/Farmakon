@@ -9,6 +9,7 @@ export type CoursesHubProps={
  userId?:string;locale?:CourseLocale;isPreview?:boolean;
  onOpenCourse:(course:CourseRecord)=>void;
  onResumeLesson?:(lesson:CourseRecord,course:CourseRecord)=>void;
+ onModeChange?:(mode:'mine'|'explore')=>void;
  /** When provided, favorites are stored by authenticated user on the server. */
  onToggleFavorite?:(courseId:string,saved:boolean)=>Promise<void>;
 };
@@ -18,7 +19,7 @@ const color=(v:unknown)=>['blue','purple','amber','teal'].includes(String(v))?St
 const safeCover=(v:unknown)=>{const url=typeof v==='string'?v.trim():'';return (/^https:\/\/[a-z0-9.-]+(?:\/|$)/i.test(url)||(/^\/(?!\/)/.test(url)&&!url.includes('\\')))?url:null};
 
 export default function CoursesHub({
- courses,lessons,enrollments,activity,userId='preview',locale='ar',isPreview=false,onOpenCourse,onResumeLesson,onToggleFavorite
+ courses,lessons,enrollments,activity,userId='preview',locale='ar',isPreview=false,onOpenCourse,onResumeLesson,onToggleFavorite,onModeChange
 }:CoursesHubProps){
  const t=getCoursesCopy(locale),en=locale==='en';
  const [mode,setMode]=useState<Mode>('mine');
@@ -117,7 +118,7 @@ export default function CoursesHub({
   +(mode==='mine'?(mineFilter!=='all'?1:0):(pricing!=='all'?1:0))+(onlyFavorites?1:0);
  const hasFilters=!!query||countActive>0;
  function clearFilters(){setQuery('');setStage('all');setCategory('all');setPricing('all');setMineFilter('all');setOnlyFavorites(false);setSort('recent')}
- function switchMode(value:Mode){setMode(value);clearFilters()}
+ function switchMode(value:Mode){setMode(value);onModeChange?.(value);clearFilters()}
  const fmtPrice=(v:unknown)=>new Intl.NumberFormat(en?'en-IQ':'ar-IQ').format(Math.max(0,Number(v)||0))+(en?' IQD':' د.ع');
  const fmtDate=(value:number)=>new Date(value).toLocaleDateString(en?'en-GB':'ar-IQ',{day:'numeric',month:'short',year:'numeric'});
  const fmtNumber=(value:number)=>new Intl.NumberFormat(en?'en-US':'ar-IQ').format(value);
@@ -198,7 +199,7 @@ export default function CoursesHub({
    </div>
    <div className="fk-courses-search-panel">
      <div className="fk-courses-search-row">
-       <label className="fk-courses-search"><Search size={20}/><span className="sr-only">{t.searchHint}</span><input type="search" autoComplete="off" value={query} onChange={e=>setQuery(e.target.value)} placeholder={t.search} aria-label={t.search}/>{query&&<button type="button" aria-label={t.clearSearch} onClick={()=>setQuery('')}><X size={18}/></button>}</label>
+       <div className="fk-courses-search"><Search size={20}/><span className="sr-only">{t.searchHint}</span><input type="search" autoComplete="off" value={query} onChange={e=>setQuery(e.target.value)} placeholder={t.search} aria-label={t.search}/>{query&&<button type="button" aria-label={t.clearSearch} onClick={()=>setQuery('')}><X size={18}/></button>}</div>
        <button type="button" ref={filterButtonRef} className="fk-courses-filter-trigger" onClick={()=>setFilterOpen(true)} aria-label={t.filtersOpen} aria-haspopup="dialog" aria-expanded={filterOpen}><SlidersHorizontal size={19}/><span>{t.filters}</span>{countActive>0&&<span className="fk-courses-filter-badge">{fmtNumber(countActive)}</span>}</button>
      </div>
      <div className="fk-courses-chips" aria-label={t.filterResults}>
