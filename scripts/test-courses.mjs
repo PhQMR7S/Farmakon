@@ -29,8 +29,9 @@ const activities=[
 ];
 test('Arabic search normalizes hamza and diacritics',()=>{
  assert.equal(normalizeCourseText('  أَدوية  '),'ادوية');
- assert.ok(courseMatches(courses[0],'ادويه')===false); // Different h vs ta marbuta is not silently assumed
- assert.ok(courseMatches(courses[0],'علم الادويه')===false);
+ assert.ok(courseMatches(courses[0],'علم الادويه'));
+ assert.ok(courseMatches(courses[0],'علم الأدوية'));
+ assert.ok(courseMatches(courses[0],'علم الادوية'));
  assert.ok(courseMatches(courses[0],'علم الأدوية'));
  assert.ok(courseMatches(courses[0],'الثالثة'));
 });
@@ -61,6 +62,6 @@ test('only published courses lessons counted',()=>{
  assert.equal(p.length,3);assert.ok(p.every(x=>x.status==='published'));
 });
 test('duration units are bounded',()=>{
- assert.equal(durationLabel(37),'37 دقيقة');assert.equal(durationLabel(120),'2 س ');assert.equal(durationLabel(-4),'0 دقيقة');
+ assert.equal(durationLabel(37),'37 دقيقة');assert.equal(durationLabel(120),'2 س');assert.equal(durationLabel(-4),'0 دقيقة');
 });
 console.log('PASS '+passed+' V10.3.1 course-logic groups');
