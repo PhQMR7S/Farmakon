@@ -4,8 +4,8 @@ import LearningDesignPreview from './learning-client';
 
 export const dynamic='force-dynamic';
 export const metadata:Metadata={
- title:'Farmakon | معاينات مركز التعلّم',
- description:'ثلاثة تصورات تفاعلية لتصميم مركز التعلم - بيانات نموذجية فقط',
+ title:'Farmakon | مركز التعلّم V10.2 — المعاينة النهائية',
+ description:'التصميم المتوازن المعتمد لمركز التعلّم — بيانات توضيحية فقط',
  robots:{index:false,follow:false}
 };
 
