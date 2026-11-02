@@ -5,6 +5,7 @@ import {
  ClipboardList,Clock3,FileText,GraduationCap,Library,PlayCircle,RefreshCcw,
  Sparkles,Stethoscope,Target,TrendingUp,Layers,Heart,CalendarDays,LockKeyhole
 } from 'lucide-react';
+import {chooseGreeting,greetingForHour,formatResumeTime,getResumeSeconds,safeLastTimestamp} from './learning-logic';
 
 type RecordItem=Record<string,any>;
 type ActionId='courses'|'questions'|'exams'|'library'|'notes'|'flashcards'|'cases'|'ai'|'review';
@@ -27,9 +28,6 @@ const motivations=[
  {title:'الخطوة الجاية أقرب مما تتوقع.',subtitle:'قسّم الدراسة إلى خطوات واضحة، وخلي التقدم مستمر.',icon:Heart}
 ];
 function firstName(name?:string){const cleaned=String(name||'').trim().replace(/\s+/g,' ').replace(/^(?:Dr\.?|Ph\.?|Mr\.?|Ms\.?)\s*/i,'');if(!cleaned||cleaned==='طالب Farmakon')return '';const first=cleaned.split(' ')[0]||'';return first.length>22?'':first}
-function greetingFor(hour:number){return hour>=5&&hour<12?'صباح الخير':hour>=12&&hour<17?'نهارك سعيد':hour>=17&&hour<23?'مساء الخير':'أهلاً بعودتك'}
-function lastTimestamp(row:RecordItem){return Number(row.updated||row.created||0)||0}
-function elapsed(seconds:number){const minutes=Math.floor((Number(seconds)||0)/60);return minutes>=60?`${Math.floor(minutes/60)} س و${minutes%60} د`:`${minutes} دقيقة`}
 export type LearningCenterProps={
  userName?:string;userId?:string;authSessionKey?:string;courses?:RecordItem[];lessons?:RecordItem[];
  enrollments?:RecordItem[];activity?:RecordItem[];questions?:RecordItem[];exams?:RecordItem[];
@@ -38,14 +36,17 @@ export type LearningCenterProps={
  onResume?:(lesson:RecordItem,course:RecordItem)=>void;
 };
 export default function LearningCenter({userName,userId='preview',authSessionKey='',courses=[],lessons=[],enrollments=[],activity=[],questions=[],exams=[],files=[],isPreview=false,onNavigate,onResume}:LearningCenterProps){
- const [hour,setHour]=useState(12);
+ const [hour,setHour]=useState<number|null>(null);
  const [messageIndex,setMessageIndex]=useState(0);
  const [ready,setReady]=useState(false);
  const [marked,setMarked]=useState<string[]>([]);
  const [notice,setNotice]=useState('');
  const uid=String(userId||'preview');
  useEffect(()=>{
-   setHour(new Date().getHours());
+   const updateTime=()=>setHour(new Date().getHours());
+   updateTime();
+   const onVisible=()=>{if(document.visibilityState==='visible')updateTime()};
+   document.addEventListener('visibilitychange',onVisible);
    // Last-sign-in is verified server-side; it changes on a genuine Supabase login
    // even if a previous tab remains open. No access token or private email is stored.
    const sessionKey='fk-v102-welcome:'+uid;
@@ -63,8 +64,7 @@ export default function LearningCenter({userName,userId='preview',authSessionKey
        const raw=window.localStorage.getItem('fk-v102-last-welcome:'+uid);
        if(raw!==null){const value=Number(raw);if(Number.isInteger(value)&&value>=0&&value<motivations.length)previous=value}
      }catch{}
-     const choices=motivations.map((_,i)=>i).filter(i=>i!==previous);
-     index=choices[Math.floor(Math.random()*choices.length)]??0;
+     index=chooseGreeting(previous,motivations.length,Math.random());
      try{
        window.sessionStorage.setItem(sessionKey,JSON.stringify({signIn:authSessionKey,index}));
        window.localStorage.setItem('fk-v102-last-welcome:'+uid,String(index));
@@ -77,15 +77,16 @@ export default function LearningCenter({userName,userId='preview',authSessionKey
      setMarked(Array.isArray(raw)?raw.filter(v=>typeof v==='string'&&['study','quiz','review'].includes(v)):[]);
    }catch{setMarked([])}
    setReady(true);
+   return()=>document.removeEventListener('visibilitychange',onVisible);
  },[uid,authSessionKey]);
  const activeCourses=useMemo(()=>new Set(enrollments.filter(e=>Number(e.expires)>Date.now()).map(e=>e.course_id)),[enrollments]);
  const allowedLessons=useMemo(()=>lessons.filter(l=>l.status==='published'&&!l.locked&&courses.some(c=>c.id===l.courseId&&c.status==='published')),[lessons,courses]);
  const progress=useMemo(()=>activity.filter(a=>a.kind==='progress'&&allowedLessons.some(l=>l.id===a.target)),[activity,allowedLessons]);
  const completed=useMemo(()=>new Set(progress.filter(p=>p.data?.completed).map(p=>p.target)).size,[progress]);
- const resume=useMemo(()=>[...progress].filter(p=>!p.data?.completed).sort((a,b)=>lastTimestamp(b)-lastTimestamp(a)).map(p=>{
+ const resume=useMemo(()=>[...progress].filter(p=>!p.data?.completed).sort((a,b)=>safeLastTimestamp(b)-safeLastTimestamp(a)).map(p=>{
   const lesson=allowedLessons.find(l=>l.id===p.target);
   const course=courses.find(c=>c.id===lesson?.courseId);
-  return lesson&&course?{lesson,course,seconds:Math.max(0,Math.min(Number(p.data?.seconds)||0,(Number(lesson.minutes)||0)*60||86400))}:null
+  return lesson&&course?{lesson,course,seconds:getResumeSeconds(p.data?.seconds,lesson.minutes)}:null
  }).find(Boolean),[progress,allowedLessons,courses]) as {lesson:RecordItem;course:RecordItem;seconds:number}|undefined;
  const availableQuestions=questions.filter(q=>q.status==='published');
  const availableFiles=files.filter(f=>f.status==='published');
@@ -96,7 +97,7 @@ export default function LearningCenter({userName,userId='preview',authSessionKey
  const enrolledLessonsTotal=enrolledLessonIds.size;
  const enrolledCompleted=[...enrolledLessonIds].filter(id=>progress.some(p=>p.target===id&&p.data?.completed)).length;
  const completionRate=enrolledLessonsTotal?Math.round(enrolledCompleted/enrolledLessonsTotal*100):null;
- const recent=activity.filter(a=>(a.kind==='progress'&&allowedLessons.some(l=>l.id===a.target))||a.kind==='exam').sort((a,b)=>lastTimestamp(b)-lastTimestamp(a)).slice(0,3);
+ const recent=activity.filter(a=>(a.kind==='progress'&&allowedLessons.some(l=>l.id===a.target))||a.kind==='exam').sort((a,b)=>safeLastTimestamp(b)-safeLastTimestamp(a)).slice(0,3);
  const tasks=[
   {id:'study',text:resume?'استكمل المحاضرة التي توقفت عندها':'استكشف محاضراتك المتاحة',destination:'courses' as ActionId,icon:PlayCircle},
   {id:'quiz',text:availableQuestions.length?'راجع مجموعة أسئلة':'تصفّح بنك الأسئلة',destination:'questions' as ActionId,icon:ClipboardCheck},
@@ -117,7 +118,7 @@ export default function LearningCenter({userName,userId='preview',authSessionKey
  const first=firstName(userName);
  const current=motivations[messageIndex];
  const Icon=current.icon;
- const greeting=greetingFor(hour);
+ const greeting=greetingForHour(hour??-1);
  return <div className="fk-learning-preview fk-learning-v102" dir="rtl">
    {isPreview&&<div className="fk-lab-banner" role="status"><Sparkles size={17}/><span><strong>معاينة V10.2</strong> — الأسماء والمحتوى توضيحية، بدون اتصال ببيانات الطالب.</span></div>}
    <section className="fk-learn-hero fk-v102-hero" aria-label="الترحيب الشخصي">
@@ -142,7 +143,7 @@ export default function LearningCenter({userName,userId='preview',authSessionKey
     <div className="fk-resume-copy">
      <small>كمّل من وين وقفت</small>
      <strong>{resume?String(resume.lesson.title):activeCourses.size?'جاهز لأول محاضرة؟':'ابدأ رحلتك الدراسية'}</strong>
-     <p>{resume?`${resume.course.title} · توقفت عند ${elapsed(resume.seconds)}`:activeCourses.size?'اختَر محاضرة من كورساتك المشترك بها.':'استكشف الكورسات المتاحة وابدأ التعلّم.'}</p>
+     <p>{resume?`${resume.course.title} · توقفت عند ${formatResumeTime(resume.seconds)}`:activeCourses.size?'اختَر محاضرة من كورساتك المشترك بها.':'استكشف الكورسات المتاحة وابدأ التعلّم.'}</p>
     </div>
     <button type="button" aria-label={resume?'متابعة المحاضرة':'فتح الكورسات'} onClick={()=>resume&&onResume?onResume(resume.lesson,resume.course):go('courses')}><ChevronLeft size={20}/></button>
    </section>
@@ -171,7 +172,7 @@ export default function LearningCenter({userName,userId='preview',authSessionKey
       <div><BookOpen size={21}/><small>كورساتي النشطة</small><strong>{isPreview?'—':activeCourses.size}</strong></div>
       <div><Target size={21}/><small>المحاضرات المكتملة</small><strong>{isPreview?'—':completed}</strong></div>
       <div><TrendingUp size={21}/><small>محاولات الاختبار</small><strong>{isPreview?'—':examActivity.length}</strong></div>
-      <div><Clock3 size={21}/><small>آخر موضع توقف</small><strong>{isPreview||lastResumePosition===null?'—':elapsed(lastResumePosition)}</strong></div>
+      <div><Clock3 size={21}/><small>آخر موضع توقف</small><strong>{isPreview||lastResumePosition===null?'—':formatResumeTime(lastResumePosition)}</strong></div>
      </div>
    </section>
    <section className="fk-learning-last fk-v102-activity" aria-labelledby="fk-v102-last-title">
