@@ -7,6 +7,7 @@ import {
  TrendingUp,Wallet,Download,X,CalendarDays,ArrowRight,Layers,Zap,LockKeyhole
 } from 'lucide-react';
 import {FarmakonHeader,MobileNavigation,ShellLayers,type ShellPanel,type SearchResult} from '../../components/v10-shell';
+import LearningCenter from '../../components/learning-center';
 
 type Direction='balanced'|'focus'|'academy';
 type Section='learning'|'dashboard'|'courses'|'library'|'questions'|'exams'|'flashcards'|'cases'|'notes'|'revision'|'ai'|'account'|'subscriptions'|'downloads'|'support';
@@ -113,10 +114,9 @@ export default function LearningDesignPreview(){
      </div>
      <div className="fk-preview-greeting-controls"><span><Smile size={16}/> جرّب الترحيب باسم نموذجي:</span><button className={student==='طالب Farmakon'?'selected':''} onClick={()=>setStudent('طالب Farmakon')}>عام</button><button className={student==='أحمد'?'selected':''} onClick={()=>setStudent('أحمد')}>أحمد</button><button className={student==='سارة'?'selected':''} onClick={()=>setStudent('سارة')}>سارة</button></div>
      {section!=='learning'?<div className="fk-learning-subpage"><button className="fk-learn-back" onClick={back}><ArrowRight size={18}/> العودة إلى مركز التعلّم</button><div className="fk-learning-subpage-card"><div className="fk-learning-tile-icon">{(()=>{const item=navEntries.find(x=>x.id===section)||learningItem(section);const Icon=item?.icon||BookOpen;return <Icon size={34}/>})()}</div><h2>{labels[section]}</h2><p>توضيح للانتقال من مركز التعلّم إلى هذا القسم. ربط المحتوى الحقيقي سيتم ضمن تطوير القسم الخاص به، وتبقى بيانات الطلاب محمية.</p><button className="fk-learn-primary" onClick={back}>الرجوع للمركز <ArrowRight size={17}/></button></div></div>:
-     direction==='balanced'?<div className="fk-learning-direction fk-learning-balanced">
-       {hero}{resume}{tools()}{task}{snapshot}
-       <div className="fk-learning-last"><div className="fk-learning-section-head"><h3>نشاطاتك الأخيرة</h3><span className="fk-demo-label">عند توفر البيانات</span></div><p>المحاضرات والملفات والاختبارات الأخيرة تظهر هنا بعد ربط حساب الطالب.</p></div>
-      </div>:direction==='focus'?<div className="fk-learning-direction fk-learning-focus">
+     direction==='balanced'?<LearningCenter isPreview userName={student}
+ courses={[]} lessons={[]} activity={[]} enrollments={[]} questions={[]} exams={[]} files={[]}
+ onNavigate={go}/>:direction==='focus'?<div className="fk-learning-direction fk-learning-focus">
        <section className="fk-focus-top"><div><span className="fk-learn-eyebrow">FOCUS MODE · فارماكون</span><p>{greet}، {student} 👋</p><h2>كل يوم، خطوة تقرّبك من هدفك.</h2><span>محاضرة واحدة، مراجعة صغيرة، وثبات في التعلّم.</span><button onClick={()=>setGreeting((greeting+1)%encouragements.length)} className="fk-focus-quote"><Sparkles size={16}/>{encouragements[greeting].title}<RefreshCcw size={16}/></button></div><img src="/farmakon-logo.jpg" width={82} height={82} alt=""/></section>
        <div className="fk-focus-columns"><div><div className="fk-learning-section-head"><h3>ابدأ من هنا</h3><span className="fk-demo-label">مقترح</span></div>{resume}<div className="fk-focus-quick"><button onClick={()=>action('courses')}><PlayCircle/> المحاضرات</button><button onClick={()=>action('questions')}><ClipboardList/> الأسئلة</button><button onClick={()=>action('exams')}><GraduationCap/> الاختبارات</button></div></div>{task}</div>{tools(6)}
        <div className="fk-focus-tip"><BrainCircuit size={23}/><p>الصفحة تركّز على المهمة التالية؛ بقية الأدوات تبقى متاحة بدون ما تشتّت الطالب.</p></div>
