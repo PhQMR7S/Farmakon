@@ -8,9 +8,10 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test:learning": "node scripts/test-learning.mjs",
-    "prebuild": "npm run test:learning && npm run test:courses && npm run test:icons",
+    "prebuild": "npm run test:learning && npm run test:courses && npm run test:icons && npm run test:details",
     "test:courses": "node scripts/test-courses.mjs",
-    "test:icons": "node scripts/test-icon-system.mjs"
+    "test:icons": "node scripts/test-icon-system.mjs",
+    "test:details": "node scripts/test-course-details.mjs"
   },
   "dependencies": {
     "next": "16.3.4",
