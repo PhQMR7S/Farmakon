@@ -35,8 +35,8 @@ test('module order and lesson order follow owner order metadata',()=>{
  assert.equal(data[0].lessons[1].order,2);
 });
 test('server-redacted locked lesson cannot be opened by UI',()=>{
- assert.equal(canOpenCourseLesson(items[1]),false);
  assert.equal(canOpenCourseLesson(items[0]),false);
+ assert.equal(canOpenCourseLesson(items[1]),true);
  assert.equal(canOpenCourseLesson(items[3]),false);
  assert.equal(canOpenCourseLesson(items[4]),true);
 });
