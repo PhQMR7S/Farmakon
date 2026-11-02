@@ -608,3 +608,33 @@ body{background:radial-gradient(ellipse at 5% 0%,#27bce912,transparent 42%),radi
 .fk-v102-rate strong{font:750 12px Inter,Tajawal,sans-serif;color:var(--ink);line-height:1}
 @media(max-width:760px){.fk-learning-v102 .fk-snapshot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.fk-v102-rate{height:51px;width:51px}}
 @media(max-width:360px){.fk-learning-v102 .fk-snapshot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.fk-learning-v102 .fk-snapshot-grid>div:last-child{grid-column:auto;display:flex;flex-direction:column;align-items:flex-start;min-height:92px}}
+
+
+/* V10.2 acceptance polish — stronger contrast, less GPU overdraw, safe tap targets */
+.fk-learning-v102 .fk-v102-coming{opacity:1}
+.fk-learning-v102 .fk-v102-coming .fk-v102-tool-icon{filter:none}
+.fk-learning-v102 .fk-learn-upcoming{color:var(--teal);background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--teal) 28%,var(--line));font-size:11px;font-weight:700;padding:6px 9px}
+.fk-learning-v102 .fk-v102-tool>small{color:var(--muted);opacity:1}
+.fk-learning-v102 .fk-v102-tool{min-width:0;overflow-wrap:anywhere}
+.fk-learning-v102 .fk-v102-plan-row button,.fk-learning-v102 .fk-v102-resume>button{touch-action:manipulation}
+.fk-learning-v102 .fk-learn-hero-actions button{min-height:46px}
+.fk-learning-v102 :where(.fk-v102-tool,.fk-v102-plan-row,.fk-v102-resume){contain:layout style}
+@media(max-width:760px){
+ .fk-app .mobile-dock.fk-dock-v2{backdrop-filter:blur(16px) saturate(135%);-webkit-backdrop-filter:blur(16px) saturate(135%);box-shadow:0 8px 22px rgba(0,5,24,.24),inset 0 1px 0 rgba(255,255,255,.06)}
+ .fk-app .main{padding-bottom:calc(160px + env(safe-area-inset-bottom))!important}
+ .fk-learning-v102{padding-bottom:20px}
+ .fk-learning-v102 .fk-learn-upcoming{font-size:10px}
+ .fk-learning-v102 .fk-learn-tool-grid{gap:12px}
+}
+@media(max-width:350px){
+ .fk-app .mobile-dock.fk-dock-v2{left:8px;right:8px;min-height:65px}
+ .fk-app .mobile-dock.fk-dock-v2 .fk-dock-item{min-height:55px;height:55px}
+ .fk-learning-v102 .fk-learn-tool-grid{gap:8px}
+ .fk-learning-v102 .fk-v102-tool{padding:12px 10px}
+}
+@media(prefers-reduced-transparency:reduce){
+ .fk-app .mobile-dock.fk-dock-v2,.fk-dialog,.fk-app .sidebar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:var(--surface)!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .fk-learning-v102 .fk-learn-tool,.fk-app .fk-dock-active-indicator{animation:none!important;transition:none!important}
+}
