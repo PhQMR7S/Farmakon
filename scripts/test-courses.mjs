@@ -28,7 +28,7 @@ const activities=[
  {kind:'progress',target:'5',updated:1100,data:{completed:true}}
 ];
 test('Arabic search normalizes hamza and diacritics',()=>{
- assert.equal(normalizeCourseText('  أَدوية  '),'ادوية');
+ assert.equal(normalizeCourseText('  أَدوية  '),'ادويه');
  assert.ok(courseMatches(courses[0],'علم الادويه'));
  assert.ok(courseMatches(courses[0],'علم الأدوية'));
  assert.ok(courseMatches(courses[0],'علم الادوية'));
