@@ -102,7 +102,7 @@ return <div className={'app fk-app '+(sidebarCollapsed?'fk-compact':'')}><aside 
  }}
  />)}
 {page==='courses'&&course&&!lesson&&!adminMode&&<CourseDetails
-  course={course}
+  key={String(course.id)} course={course}
   lessons={data.lesson||[]}
   enrollments={(data.enrollments||[]).filter((e:Item)=>e.email===data.user.email)}
   orders={(data.orders||[]).filter((o:Item)=>o.userId===data.user.id)}
